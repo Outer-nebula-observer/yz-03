@@ -6,15 +6,16 @@
 
 | 论文 | arXiv/出处 | 一句话要点 |
 |---|---|---|
-| TiM | 2311.08719 | 回忆-反思双阶段 + 时间衰减更新（插入/遗忘/合并） |
-| SCM | 2304.13343 | 记忆流 + 记忆控制器（archived/flash） |
-| RMM | ACL 2025 | 前向/后向反思式记忆管理 |
-| PREMem | abs/2509.10852 | 预存储推理：聚类 → 链接对（θ=0.6）→ 链接对推理 |
-| MemoryBank | 2305.10250 | 高级摘要 + 用户画像日常洞察 |
-| StructMem | — | 事件级绑定 + 跨事件整合的分层记忆 |
-| MemSkill | — | 可学习记忆操作 INSERT / UPDATE / DELETE / SKIP |
+| TiM | [2311.08719](https://arxiv.org/abs/2311.08719) | 回忆-反思双阶段 + 时间衰减更新（插入/遗忘/合并） |
+| SCM | [2304.13343](https://arxiv.org/abs/2304.13343) | 记忆流 + 记忆控制器（archived/flash） |
+| RMM | ACL 2025（无固定 arXiv，见脚本按标题检索） | 前向/后向反思式记忆管理 |
+| PREMem | [2509.10852](https://arxiv.org/abs/2509.10852) | 预存储推理：聚类 → 链接对（θ=0.6）→ 链接对推理 |
+| StructMem | 待检索（无固定 arXiv） | 事件级绑定 + 跨事件整合的分层记忆 |
+| MemSkill | 待检索（无固定 arXiv） | 可学习记忆操作 INSERT / UPDATE / DELETE / SKIP |
+
+> RMM / StructMem / MemSkill 的 arXiv 条目由下载脚本 `scripts/download_papers.py` 按标题自动检索；若检索不到，请到论文页或 ACL Anthology 手动下载。
 
 ## 放置约定
 
-- 论文 PDF 放本目录；
+- 论文 PDF 放本目录，下载脚本 `scripts/download_papers.py`；
 - 复现代码放 `../paper_code/记忆进化/`。

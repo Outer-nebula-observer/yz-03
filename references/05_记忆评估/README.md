@@ -16,6 +16,8 @@
 - **代码生成与推理**：SWE-bench Verified、GAIA、XBench、BrowseComp、BRIGHT、OlympiadBench
 - **深度研究与报告生成**：Deep Research、WildSeek、Review-5k、SolutionBench
 
+> 说明：benchmark 多为数据集/评测集，未纳入 `scripts/download_papers.py` 的自动下载清单；需要时按官方仓库获取（见 `../paper_code/记忆评估/README.md`）。
+
 ## 放置约定
 
 - benchmark 论文 / 报告放本目录；
