@@ -1,0 +1,9 @@
+# 统一换行符，避免 Windows/Linux 协作时整文件 diff 噪音
+* text=auto
+
+# 文档与代码统一 LF
+*.md   text eol=lf
+*.py   text eol=lf
+*.yaml text eol=lf
+*.yml  text eol=lf
+*.json text eol=lf
