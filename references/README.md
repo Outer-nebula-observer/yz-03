@@ -12,6 +12,7 @@ python scripts/download_papers.py --dry-run  # 只打印清单，不联网
 ```
 
 - 大部分论文用固定 arXiv 编号直接下载；
+- 脚本会**优先走国内镜像** `xxx.itp.ac.cn` / `cn.arxiv.org`，直连 arxiv 被重置（WinError 10054）时一般能成功；
 - RMM / StructMem / MemSkill 无固定编号，脚本会按标题走 arXiv API 自动检索；
 - 下载失败的条目脚本会汇总列出，可按各子目录 README 里的链接手动下载。
 

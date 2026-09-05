@@ -8,10 +8,17 @@
 
 下载目标：references/<模块>/*.pdf（与 references 各子目录 README 对应）。
 依赖：仅用 Python 标准库（urllib），无需安装第三方包。
+
+网络说明：直连 arxiv.org 常被重置（WinError 10054）。脚本会优先尝试国内镜像：
+    1) https://xxx.itp.ac.cn   （中科院理论物理所 arXiv 镜像）
+    2) https://cn.arxiv.org    （arXiv 中国镜像，若可用）
+    3) https://export.arxiv.org
+    4) https://arxiv.org
 """
 
 import argparse
 import os
+import ssl
 import sys
 import urllib.parse
 import urllib.request
@@ -60,39 +67,72 @@ PAPERS = [
 
 USER_AGENT = "Mozilla/5.0 (research-paper-downloader)"
 
+PDF_HOSTS = [
+    "https://xxx.itp.ac.cn",
+    "https://cn.arxiv.org",
+    "https://export.arxiv.org",
+    "https://arxiv.org",
+]
+
+API_URLS = [
+    "https://export.arxiv.org/api/query",
+    "http://export.arxiv.org/api/query",
+    "http://xxx.itp.ac.cn/api/query",
+]
+
+
+def _urlopen(url, timeout=60):
+    """带 UA 的 urlopen；最后尝试忽略证书校验（兼容部分镜像的证书问题）。"""
+    req = urllib.request.Request(url, headers={"User-Agent": USER_AGENT})
+    try:
+        return urllib.request.urlopen(req, timeout=timeout)
+    except Exception:
+        ctx = ssl.create_default_context()
+        ctx.check_hostname = False
+        ctx.verify_mode = ssl.CERT_NONE
+        return urllib.request.urlopen(req, timeout=timeout, context=ctx)
+
 
 def search_arxiv_id(title):
     """用 arXiv API 按标题搜索，返回第一个结果的 id；失败返回 None。"""
     q = urllib.parse.quote(f'ti:"{title}"')
-    url = f"http://export.arxiv.org/api/query?search_query={q}&max_results=1"
-    req = urllib.request.Request(url, headers={"User-Agent": USER_AGENT})
-    try:
-        with urllib.request.urlopen(req, timeout=30) as resp:
-            data = resp.read().decode("utf-8", errors="replace")
-    except Exception as exc:
-        print(f"    搜索失败: {exc}")
-        return None
-    ns = {"a": "http://www.w3.org/2005/Atom"}
-    try:
-        root = ET.fromstring(data)
-        entry = root.find("a:entry", ns)
-        if entry is None:
-            return None
-        id_text = entry.find("a:id", ns).text
-        return id_text.rsplit("/abs/", 1)[-1]
-    except Exception:
-        return None
+    for api in API_URLS:
+        url = f"{api}?search_query={q}&max_results=1"
+        try:
+            with _urlopen(url, timeout=30) as resp:
+                data = resp.read().decode("utf-8", errors="replace")
+            ns = {"a": "http://www.w3.org/2005/Atom"}
+            root = ET.fromstring(data)
+            entry = root.find("a:entry", ns)
+            if entry is None:
+                continue
+            id_text = entry.find("a:id", ns).text
+            return id_text.rsplit("/abs/", 1)[-1]
+        except Exception:
+            continue
+    return None
 
 
 def download_pdf(arxiv_id, dest_path):
-    url = f"https://arxiv.org/pdf/{arxiv_id}"
-    req = urllib.request.Request(url, headers={"User-Agent": USER_AGENT})
-    with urllib.request.urlopen(req, timeout=60) as resp:
-        data = resp.read()
-    os.makedirs(os.path.dirname(dest_path), exist_ok=True)
-    with open(dest_path, "wb") as f:
-        f.write(data)
-    return len(data)
+    """依次尝试多个镜像下载；全部失败则抛异常。"""
+    last_exc = None
+    for host in PDF_HOSTS:
+        url = f"{host}/pdf/{arxiv_id}"
+        try:
+            with _urlopen(url, timeout=60) as resp:
+                data = resp.read()
+            # 下载到的是 HTML 说明页面时视为失败（常见于 404 被 200 包装）
+            head = data[:200].lstrip().lower()
+            if head.startswith(b"<!doctype html") or head.startswith(b"<html"):
+                raise ValueError(f"返回了 HTML 页面（可能编号错误或需要跳转）：{url}")
+            os.makedirs(os.path.dirname(dest_path), exist_ok=True)
+            with open(dest_path, "wb") as f:
+                f.write(data)
+            return len(data)
+        except Exception as exc:
+            last_exc = exc
+            continue
+    raise last_exc
 
 
 def main():
@@ -117,6 +157,7 @@ def main():
             arxiv_id = search_arxiv_id(title)
             if arxiv_id is None:
                 print(f"  ! 未找到 arXiv 条目，请手动检索：{title}")
+                print(f"    提示：到镜像站 https://xxx.itp.ac.cn 或 Google Scholar 搜标题，下载后命名为 {filename}")
                 manual_list.append((folder, filename, title))
                 manual += 1
                 continue
@@ -143,6 +184,8 @@ def main():
         print("需手动处理的条目：")
         for folder, filename, ref in manual_list:
             print(f"  - references/{folder}/{filename}  （{ref}）")
+        print("\n手动下载建议：打开 https://xxx.itp.ac.cn 搜标题 → 点 PDF 下载；")
+        print("或直连 https://arxiv.org/pdf/<编号>（需能访问 arxiv 的网络/VPN）。")
 
 
 if __name__ == "__main__":
