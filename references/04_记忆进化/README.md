@@ -15,7 +15,18 @@
 
 > RMM / StructMem / MemSkill 的 arXiv 条目由下载脚本 `scripts/download_papers.py` 按标题自动检索；若检索不到，请到论文页或 ACL Anthology 手动下载。
 
+## 精读笔记与全文
+
+| 论文 | 精读笔记 |
+|---|---|
+| TiM | [笔记_Liu2023-TiM.md](./笔记_Liu2023-TiM.md) |
+| SCM | [笔记_Liang2023-SCM.md](./笔记_Liang2023-SCM.md) |
+| PREMem | [笔记_Kim2025-PREMem.md](./笔记_Kim2025-PREMem.md) |
+
+> 全文提取为同名 `<论文>.md`（`scripts/pdf2md.py` 生成）；RMM / StructMem / MemSkill 暂无本地 PDF（要点见 `docs/04` 第 2.4 节）。
+
 ## 放置约定
 
 - 论文 PDF 放本目录，下载脚本 `scripts/download_papers.py`；
+- 精读笔记 `笔记_*.md` + 全文提取 `<同名>.md` 均在本目录；
 - 复现代码放 `../paper_code/记忆进化/`。

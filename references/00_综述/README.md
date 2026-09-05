@@ -6,7 +6,12 @@
 |---|---|---|
 | A Survey on the Memory Mechanism of Large Language Model based Agents（Zhang Z, Bo X, Ma C, et al.） | [2404.13501](https://arxiv.org/abs/2404.13501) | 智能体记忆机制综述；讲义第 16–17 节主要来源 |
 
+## 精读笔记与全文
+
+- 精读笔记：[笔记_Zhang2024-Survey-Memory-Mechanism.md](./笔记_Zhang2024-Survey-Memory-Mechanism.md)
+- 全文提取：`Zhang2024-Survey-Memory-Mechanism.md`（`scripts/pdf2md.py` 生成）
+
 ## 放置约定
 
 - 论文 PDF 下载后放本目录，命名 `Zhang2024-Survey-Memory-Mechanism.pdf`（下载脚本见 `scripts/download_papers.py`）；
-- 阅读笔记写 `../docs/` 或本目录 `笔记-<标题>.md`。
+- 精读笔记 `笔记_*.md` + 全文提取 `<同名>.md` 均在本目录。

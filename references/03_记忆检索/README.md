@@ -16,7 +16,17 @@
 - **RMM 后向反思检索**（在线强化学习精化检索）→ 见 04_记忆进化；
 - **TiM Recalling**（检索与当前上下文相关的历史信息）→ 见 04_记忆进化。
 
+## 精读笔记与全文
+
+| 论文 | 精读笔记 |
+|---|---|
+| ChatDB | [笔记_Hu2023-ChatDB.md](./笔记_Hu2023-ChatDB.md) |
+| ExpeL | [笔记_Zhao2023-ExpeL.md](./笔记_Zhao2023-ExpeL.md) |
+
+> 全文提取为同名 `<论文>.md`（`scripts/pdf2md.py` 生成）；MIRIX / Mem-α 暂无本地 PDF。
+
 ## 放置约定
 
 - 论文 PDF 放本目录，下载脚本 `scripts/download_papers.py`；
+- 精读笔记 `笔记_*.md` + 全文提取 `<同名>.md` 均在本目录；
 - 复现代码放 `../paper_code/记忆检索/`。

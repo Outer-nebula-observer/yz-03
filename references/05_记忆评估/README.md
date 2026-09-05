@@ -17,6 +17,7 @@
 - **深度研究与报告生成**：Deep Research、WildSeek、Review-5k、SolutionBench
 
 > 说明：benchmark 多为数据集/评测集，未纳入 `scripts/download_papers.py` 的自动下载清单；需要时按官方仓库获取（见 `../paper_code/记忆评估/README.md`）。
+> 本模块暂无本地 PDF；记忆评估的**综述口径**已整合进 [组会汇报_模型记忆体系综述.md](../组会汇报_模型记忆体系综述.md) 第 6 节（DMR / LongMemEval / LoCoMo 等索引）。
 
 ## 放置约定
 

@@ -15,7 +15,19 @@
 
 - **SCM**：`flash memory`（短期）+ `archived memory`（长期）→ 参考 04_记忆进化。
 
+## 精读笔记与全文
+
+| 论文 | 精读笔记 |
+|---|---|
+| LLMLingua | [笔记_Jiang2023-LLMLingua.md](./笔记_Jiang2023-LLMLingua.md) |
+| LongLLMLingua | [笔记_Jiang2024-LongLLMLingua.md](./笔记_Jiang2024-LongLLMLingua.md) |
+| ICAE | [笔记_Ge2024-ICAE.md](./笔记_Ge2024-ICAE.md) |
+| MemGPT | [笔记_Packer2023-MemGPT.md](./笔记_Packer2023-MemGPT.md) |
+
+> 全文提取为同名 `<论文>.md`（`scripts/pdf2md.py` 生成）。
+
 ## 放置约定
 
 - 论文 PDF 放本目录，下载脚本 `scripts/download_papers.py` 会自动命名；
+- 精读笔记 `笔记_*.md` + 全文提取 `<同名>.md` 均在本目录；
 - 复现代码放 `../paper_code/短期记忆/`。
