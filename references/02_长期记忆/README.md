@@ -19,10 +19,12 @@
 | 论文 | 精读笔记 |
 |---|---|
 | Reflexion | [笔记_Shinn2023-Reflexion.md](./笔记_Shinn2023-Reflexion.md) |
+| Voyager | [笔记_Wang2023-Voyager.md](./笔记_Wang2023-Voyager.md) |
 | Memp | [笔记_Fang2025-Memp.md](./笔记_Fang2025-Memp.md) |
 | LARP | [笔记_Yan2023-LARP.md](./笔记_Yan2023-LARP.md) |
 | MemoryBank | [笔记_Zhong2023-MemoryBank.md](./笔记_Zhong2023-MemoryBank.md) |
 | Zep | [笔记_Rasmussen2025-Zep.md](./笔记_Rasmussen2025-Zep.md) |
+| MemoChat | [笔记_Lu2023-MemoChat.md](./笔记_Lu2023-MemoChat.md) |
 
 > 全文提取为同名 `<论文>.md`（`scripts/pdf2md.py` 生成）。
 
@@ -31,4 +33,4 @@
 - **事实记忆**参考：MemoryBank、Zep（结构化/时序）；
 - **经验记忆**参考：Reflexion、Voyager、Memp、LARP（经验→策略/技能/程序）；
 - **对话长期记忆**参考：MemoChat。
-- 下载脚本 `scripts/download_papers.py`；复现代码放 `../paper_code/长期记忆/`；Voyager/MemoChat 暂无本地 PDF（要点见 `docs/03` 与组会汇报综述）。
+- 下载脚本 `scripts/download_papers.py`；复现代码放 `../paper_code/长期记忆/`；7 篇本地论文均已有精读笔记，要点同时见组会汇报综述第 2 节。

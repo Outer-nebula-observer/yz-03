@@ -22,8 +22,10 @@
 | TiM | [笔记_Liu2023-TiM.md](./笔记_Liu2023-TiM.md) |
 | SCM | [笔记_Liang2023-SCM.md](./笔记_Liang2023-SCM.md) |
 | PREMem | [笔记_Kim2025-PREMem.md](./笔记_Kim2025-PREMem.md) |
+| MemSkill | [笔记_MemSkill-Memory-Skills.md](./笔记_MemSkill-Memory-Skills.md) |
+| StructMem | [笔记_StructMem-Structured-Memory.md](./笔记_StructMem-Structured-Memory.md) |
 
-> 全文提取为同名 `<论文>.md`（`scripts/pdf2md.py` 生成）；RMM / StructMem / MemSkill 暂无本地 PDF（要点见 `docs/04` 第 2.4 节）。
+> 全文提取为同名 `<论文>.md`（`scripts/pdf2md.py` 生成）；5 篇本地论文均已有精读笔记；RMM 暂无本地 PDF（下载脚本会按标题检索）。
 
 ## 放置约定
 

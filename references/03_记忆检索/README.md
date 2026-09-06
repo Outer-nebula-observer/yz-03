@@ -22,8 +22,10 @@
 |---|---|
 | ChatDB | [笔记_Hu2023-ChatDB.md](./笔记_Hu2023-ChatDB.md) |
 | ExpeL | [笔记_Zhao2023-ExpeL.md](./笔记_Zhao2023-ExpeL.md) |
+| MIRIX | [笔记_Wang2025-MIRIX.md](./笔记_Wang2025-MIRIX.md) |
+| Mem-α | [笔记_Wang2025-MemAlpha.md](./笔记_Wang2025-MemAlpha.md) |
 
-> 全文提取为同名 `<论文>.md`（`scripts/pdf2md.py` 生成）；MIRIX / Mem-α 暂无本地 PDF。
+> 全文提取为同名 `<论文>.md`（`scripts/pdf2md.py` 生成）；4 篇本地论文均已有精读笔记。
 
 ## 放置约定
 
