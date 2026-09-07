@@ -1,8 +1,11 @@
-# 论文代码 · 短期记忆（上下文压缩）
+# 论文代码 · 短期记忆（上下文压缩 / 工作记忆）
 
-| 论文 | 官方 / 参考仓库 |
-|---|---|
-| LLMLingua / LongLLMLingua | https://github.com/microsoft/LLMLingua |
-| ICAE | https://github.com/getao/icae |
+> 下载方式见 `../MANIFEST.md`（`python scripts/download_paper_code.py --only <name>`）。
 
-> 仓库地址以论文官方页面 / PapersWithCode 为准；clone 到本目录即可，复现结论记录回本 README。
+| 论文 | name | 官方仓库 |
+|---|---|---|
+| LLMLingua / LongLLMLingua / LLMLingua-2 | LLMLingua | https://github.com/microsoft/LLMLingua |
+| ICAE | ICAE | https://github.com/ARISE-Initiative/ICAE |
+| MemGPT（现 Letta） | MemGPT | https://github.com/cpacker/MemGPT （→ https://github.com/letta-ai/letta） |
+
+> 复现结论（能跑/不能跑/关键修改）记录回本 README。

@@ -1,12 +1,15 @@
-# 论文代码 · 长期记忆
+# 论文代码 · 长期记忆（事实 + 经验）
 
-| 论文 | 官方 / 参考仓库 |
-|---|---|
-| Reflexion | https://github.com/noahshinn/reflexion |
-| Voyager | https://github.com/MineDojo/Voyager |
-| Memp | 待补（以论文页 / PapersWithCode 为准） |
-| LARP | 待补（以论文页 / PapersWithCode 为准） |
-| MemoryBank | 待补（以论文页 / PapersWithCode 为准） |
-| Zep | 待补（以论文页 / PapersWithCode 为准） |
+> 下载方式见 `../MANIFEST.md`（`python scripts/download_paper_code.py --only <name>`）。
 
-> 复现结论（能跑 / 不能跑 / 关键修改）记录回本 README。
+| 论文 | name | 官方仓库 |
+|---|---|---|
+| Reflexion | Reflexion | https://github.com/noahshinn024/reflexion |
+| Voyager | Voyager | https://github.com/MineDojo/Voyager |
+| Memp | Memp | https://github.com/zjunlp/MemP |
+| MemoryBank | MemoryBank | https://github.com/zhongwanjun/MemoryBank-SiliconFriend |
+| Zep（Graphiti 引擎） | Zep | https://github.com/getzep/graphiti （另 https://github.com/getzep/zep） |
+| MemoChat | MemoChat | https://github.com/LuJunru/MemoChat |
+| LARP | — | 仅项目主页 https://miao-ai-lab.github.io/LARP/（无公开代码） |
+
+> 复现结论记录回本 README。

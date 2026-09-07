@@ -25,6 +25,10 @@ data/processed/
 # ===== 生成的 pptx 解压产物（可从 pptx 重新生成）=====
 course_materials/pptx_extracted/
 
+# ===== 论文代码：克隆下来的他人仓库不入库（太大），只保留 README/MANIFEST =====
+# 形如 paper_code/<模块>/<仓库名>/ 的目录一律忽略；README.md 与 MANIFEST.md 仍入库
+paper_code/*/*/
+
 # ===== IDE / 系统文件 =====
 .idea/
 .vscode/

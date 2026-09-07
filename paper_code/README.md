@@ -16,6 +16,6 @@
 
 ## 约定
 
-- 把他人仓库 `git clone` 到对应子目录即可；
+- **选择性下载**：见 [`MANIFEST.md`](./MANIFEST.md) 清单与 `../scripts/download_paper_code.py`；克隆目录被 `.gitignore` 忽略，不入库；
 - 每个子目录 `README.md` 有"论文 → 仓库"索引；**仓库地址以论文官方页面 / PapersWithCode 为准**；
 - 复现结论（能跑/不能跑/关键修改）记录到对应子目录 README 或 `../docs/`。

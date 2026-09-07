@@ -1,13 +1,14 @@
-# 论文代码 · 记忆进化
+# 论文代码 · 记忆进化（写入 / 合并 / 遗忘 / 抽象）
 
-| 论文 | 官方 / 参考仓库 |
-|---|---|
-| TiM | 待补（以论文页 / PapersWithCode 为准） |
-| SCM | 待补（以论文页 / PapersWithCode 为准） |
-| RMM | 待补（以论文页 / PapersWithCode 为准） |
-| PREMem | 待补（以论文页 / PapersWithCode 为准） |
-| MemoryBank | 待补（以论文页 / PapersWithCode 为准） |
-| StructMem | 待补（以论文页 / PapersWithCode 为准） |
-| MemSkill | 待补（以论文页 / PapersWithCode 为准） |
+> 下载方式见 `../MANIFEST.md`（`python scripts/download_paper_code.py --only <name>`）。
 
-> 本模块多为 2023–2025 新论文，官方代码可能未公开；先查论文页与 PapersWithCode，找不到就记录"无官方实现"。
+| 论文 | name | 官方仓库 |
+|---|---|---|
+| TiM | TiM | https://github.com/Jiahao-Wang-ZJU/TiM |
+| SCM | SCM | https://github.com/wbbeyourself/SCM4LLMs |
+| PREMem | PREMem | https://github.com/sangyeop-kim/PREMem |
+| MemSkill | MemSkill | https://github.com/ViktorAxelsen/MemSkill |
+| StructMem | StructMem | https://github.com/zjunlp/LightMem |
+| RMM | — | 暂无本地 PDF/代码（下载脚本按标题检索） |
+
+> 复现结论记录回本 README。
