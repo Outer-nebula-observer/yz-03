@@ -1,61 +1,59 @@
-# 论文精读：Mem[p] — Exploring Agent Procedural Memory
+# 论文精读（深化版）：Mem[p] — Exploring Agent Procedural Memory
 
 > - **作者 / 机构**：Runnan Fang、Yuan Liang、Shuofei Qiao、Ningyu Zhang（浙江大学 & 阿里巴巴）
 > - **发表**：arXiv 2025（2508.06433）
-> - **对应模块**：`references/02_长期记忆/Fang2025-Memp.pdf`
-> - **全文提取**：`references/02_长期记忆/Fang2025-Memp.md`
+> - **对应**：`references/02_长期记忆/Fang2025-Memp.pdf` → 同名 `.md`
 > - **官方代码**：https://github.com/zjunlp/MemP
 
 ## 一句话总结
 
-**给 agent 装上"可学习、可更新、终身"的程序性记忆（procedural memory）：从历史轨迹蒸馏出「细粒度逐步指令 + 高层级脚本化抽象」两类程序性知识，并配套 Build / Retrieval / Update 三种策略与动态更新纪律，让记忆仓库随经验不断进化——TravelPlanner 与 ALFWorld 上成功率与效率持续提升，且强模型学出的记忆可迁移给弱模型使用。**
+给 agent 装"可学习、可更新、终身"的程序性记忆：把历史轨迹蒸馏成**细粒度逐步指令 + 高层脚本抽象**，配套 **Build / Retrieve / Update** 三策略与动态更新纪律——TravelPlanner 与 ALFWorld 上随记忆精化成功率与效率持续提升，强模型记忆可迁移给弱模型。
 
-## 摘要（归纳）
-
-LLM agent 的程序性记忆（"怎么做"）要么手工设计、要么缠在静态参数里，脆弱且不可更新。Mem[p] 提出：
-1. **蒸馏（Distill）**：把 agent 历史轨迹提炼为两级程序性记忆——细粒度逐步指令（step-by-step instructions）与高层级脚本式抽象（script-like abstractions）；
-2. **检索（Retrieve）**：按当前任务召回相关程序性记忆（实验对比不同检索策略）；
-3. **更新（Update）**：动态机制持续**更新、纠正、弃用（deprecate）**记忆内容，仓库与最新经验同步进化。
-在 TravelPlanner / ALFWorld 上：随记忆仓库精化，agent 在同类任务上成功率与效率**稳步提升**；把强模型构建的程序性记忆迁移到弱模型也能带来显著收益（记忆可移植）。
-
-## 技术路线
+## 1. 程序性记忆三操作框架（Build/Retrieve/Update）
 
 ```
-历史轨迹 ──① Distill（蒸馏）
-         ├─ 细粒度逐步指令（step-by-step）
-         └─ 高层级脚本式抽象（script-like）
-              ↓ 存入程序性记忆仓库（代码库式组织）
-② Retrieve：按任务语义召回相关程序
-③ Agent 执行（参考召回的程序进行规划/动作）
-④ 执行反馈 → ⑤ Update：更新 / 纠正 / 弃用（deprecate）
-    循环 → 记忆仓库持续进化
+任务轨迹 τ=(τ1..τT) 与奖励 r
+  └─① Build（构建）：builder B 把每个 (τt, rt) 蒸馏为程序性记忆 mp[t] = B(τt, rt)
+       · 形成程序性记忆库 Mem = {mp[1]..mp[T]}
+  └─② Retrieve（检索）：新任务 tnew → 召回最相似任务的记忆
+       · mretrieved = argmax_{mp[i]∈Mem} S(tnew, ti)
+       · 用任务 embedding 的余弦相似度（向量模型 φ）
+       · 实验对比多种 key 构建策略（query-vector matching / keyword-vector matching）
+  └─③ Update（更新）：随任务增加，动态 增/删/改/查
+       · M(t+1) = U(M(t), E(t), τt)   （E(t)=执行反馈：成功/失败/性能）
+       · U = Add(Mnew) ⊖ Del(Mobs) ⊕ Update(Mest)
+            Add 新记忆 / Del 过时记忆 / Update 估计修正
+       · 动态纪律：持续更新、纠正、弃用，与最新经验同步
 ```
 
-## 关键结果
+**两级抽象**：细粒度逐步指令（step-by-step）+ 高层脚本式抽象（script-like）——蒸馏出两种粒度的程序性知识。
+
+## 2. 关键结果
 
 | 环境 | 效果 |
 |---|---|
 | TravelPlanner | 随记忆精化成功率与效率持续上升，高于无/静态记忆基线 |
 | ALFWorld | 同上；程序性记忆显著提升新任务泛化 |
-| 记忆迁移 | 强模型（大）构建的记忆→弱模型（小）使用，仍有大幅收益 |
+| 记忆迁移 | 强模型构建的记忆→弱模型使用，仍有大幅收益（记忆可移植） |
 
-## 代码索引
+## 3. 代码索引
 
-- 官方仓库：https://github.com/zjunlp/MemP
-- 本仓库语境：**"经验→程序"路线的落地样本**；复现位 `paper_code/长期记忆/`。
+- 官方：https://github.com/zjunlp/MemP
+- 本仓库语境：**"经验→程序"路线落地样本**；复现位 `paper_code/长期记忆/`。
 
-## 优点 / 局限
+## 4. 优点 / 局限（深化）
 
-- **优点**：明确区分"声明性（事实/经验文本）vs 程序性（怎么做）"记忆；记忆有明确的建立/检索/更新生命周期（与赛题"进化"直接对应）；记忆可跨模型迁移是亮点。
-- **局限**：程序抽象依赖 LLM 蒸馏质量；仓库以文本/代码为主，跨长程、多模态场景待验证；更新纪律（何时纠正/弃用）的量化依据仍需手工规则。
+- **优点**：明确区分声明性 vs 程序性记忆；Build/Retrieve/Update 三策略与赛题"写入/检索/进化"一一对应，可直接当模块接口设计参照；记忆可跨模型迁移是亮点；动态更新纪律（增/删/改）量化。
+- **局限**：程序抽象依赖 LLM 蒸馏质量；仓库以文本/代码为主，跨长程、多模态待验证；更新纪律（何时纠正/弃用）的量化依据仍需手工规则；两级粒度的取舍未给明确阈值。
 
-## 与赛题③的联系
+## 5. 与赛题③的联系（深化）
 
-| 借鉴点 | 说明 |
+| 借鉴点 | 落地 |
 |---|---|
-| 程序性记忆层 | 赛题经验记忆可再细分"经验教训（Reflexion 式文本）+ 可执行策略/流程（Memp 式程序）" |
-| Build/Retrieve/Update 三策略 | **与赛题"写入/检索/进化"三模块一一对应**，可直接作为模块接口设计参照 |
-| 更新/纠正/弃用 | 对应进化操作中的"合并去重、遗忘淘汰"，佐证"进化=写+改+删"的闭环 |
+| 程序性记忆层 | 经验记忆再细分：经验教训（Reflexion 文本）+ 可执行策略/流程（Memp 程序） |
+| Build/Retrieve/Update 三策略 | **与赛题"写入/检索/进化"三模块一一对应**，模块接口设计参照 |
+| Update=Add⊖Del⊕Update | 对应进化"合并去重、遗忘淘汰"，佐证"进化=写+改+删"闭环 |
+| 记忆跨模型迁移 | 论证记忆系统对小模型部署的价值（低成本迁移） |
 
 ---
-*经验记忆三件套之一，另见 `笔记_Shinn2023-Reflexion.md`。*
+*经验记忆三件套之一；另见 `笔记_Shinn2023-Reflexion.md`、`笔记_Wang2023-Voyager.md`。*
