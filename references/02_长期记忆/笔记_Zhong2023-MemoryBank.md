@@ -63,3 +63,9 @@
 
 ---
 *事实记忆参考；结构化/时序方案见 `笔记_Rasmussen2025-Zep.md`。*
+
+## 代码实证（结合 paper_code/）
+
+- 仓库：`paper_code/02_长期记忆/MemoryBank-SiliconFriend/`
+- 看 `memory_bank/`（DPR+FAISS 检索 + 艾宾浩斯遗忘实现）、`utils/`、`eval_data/`；有 `README_cn.md` 中文说明。
+- 赛题用法：遗忘模块（R=e^(-t/S)）+ 每日摘要可直接仿写。

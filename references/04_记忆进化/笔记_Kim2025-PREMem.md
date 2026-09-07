@@ -59,3 +59,9 @@
 
 ---
 *进化三路线之一；与 `笔记_Liu2023-TiM.md`（操作演化）、`笔记_Liang2023-SCM.md`（控制器）对照。*
+
+## 代码实证（结合 paper_code/）
+
+- 仓库：`paper_code/04_记忆进化/PREMem/`
+- 看 `src/`（预存储推理实现）、`prompts/`（事实/经验/主观抽取 + 链接对推理 prompt）、`script/`、`output/`、`requirements.txt`。
+- 赛题用法：**创新点 A 依据**——写入时跨会话综合 + 链接对 θ=0.6 可直接仿。

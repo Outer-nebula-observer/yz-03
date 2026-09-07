@@ -57,3 +57,11 @@
 
 ---
 *与 MemSkill（`笔记_MemSkill-Memory-Skills.md`）对照：Mem-α 用 RL 学"何时怎么操作"，MemSkill 用控制器+设计师学"选哪些技能"。*
+
+## 代码实证（结合 paper_code/）
+
+- 仓库：`paper_code/03_记忆检索/Mem-alpha/`
+- ⭐ `functions.py`：记忆操作封装成 **OpenAI tool schema** 让 LLM 调用（`ToolFunction`/`Parameter` 类）——**接口设计可直接借鉴定义我们记忆层 API**。
+- `memory.py`（Memory 类）、`memory_server.py`（独立记忆服务）、`agent.py`、`main.py`、`evaluate_agent_results.py`、`long_context_eval.py`。
+- HF 模型/数据：`YuWangX/Memalpha-4B`、`YuWangX/Memalpha`。
+- 赛题用法：记忆操作 API 接口设计参照 + 评测脚本可仿。

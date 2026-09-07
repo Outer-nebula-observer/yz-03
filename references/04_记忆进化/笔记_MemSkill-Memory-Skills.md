@@ -57,3 +57,11 @@
 
 ---
 *进化三路线补全：TiM（操作集）→ SCM/PREMem（控制器/预存储）→ Mem-α/MemSkill（可学习操作）。*
+
+## 代码实证（结合 paper_code/）
+
+- 仓库：`paper_code/04_记忆进化/MemSkill/`
+- ⭐ `main.py`：入口；依赖 `src/trainer`、`src/memory_bank`、`src/executor`、`src/data_processing/alfworld`。
+- `rag_utils.py`（embedding）、`eval_utils.py`（llm_judge）、`prompts/prompt_pool.py`（技能池 prompt）。
+- 评测脚本：`eval_locomo.sh`、`eval_longmemeval.sh`、`eval_hp.sh`、`eval_alfworld.sh`——**LoCoMo/LongMemEval 评测可复用**。
+- 赛题用法：**创新点 A 依据**——可学习记忆操作 + 评测口径。

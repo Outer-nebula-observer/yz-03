@@ -57,3 +57,9 @@
 
 ---
 *经验记忆三件套之一；另见 `笔记_Shinn2023-Reflexion.md`、`笔记_Wang2023-Voyager.md`。*
+
+## 代码实证（结合 paper_code/）
+
+- 仓库：`paper_code/02_长期记忆/MemP/`
+- 看 `ProcedureMem/`（Build/Retrieve/Update 三策略实现）+ `requirements.txt`。
+- 赛题用法：程序性记忆三操作接口设计的参照。

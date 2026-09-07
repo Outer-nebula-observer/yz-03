@@ -70,3 +70,9 @@
 
 ---
 *事实记忆路线：MemoryBank（摘要式，见 `笔记_Zhong2023-MemoryBank.md`）；Zep（图谱式，本笔记）。*
+
+## 代码实证（结合 paper_code/）
+
+- 仓库：`paper_code/02_长期记忆/graphiti/`（Graphiti 引擎）
+- **可起服务**：`docker-compose up` 本地跑时序知识图谱；看 `graphiti/` 源码（三层图 episode/semantic/community + 双时态）、`AGENTS.md`。
+- 赛题用法：进阶事实记忆图谱后端候选（装备/条令/战例多跳查询）。

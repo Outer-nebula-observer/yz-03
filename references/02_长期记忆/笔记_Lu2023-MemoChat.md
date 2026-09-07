@@ -57,3 +57,9 @@
 
 ---
 *对话长期记忆代表；更多见 02_长期记忆 各笔记。*
+
+## 代码实证（结合 paper_code/）
+
+- 仓库：`paper_code/02_长期记忆/MemoChat/`
+- 看 `code/`、`data/`、`model/`、`core_requirement.txt`。
+- 赛题用法：片段级 memo + 主题键索引的对话记忆形态参考。

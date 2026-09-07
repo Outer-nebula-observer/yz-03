@@ -69,3 +69,10 @@ CoT、ICL、RAG、多轮 agent 让 prompt 越来越长（上万 token），推�
 
 ---
 *姊妹篇 LongLLMLingua 见 `笔记_Jiang2024-LongLLMLingua.md`；可学习压缩见 `笔记_Ge2024-ICAE.md`。*
+
+## 代码实证（结合 paper_code/）
+
+- 仓库：`paper_code/01_短期记忆/LLMLingua/`
+- **可直接用**：`llmlingua/prompt_compressor.py` 的 `PromptCompressor` 类——`from llmlingua import PromptCompressor; pc = PromptCompressor(); pc.compress_prompt(...)`，已入 LangChain/LlamaIndex。
+- 学由粗到细压缩：`examples/RAG.ipynb`、`examples/CoT.ipynb`、`examples/Code.ipynb`。
+- 赛题用法：短期记忆压缩消融对照组（截断/摘要/LLMLingua 四路对比）。

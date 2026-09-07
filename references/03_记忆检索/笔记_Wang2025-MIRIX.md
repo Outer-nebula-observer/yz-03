@@ -62,3 +62,10 @@
 
 ---
 *检索路线全景：向量（ExpeL）、SQL（ChatDB）、图谱（Zep）、多策略多智能体（MIRIX，本笔记）。*
+
+## 代码实证（结合 paper_code/）
+
+- 仓库：`paper_code/03_记忆检索/MIRIX/`
+- 看 `mirix/`（六类记忆 + 多智能体协调核心）、`main.py`、`configs/`、`frontend/`。
+- 评测复现：`public_evaluations/`、`test_memory.py`。
+- 赛题用法：多策略检索路由 + 评测口径参考。

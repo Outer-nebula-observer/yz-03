@@ -87,3 +87,9 @@
 
 ---
 *被 Zep（`笔记_Rasmussen2025-Zep.md`）等后续工作直接对标。*
+
+## 代码实证（结合 paper_code/）
+
+- 仓库：`paper_code/01_短期记忆/MemGPT/`
+- ⚠ 此 clone 是 **Letta landing page**（含 README/AGENTS/SECURITY 等），原 V1 服务端源码在 `archive` 分支；当前实现在 `letta-ai/letta-code`（npm 安装）。
+- 赛题用法：主要**学思想**（分层记忆 + 函数分页 + 阈值归档），不直接复用此 clone 代码；如需跑通切 `archive` 分支或装 letta-code。

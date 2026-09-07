@@ -56,3 +56,10 @@
 
 ---
 *与 SQL 符号检索（`笔记_Hu2023-ChatDB.md`）对照：向量近似 vs 符号精确，构成赛题混合检索双路。*
+
+## 代码实证（结合 paper_code/）
+
+- 仓库：`paper_code/03_记忆检索/ExpeL/`
+- 三阶段流水线：`train.py`（经验收集）→ `insight_extraction.py`（提炼）→ `eval.py`（评测）。
+- 看 `memory/episode.py`（轨迹存储）、`agent/{expel,react,reflect}.py`（三种 agent）、`envs/`（ALFWorld/WebShop）。
+- 赛题用法：经验记忆"向量召回+提炼"基线实现，**代码最完整可直接改造**。

@@ -64,3 +64,9 @@ StructMem 用**结构富化的分层记忆**取折中——用事件为中心的
 
 ---
 *进化三路线补全：TiM（操作集）→ SCM/PREMem（控制器/预存储）→ StructMem（分层整合）/MemSkill（可学习操作）。*
+
+## 代码实证（结合 paper_code/）
+
+- 仓库：`paper_code/04_记忆进化/LightMem/`（论文脚注指向的官方仓库）
+- 看 `StructMem.md`（方法说明）、`src/`（事件级绑定 + 跨事件周期整合实现）、`experiments/`、`tests/`、`tutorial-notebooks/`。
+- 赛题用法：分层记忆 + "何时抽象"（周期语义整合）的工程参考。

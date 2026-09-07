@@ -60,3 +60,10 @@ LLM 无法处理超长输入、丢失关键历史。SCM 用"自控记忆"框架�
 
 ---
 *进化三路线：TiM（操作集）、SCM（控制器，本笔记）、PREMem（预存储推理）。*
+
+## 代码实证（结合 paper_code/）
+
+- 仓库：`paper_code/04_记忆进化/SCM4LLMs/`
+- 看 `core/chat.py`（对话核心 + 控制器调度）、`core/cfg.py`（配置）、`core/{book,meeting}.py`（长文/会议摘要）。
+- 入口：`dialogue_demo.py`、`book_summary.py`、`meeting_summary.py`；`prompts/`、`config/`（apikey + proxy）。
+- 赛题用法：记忆控制器"何时写/读"调度逻辑的蓝本。

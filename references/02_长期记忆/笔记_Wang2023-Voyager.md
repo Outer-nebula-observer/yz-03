@@ -71,3 +71,10 @@
 
 ---
 *经验记忆三件套：Reflexion（语言反思）、Voyager（可执行技能库，本笔记）、Memp（程序性记忆）。*
+
+## 代码实证（结合 paper_code/）
+
+- 仓库：`paper_code/02_长期记忆/Voyager/`
+- 看 `skill_library/`（技能库组织：key=描述 embedding、value=可执行代码）学技能库增删查。
+- 看 `voyager/`（agent：自动课程 + 迭代提示）、`installation/`（Minecraft 环境）。
+- 赛题用法：经验→可执行策略/预案的"技能库"组织范式参考。
