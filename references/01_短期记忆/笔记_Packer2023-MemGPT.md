@@ -93,3 +93,32 @@
 - 仓库：`paper_code/01_短期记忆/MemGPT/`
 - ⚠ 此 clone 是 **Letta landing page**（含 README/AGENTS/SECURITY 等），原 V1 服务端源码在 `archive` 分支；当前实现在 `letta-ai/letta-code`（npm 安装）。
 - 赛题用法：主要**学思想**（分层记忆 + 函数分页 + 阈值归档），不直接复用此 clone 代码；如需跑通切 `archive` 分支或装 letta-code。
+
+## 论文核心代码（paper_code 索引）
+
+- ⚠ 此 clone 为 Letta landing page，**无算法源码**；真实现两处：`archive` 分支（V1 服务端，Python）与 `letta-ai/letta-code`（当前版，TypeScript）；
+- 关键文件（archive 分支）：`letta/services/`（记忆分层 CRUD）、`letta/prompts/system/`（自省式函数调用的 system prompt 全文——论文 §2.2 的落地）。
+
+## 我们的实现（memsys）
+
+- **思路**：把 MemGPT 的"分层 + 阈值分页 + 递归摘要"三机制原样落地为纯 Python（无函数调用依赖——分页由阈值属性驱动而非 LLM 自主调函数，MVP 更稳）；
+
+## 代码详解（MemGPT 三机制 → 我们的三个属性/方法）
+
+```python
+# ① memory_pressure 预警（MemGPT: warning token count 70%）
+@property
+def memory_pressure(self) -> bool:
+    return self.used_ratio >= self.warning_ratio      # 只读属性，上层据此提前归档
+
+# ② flush 递归摘要（MemGPT: flush token count 100% + recursive summary）
+def _flush(self, keep_ratio: float = 0.5) -> None:
+    cut = max(1, int(n * keep_ratio))                 # 驱逐最旧 50%
+    material = (self._recursive_summary + "\n" + "\n".join(evicted)).strip()
+    self._recursive_summary = self.llm.summarize(material, 120)  # 旧摘要+驱逐消息→新摘要
+    self.archived.append({...})                       # recall storage：被驱逐的不丢
+
+# ③ render 首尾布局（规避 lost-in-the-middle）
+#    头部=目标/约束(不可压缩) 尾部=最新消息 —— 关键信息永远在高效区
+```
+> 差异说明：MemGPT 的分页决策由 LLM 自主函数调用（更灵活但可能错换页）；我们用确定性阈值（可测试、可复现），LLM 自主分页列为进阶项。

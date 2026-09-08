@@ -76,3 +76,28 @@ CoT、ICL、RAG、多轮 agent 让 prompt 越来越长（上万 token），推�
 - **可直接用**：`llmlingua/prompt_compressor.py` 的 `PromptCompressor` 类——`from llmlingua import PromptCompressor; pc = PromptCompressor(); pc.compress_prompt(...)`，已入 LangChain/LlamaIndex。
 - 学由粗到细压缩：`examples/RAG.ipynb`、`examples/CoT.ipynb`、`examples/Code.ipynb`。
 - 赛题用法：短期记忆压缩消融对照组（截断/摘要/LLMLingua 四路对比）。
+
+## 论文核心代码（paper_code 索引）
+
+- 入口类：`llmlingua/prompt_compressor.py` 的 `PromptCompressor`——`compress_prompt(context, rate, target_token)` 一个方法跑通"粗粒度→ITPC"全流程；
+- 打分工具：`llmlingua/utils.py`（perplexity 计算、条件概率、token 依赖迭代）；
+- 三篇论文共用此包：LLMLingua/LongLLMLingua/LLMLingua-2 仅参数与流程开关不同（`force_tokens`/`target_context`/`condition_in_question`）。
+
+## 我们的实现（memsys）
+
+- **思路**：不搬其压缩算法，搬其"由粗到细 + 预算分配"思想到短期记忆——约束字段永不进压缩（`compress()` 只动 FIFO，约束在 render 头部）；
+- **代码索引**：`code/课题3_长短期记忆/memsys/short_term/compression.py`
+  - `LLMLinguaStrategy.apply()`：适配器——只把 FIFO 历史消息送 `PromptCompressor`，压缩产物回写为"历史摘要"（延迟导入，未装包不影响其余功能）；
+  - `get_strategy("truncate"|"summarize"|"llmlingua")`：三档工厂，对应消融 G1 对照组。
+
+## 代码详解（适配器如何保护约束字段）
+
+```python
+# memsys/short_term/compression.py::LLMLinguaStrategy.apply()（节选）
+material = "\n".join(wm.slot.fifo_queue)      # 只压历史消息——目标/约束/工作上下文不进压缩器
+out = self._pc.compress_prompt(context=material, rate=self.rate)
+wm._recursive_summary = out.get("compressed_prompt", material)  # 压缩产物回写为摘要
+wm.archived.append({"evicted": list(wm.slot.fifo_queue),
+                    "summary": wm._recursive_summary, "by": "llmlingua"})  # 可回放
+```
+> 与论文预算控制器的对应：LLMLingua 给 instruction/question 更小压缩率（保护关键段）；我们的实现更彻底——**约束根本不进压缩器**（docs/04 避坑点 6"关键约束打不可压缩标记"的代码化）。

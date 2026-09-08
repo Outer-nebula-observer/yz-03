@@ -58,3 +58,29 @@
 
 ---
 *TiM 是"进化操作"最完整早期代表，与 SCM（控制器）、PREMem（预存储推理）构成进化三路线。*
+
+## 论文核心代码（paper_code 索引）
+
+- 未 clone（`python scripts/download_paper_code.py --only TiM` 可补）；
+- 官方 https://github.com/Jiahao-Wang-ZJU/TiM ：Recalling（LSH 检索）+ Post-thinking（思考融合）+ insert/forget/merge 三操作的对话记忆实现。
+
+## 我们的实现（memsys）
+
+- **思路**：TiM 的"前向检索+后向进化"闭环 = 我们 pipeline 的主轴；insert/forget/merge 三操作全数落地（再加 abstract 成四操作）；LSH 换成内存向量索引（同角色）；
+- **代码索引**：`memsys/evolution/memory_evolution.py`（三操作）+ `memsys/controller.py::retrieve_and_load()/close_session()`（前向/后向两阶段）。
+
+## 代码详解（Recalling + Post-thinking → controller 双入口）
+
+```python
+# controller.py —— TiM 闭环的骨架（前向=Recalling，后向=Post-thinking）
+def retrieve_and_load(self, top_k):     # 【前向 Recalling】回答前召回历史思考
+    hits = self.retriever.retrieve(q)   #   TiM 用 LSH，我们用向量索引（同角色）
+    self._wm.load_memory(h.entry.id)    #   装载登记（TiM 无此溯源，我们的增强）
+
+def close_session(self, review):        # 【后向 Post-thinking】回答后融合新旧思考
+    material = review + 工作记忆归档     #   新思考=复盘文本
+    report = self.evolution.evolve_from_review(material)
+    #   evolve 内部串：抽取→insert(查重)→merge→forget→abstract
+    #   —— TiM 三操作 + 我们补的 abstract，全部在此触发
+```
+> 一一对应：TiM 的"记忆里存的是思考而非原始对话"→ 我们进化抽取的是"教训/经验"（思考产物）而非逐句对话——同一设计哲学。

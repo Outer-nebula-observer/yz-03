@@ -58,6 +58,29 @@
 ---
 *经验记忆三件套之一；另见 `笔记_Shinn2023-Reflexion.md`、`笔记_Wang2023-Voyager.md`。*
 
+## 论文核心代码（paper_code 索引）
+
+- 仓库：`paper_code/02_长期记忆/MemP/`
+- `ProcedureMem/`：Build/Retrieve/Update 三策略实现（论文公式 3/4/6 的代码化：`B(τ,r)` 构建、argmax 相似检索、`U = Add⊖Del⊕Update`）。
+
+## 我们的实现（memsys）
+
+- **思路**：三操作生命周期直接对应我们进化器的方法签名；`Add⊖Del⊕Update` 落为"合并时删被合并者+写融合产物"；
+- **代码索引**：`memsys/evolution/memory_evolution.py`——`write()`(Build) / `merge()`(Update 的 Add⊖Del) / `forget()`(Del)。
+
+## 代码详解（Add⊖Del⊕Update → 我们的 merge）
+
+```python
+# memory_evolution.py::merge()（节选）
+merged_content = self.llm.summarize("\n".join(sorted({e.content for e in entries})))
+merged = new_entry(base.type, merged_content,
+                   importance=max(e.importance for e in entries),   # 保最高重要性
+                   merged_from=[e.id for e in entries])             # 溯源：来源可回放
+store.add(merged)                    # ⊕ Add：融合产物入库
+for e in entries: store.remove(e.id) # ⊖ Del：被合并者删除（内容已进 merged）
+```
+> 与 Memp 的对应：`merged_from` 就是论文 `Mnew` 的来源追踪；差异是我们不做"程序性脚本"粒度（MVP 文本教训），列为进阶。
+
 ## 代码实证（结合 paper_code/）
 
 - 仓库：`paper_code/02_长期记忆/MemP/`

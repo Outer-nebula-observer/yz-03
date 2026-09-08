@@ -69,3 +69,35 @@
 - 看 `mirix/`（六类记忆 + 多智能体协调核心）、`main.py`、`configs/`、`frontend/`。
 - 评测复现：`public_evaluations/`、`test_memory.py`。
 - 赛题用法：多策略检索路由 + 评测口径参考。
+
+## 论文核心代码（paper_code 索引）
+
+- 仓库：`paper_code/03_记忆检索/MIRIX/`
+- `mirix/`：六类记忆（Core/Episodic/Semantic/Procedural/Resource/Vault）各自成存储模块 + 多 agent 协调更新/检索；`main.py` 服务入口；`public_evaluations/` LOCOMO 等评测复现。
+
+## 我们的实现（memsys）
+
+- **思路**：六类压缩为两类（fact/experience——docs/04 的双库设计），但**路由思想全保留**：QueryItem.route 由规划阶段定，检索层按 route 分发；
+- **代码索引**：`memsys/retrieval/hybrid.py::_route()`（三路分发）+ `retrieve()`（融合）。
+
+## 代码详解（三路分发 + 归一化融合）
+
+```python
+# hybrid.py::retrieve()（节选）—— MIRIX"按查询特点选路"的落地
+def retrieve(self, q, top_k=5):
+    primary = self._route(q, top_k)              # 主路：按 q.route（vector/bm25/sql）
+    for alt in ("vector", "bm25", "sql"):        # 另两路补充（多视角，消融可关）
+        if alt != q.route:
+            others.extend(self._route(qq_alt, top_k))
+
+    def norm(route, s, pool):                    # 三路分数量纲不同 → 归一化到 [0,1]
+        if route == "vector": return (s + 1.0) / 2.0        # cosine∈[-1,1] → [0,1]
+        if route == "sql":    return 1.0                     # 精确命中恒 1
+        mx = max((r.score for r in pool if r.route == "bm25"), default=0)
+        return s / mx if mx > 1e-9 else 0.0                  # BM25 除以本路最大值
+
+    # 融合：同一条记忆多路命中 → 加权分累加（alpha/beta/gamma 是 G5 消融扫描点）
+    weights = {"vector": self.alpha, "bm25": self.beta, "sql": self.gamma}
+    fused[mid]["s"] += w * r.score
+    q.answer_memory_ids = [r.entry.id for r in results]      # 创新点C：命中回填可审计
+```

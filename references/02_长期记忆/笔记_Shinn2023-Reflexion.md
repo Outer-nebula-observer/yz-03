@@ -65,3 +65,25 @@ for trial in attempts:
 
 ---
 *经验记忆三件套：Reflexion（语言反思，本笔记）、Voyager（可执行技能库）、Memp（程序性记忆）。*
+
+## 论文核心代码（paper_code 索引）
+
+- 未 clone（`python scripts/download_paper_code.py --only Reflexion` 可补）；
+- 官方 https://github.com/noahshinn024/reflexion ：Actor-Evaluator-SelfReflection 三角色的 agent 实现 + HumanEval/ALFWorld 实验。
+
+## 我们的实现（memsys）
+
+- **思路**：三角架构落为"复盘驱动"两步——Evaluator=AFSIM 反馈（外部），Self-Reflection=`extract_memory_ops` 抽取教训（LLM 承担）；情景记忆缓冲=经验库；
+- **代码索引**：`memsys/llm.py::extract_memory_ops()`（反思抽取）+ `memsys/evolution/memory_evolution.py::evolve_from_review()`（写入缓冲）。
+
+## 代码详解（语言反思 → 关键词规则抽取的 Mock 形态）
+
+```python
+# llm.py::MockLLM.extract_memory_ops()（节选）—— 真 LLM 的接口占位
+if any(k in line for k in ("教训", "经验", "失败", "成功", "战例", "参数", "条令")):
+    mtype = "fact" if any(k in line for k in ("参数", "条令")) else "experience"
+    ops.append({"op": "write", "type": mtype, "content": line[:200],
+                "importance": 2.0 if any(k in line for k in ("失败", "教训")) else 1.0})
+#                                    ↑ Reflexion 核心：失败教训权重更高（学得更多）
+```
+> 接真模型时换成 `OpenAICompatibleClient.extract_memory_ops()`（输出同结构 JSON）——**LLM 只建议、代码执行**，保证进化可回放（设计决策见 docs/08 §5）。

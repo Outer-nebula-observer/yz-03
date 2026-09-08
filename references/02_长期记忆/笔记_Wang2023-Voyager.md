@@ -72,6 +72,30 @@
 ---
 *经验记忆三件套：Reflexion（语言反思）、Voyager（可执行技能库，本笔记）、Memp（程序性记忆）。*
 
+## 论文核心代码（paper_code 索引）
+
+- 仓库：`paper_code/02_长期记忆/Voyager/`
+- `skill_library/`：技能库核心——key=程序描述的 embedding（GPT-3.5 生成），value=可执行代码本体；检索=top-5 相似技能供 ICL；
+- `voyager/`：agent 主体（自动课程 prompt 组装 + 迭代提示循环）。
+
+## 我们的实现（memsys）
+
+- **思路**：技能库的"描述向量↔可执行本体"双记录结构 → 我们的经验库"教训文本↔metadata（含程序性字段）"；自动课程暂不实现（作战任务由场次给定）；
+- **代码索引**：`memsys/long_term/experiential_store.py::add()`——`vindex.add(entry.id, f"{content}\n{source}")` 内容+来源联合编码（提高情境相似召回）。
+
+## 代码详解（技能库式双记录 → 经验库的编码策略）
+
+```python
+# experiential_store.py::add()（节选）
+def add(self, entry):
+    self._entries[entry.id] = entry
+    # 关键：向量编码 = 教训正文 + 来源场次（"教训：夜战…伏击" + "复盘:P001"）
+    # 对应 Voyager 的"描述 embedding"：描述含情境（何时何地学的），
+    # 相似情境的新任务才能召回这条技能
+    self.vindex.add(entry.id, f"{entry.content}\n{entry.source}")
+```
+> 差异：Voyager 的 value 是可执行代码（直接调用）；我们的 value 是结构化文本教训（进阶可把"对策"字段升级为可执行预案——Memp 程序记忆路线）。
+
 ## 代码实证（结合 paper_code/）
 
 - 仓库：`paper_code/02_长期记忆/Voyager/`

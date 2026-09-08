@@ -67,3 +67,26 @@
 
 ---
 *角色/身份长期记忆代表；更多见 02_长期记忆 各笔记。*
+
+## 论文核心代码（paper_code 索引）
+
+- 无公开代码仓库（仅项目主页 https://miao-ai-lab.github.io/LARP/ ）；其三域划分（语义/情景/程序）是纯架构设计，无开源实现可 clone。
+
+## 我们的实现（memsys）
+
+- **思路**：三域记忆映射到我们的双库+字段——语义（条令/世界观）→事实库稳定行；情景（场次事件）→事实库带 timestamp + 工作记忆；程序（技能）→经验库 metadata 预留"对策"字段；
+- **代码索引**：`memsys/long_term/factual_store.py`（语义/情景承载）+ `experiential_store.py`（程序性预留）+ `memsys/schema.py::MemoryEntry.metadata`（域标签字段）。
+
+## 代码详解（三域 → 双库+元数据的映射）
+
+```python
+# 事实库写入时用 metadata 区分"域"（LARP 三域的轻量实现）
+e = new_entry(MemoryType.FACT, "2 号高地仅东侧可装甲通行",
+              attrs={"地点": "2号高地", "domain": "semantic"})   # 语义：稳定地形事实
+e2 = new_entry(MemoryType.FACT, "红方 3 营 02:00 于东侧集结",
+               attrs={"domain": "episodic"})                      # 情景：场次事件
+# 程序域：经验库 metadata 预留（进阶升级为可执行预案——Memp 路线）
+e3 = new_entry(MemoryType.EXPERIENCE, "对策：先遣侦察前置 30 分钟",
+               metadata={"domain": "procedural", "action": "recon_advance"})
+```
+> 价值：不改表结构即可按 domain 过滤检索（`search_attrs({"domain": "semantic"})`），三域语义保留在数据里而非硬编码。

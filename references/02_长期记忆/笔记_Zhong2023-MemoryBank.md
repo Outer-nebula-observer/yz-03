@@ -64,6 +64,37 @@
 ---
 *事实记忆参考；结构化/时序方案见 `笔记_Rasmussen2025-Zep.md`。*
 
+## 论文核心代码（paper_code 索引）
+
+- 仓库：`paper_code/02_长期记忆/MemoryBank-SiliconFriend/`
+- `memory_bank/`：DPR 双塔编码 + FAISS 检索 + 遗忘更新（R=e^(-t/S) 的工程实现）；`README_cn.md` 中文说明；`eval_data/` 评测数据。
+
+## 我们的实现（memsys）
+
+- **思路**：艾宾浩斯完整落地为"条目属性(S,t) + 两方法(retention/mark_recalled) + 批量淘汰(forget)"三层；
+- **代码索引**：`memsys/schema.py::retention()/mark_recalled()` + `memsys/evolution/memory_evolution.py::forget()`。
+
+## 代码详解（R=e^(-t/S) 的三层落地）
+
+```python
+# ① schema.py::retention() —— 留存率是条目自身属性（随时可查）
+import math
+def retention(self, now=None) -> float:
+    t = now - (self.last_recalled_at or self.timestamp)   # 距上次召回的时间
+    return math.exp(-t / max(self.decay_strength, 1e-6))  # R = e^(-t/S)
+
+# ② schema.py::mark_recalled() —— 间隔效应：命中即强化
+def mark_recalled(self):
+    self.recall_count += 1
+    self.decay_strength += 1.0        # S+1：越常用越难忘
+    self.last_recalled_at = time.time()  # t 重置
+
+# ③ evolution.py::forget() —— 批量淘汰（遗忘是操作，不是属性）
+if e.importance >= self.protected_importance: continue  # 保护线：失败教训永不删
+if e.retention(now) < self.forget_threshold: store.remove(cid)
+```
+> 设计决策：为什么 retention 放 schema 而 forget 放 evolution——**属性与操作分离**，遗忘策略可换（衰减/重要性/冲突检测三选一，避坑点 4）而数据模型不动。
+
 ## 代码实证（结合 paper_code/）
 
 - 仓库：`paper_code/02_长期记忆/MemoryBank-SiliconFriend/`

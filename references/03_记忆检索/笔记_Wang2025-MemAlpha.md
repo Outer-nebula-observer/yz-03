@@ -65,3 +65,52 @@
 - `memory.py`（Memory 类）、`memory_server.py`（独立记忆服务）、`agent.py`、`main.py`、`evaluate_agent_results.py`、`long_context_eval.py`。
 - HF 模型/数据：`YuWangX/Memalpha-4B`、`YuWangX/Memalpha`。
 - 赛题用法：记忆操作 API 接口设计参照 + 评测脚本可仿。
+
+## 论文核心代码（paper_code 索引 · 带注释）
+
+- 仓库：`paper_code/03_记忆检索/Mem-alpha/`
+
+```python
+# functions.py（论文核心：记忆操作工具化，加注释讲解）
+@dataclass
+class Parameter:
+    """单个工具参数的类型描述——LLM 据此知道怎么填参"""
+    name: str; type: str; description: str
+    required: bool = True
+    enum: Optional[List[str]] = None   # 枚举限制：参数只许取这几个值（防 LLM 乱填）
+
+class ToolFunction:
+    """记忆操作 = 一个 LLM 可调用的工具（OpenAI tool schema 形态）"""
+    name: str; description: str
+    parameters: List[Parameter]
+
+    @classmethod
+    def execute(cls, memory: Memory, arguments: Dict) -> Dict:
+        """真正执行：操作 memory 实例——LLM 出参数，代码干活"""
+        raise NotImplementedError
+
+    @classmethod
+    def to_schema(cls, memory: Memory = None) -> Dict:
+        """把定义转成 OpenAI function calling 的 JSON Schema：
+        参数名/类型/必填/枚举 → LLM 能"看懂"的工具说明书"""
+        ...
+```
+> 精髓：**记忆操作被声明式描述（name+parameters+enum）→ LLM 选择与填参 → execute 由代码确定性执行**——RL 训练的就是"选哪个工具、填什么参"。
+
+## 我们的实现（memsys）
+
+- **思路**：MVP 不上 RL，但保留"LLM 建议操作 + 代码执行"的分离结构——`extract_memory_ops` 输出与 Mem-α 工具调用同构的 `[{op, type, content, importance}]`；
+- **代码索引**：`memsys/llm.py::LLMClient.extract_memory_ops()`（协议）+ `memsys/evolution/memory_evolution.py::evolve_from_review()`（执行侧）。
+
+## 代码详解（建议-执行分离，为 RL 留口）
+
+```python
+# evolution.py::evolve_from_review()（节选）
+ops = self.llm.extract_memory_ops(review_dialogue)   # ① LLM 只"建议"（接口同 Mem-α 工具调用）
+for op in ops:
+    if op.get("op") != "write": continue
+    new_id = self.write(mtype, op["content"], ...)    # ② 代码"执行"（查重/落库确定性）
+    if new_id: report.wrote.append(new_id)
+    else:      report.skipped.append(...)             # 查重跳过也入报告（可审计）
+```
+> 升级路径：把 ① 的 Mock 规则换成 RL 训练的策略模型（Mem-α 路线），② 执行侧零改动。

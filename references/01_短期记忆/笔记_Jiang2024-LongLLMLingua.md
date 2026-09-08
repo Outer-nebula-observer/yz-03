@@ -74,3 +74,27 @@ LLMLingua 的长上下文升级版：针对长上下文三痛点（成本高、�
 
 ---
 *基础版见 `笔记_Jiang2023-LLMLingua.md`；可学习压缩见 `笔记_Ge2024-ICAE.md`。*
+
+## 论文核心代码（paper_code 索引）
+
+- 与 LLMLingua 同仓库同包：`llmlingua/prompt_compressor.py` 的 `PromptCompressor`——LongLLMLingua 模式靠参数区分（`condition_in_question` 问题感知开关、文档级 ranker、`target_context`）；
+- RAG 实战示例：`examples/RAG.ipynb`（检索后压缩的完整链路，对我们最有参考价值）。
+
+## 我们的实现（memsys）
+
+- **思路**：借两点——①"问题感知"：查询列表（`QueryItem.query_text`）作为压缩排序锚而非盲压；②"关键信息放首尾"：`render()` 头部放目标/约束、尾部放最新消息，规避 lost-in-the-middle；
+- **代码索引**：`memsys/short_term/working_memory.py::render()`（首尾布局）、`memsys/retrieval/hybrid.py`（检索结果按 q 相关性排序后才装载——问题感知排序前置）。
+
+## 代码详解（我们的 render 首尾布局）
+
+```python
+# memsys/short_term/working_memory.py::render()（节选）
+parts = []
+if self.slot.goal:        parts.append(f"【目标】{self.slot.goal}")          # 头部
+if self.slot.constraints: parts.append("【约束】" + "；".join(...))          # 头部
+if self._recursive_summary: parts.append(f"【历史摘要】{...}")               # 中部
+if self.slot.working_context: parts.append(f"【关键信息】{...}")             # 中部
+if self.slot.query_list:  parts.append(f"【查询列表】{...}")                  # 尾部
+if self.slot.fifo_queue:  parts.append("【近期消息】" + ...)                 # 尾部（最新）
+```
+> 与 LongLLMLingua 的对应：首尾=高利用率区（放不可压缩的目标/约束与最新消息），中部=低利用率区（放可再压缩的摘要与工作上下文）。这个顺序就是"位置偏置缓解"的落地形态。

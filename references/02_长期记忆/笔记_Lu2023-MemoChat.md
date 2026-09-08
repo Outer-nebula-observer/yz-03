@@ -58,6 +58,32 @@
 ---
 *对话长期记忆代表；更多见 02_长期记忆 各笔记。*
 
+## 论文核心代码（paper_code 索引）
+
+- 仓库：`paper_code/02_长期记忆/MemoChat/`
+- `code/`：三阶段（memorization/retrieval/response）微调流水线；`data/`：指令重构数据集；`model/`：checkpoint。
+
+## 我们的实现（memsys）
+
+- **思路**：不微调（黑盒模型约束），把其"记忆化-检索-作答"循环改为"复盘-检索-装载"循环——记忆化发生在场次结束（close_session）而非对话中；
+- **代码索引**：`memsys/controller.py::close_session()`（记忆化入口）+ `retrieve_and_load()`（检索作答入口）。
+
+## 代码详解（三阶段循环 → 我们的控制器双入口）
+
+```python
+# controller.py（节选）—— MemoChat 的"memorization-retrieval-response"落成两个方法
+def retrieve_and_load(self, top_k=3):      # retrieval + response（场次中：检索装载）
+    for q in self._wm.slot.query_list:
+        hits = self.retriever.retrieve(q, top_k=top_k)
+        for h in hits:
+            self._wm.load_memory(h.entry.id)   # 装载登记（溯源）
+
+def close_session(self, review_text=""):  # memorization（场次末：复盘沉淀）
+    material = review_text + "\n[工作记忆归档]\n" + arch_text  # 归档并入复盘材料
+    report = self.evolution.evolve_from_review(material, session_id=...)
+```
+> 差异：MemoChat 逐片段记忆化（微调模型驱动）；我们场次级记忆化（进化器驱动），粒度更粗但无需训练。
+
 ## 代码实证（结合 paper_code/）
 
 - 仓库：`paper_code/02_长期记忆/MemoChat/`

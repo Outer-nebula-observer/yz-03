@@ -60,6 +60,33 @@
 ---
 *进化三路线之一；与 `笔记_Liu2023-TiM.md`（操作演化）、`笔记_Liang2023-SCM.md`（控制器）对照。*
 
+## 论文核心代码（paper_code 索引）
+
+- 仓库：`paper_code/04_记忆进化/PREMem/`
+- `src/premem/`：四脚本流水线——`run_extract_episodic_memory.py`（片段抽取）→ `run_reasoning.py`（链接对推理）→ `save_episodic_embedding.py`（编码入库）→ `save_reasoning.py`；`src/memory/{segmentor,compressor}.py`（切分/压缩）；`prompts/`（事实/经验/主观抽取 + 推理 prompt 全文）。
+
+## 我们的实现（memsys）
+
+- **思路**："写入即推理"落为 write() 的**前置查重**——新内容先与全库比相似度（链接对的 MVP 形态），超 θ 判"已有此知识"跳过；跨会话关系暂不做（单场次闭环优先）；
+- **代码索引**：`memsys/evolution/memory_evolution.py::write()`。
+
+## 代码详解（链接对 θ 查重的完整逻辑）
+
+```python
+# memory_evolution.py::write()（节选）—— PREMem"写入前先想清楚"的落地
+new_vec = self.vindex.model.embed(content)   # 新内容编码
+dup, best_sim = None, -1.0
+for cid in store.candidates():               # 全库逐条比对（万级内够快；FAISS 后走索引）
+    existing = store.get(cid)
+    sim = cosine(new_vec, self.vindex.model.embed(existing.content))
+    if sim > best_sim: best_sim, dup = sim, existing   # 追踪最像的一条
+if dup is not None and best_sim > self.merge_theta:    # θ=0.80（PREMem 用 0.6）
+    return None    # 判定重复 → 跳过写入（调用方统计进 report.skipped）
+# 不重复才真正落库（op_history 记 write，可回放）
+entry = new_entry(type_, content, importance=..., op_history=[MemoryOp.WRITE.value])
+```
+> θ 差异说明：MockEmbedding 哈希词袋相似度偏高，0.6 会误杀正常写入；接真 embedding 后回调 0.6 对齐论文。
+
 ## 代码实证（结合 paper_code/）
 
 - 仓库：`paper_code/04_记忆进化/PREMem/`

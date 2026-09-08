@@ -61,6 +61,34 @@ LLM 无法处理超长输入、丢失关键历史。SCM 用"自控记忆"框架�
 ---
 *进化三路线：TiM（操作集）、SCM（控制器，本笔记）、PREMem（预存储推理）。*
 
+## 论文核心代码（paper_code 索引）
+
+- 仓库：`paper_code/04_记忆进化/SCM4LLMs/`
+- `core/chat.py`：记忆控制器核心（何时触发写/读/摘要的决策逻辑）；`core/cfg.py` 全局配置；`dialogue_demo.py` 长对话入口（跑通即见控制器调度）。
+
+## 我们的实现（memsys）
+
+- **思路**：SCM 控制器 = 我们的 `MemoryController`——"何时写、何时读、读什么"集中在一个类，且是**唯一**同时碰四模块的角色（docs/08 §6）；
+- **代码索引**：`memsys/controller.py` 全文件。
+
+## 代码详解（时机决策集中化）
+
+```python
+# controller.py（骨架注释版）—— SCM memory controller 的三时机
+def start_session(...):      # 何时建槽位/装载查询列表（写时机①）
+    ...
+def retrieve_and_load(self, top_k=3):   # 何时检索（读时机）+ 读后即时判断压缩
+    for q in self._wm.slot.query_list:
+        hits = self.retriever.retrieve(q, top_k=top_k)
+        ...
+    if self._wm.memory_pressure:        # SCM 式：读完后检查容量 → 主动压缩
+        get_strategy(self.compression_name).apply(self._wm, ...)
+def close_session(self, review_text):   # 何时进化（写时机②：场次末复盘驱动）
+    material = review_text + 归档文本   # MemGPT flush 的内容并入复盘（不丢）
+    return self.evolution.evolve_from_review(material, ...)
+```
+> 与 SCM 差异：其控制器决策由 LLM 自省 prompt 驱动（隐式）；我们的时机是**确定性方法调用**（显式、可测试），LLM 只在进化抽取时介入。
+
 ## 代码实证（结合 paper_code/）
 
 - 仓库：`paper_code/04_记忆进化/SCM4LLMs/`

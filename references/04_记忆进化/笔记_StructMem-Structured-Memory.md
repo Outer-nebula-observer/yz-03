@@ -65,6 +65,29 @@ StructMem 用**结构富化的分层记忆**取折中——用事件为中心的
 ---
 *进化三路线补全：TiM（操作集）→ SCM/PREMem（控制器/预存储）→ StructMem（分层整合）/MemSkill（可学习操作）。*
 
+## 论文核心代码（paper_code 索引）
+
+- 仓库：`paper_code/04_记忆进化/LightMem/`（论文脚注指向的官方仓库）
+- `StructMem.md`：方法说明文档（事件级双视角 + 周期整合的完整描述）；`src/` 实现；`experiments/` 实验配置。
+
+## 我们的实现（memsys）
+
+- **思路**：不做事件图谱（重），吸收"周期整合"作为**抽象操作的触发时机**——每场复盘后对"本场新写入经验 ≥2 条"触发 abstract（替代 TiM 的事件计数启发式）；
+- **代码索引**：`memsys/evolution/memory_evolution.py::evolve_from_review()` 第 4 步。
+
+## 代码详解（周期整合的触发式实现）
+
+```python
+# evolution.py::evolve_from_review() 第 4 步（节选）
+# StructMem"周期语义整合"→ 我们"复盘后按量触发"：本场写入经验 ≥2 条才抽象
+exp_ids = [eid for eid in new_ids_by_type["experience"]]
+if len(exp_ids) >= 2:                       # 触发阈值（对应周期整合的"攒够一波"）
+    aid = self.abstract(exp_ids, theme="本场复盘教训")
+    # abstract 内部：多条具体经验 → LLM 摘要 → 1 条通用教训，importance+0.5
+    if aid: report.abstracted.append(aid)
+```
+> 与 StructMem 差异：其按"语义相关事件簇"跨场次周期整合；我们按"本场新经验数量"触发（更简单、可复现）；跨场次聚类列为进阶（需先接真 embedding）。
+
 ## 代码实证（结合 paper_code/）
 
 - 仓库：`paper_code/04_记忆进化/LightMem/`（论文脚注指向的官方仓库）

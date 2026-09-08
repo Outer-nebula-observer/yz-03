@@ -57,4 +57,34 @@
 | 可溯源 | 每条记忆可回溯 SQL 结果 → 创新点 E 可解释溯源 |
 
 ---
-*与向量式检索（`笔记_Zhao2023-ExpeL.md`）对照：符号（SQL）vs 近似（向量）。*
+*与向量式检索（`笔记_Zhao2023-ExpeL.md`）对照：符号（SQL）vs 近似（向量），构成赛题混合检索双路。*
+
+## 论文核心代码（paper_code 索引）
+
+- 无公开代码仓库（仅项目主页 https://chatdatabase.github.io/ ）；其 SQL 符号记忆为 prompt 工程 + SQLite 演示，无开源实现。
+
+## 我们的实现（memsys）
+
+- **思路**：符号记忆落为"SQLite 行存 + 属性键值过滤"——ChatDB 的 NL→SQL 在 MVP 简化为"属性精确匹配"（NL→属性条件的 LLM 解析层留接口）；
+- **代码索引**：`memsys/long_term/factual_store.py::search_attrs()` + `_SCHEMA` 建表语句。
+
+## 代码详解（符号记忆的 MVP 形态）
+
+```python
+# factual_store.py（节选）—— ChatDB"数据库即记忆"的最小实现
+_SCHEMA = """
+CREATE TABLE IF NOT EXISTS facts (          -- 一行 = 一条事实记忆
+    id TEXT PRIMARY KEY, content TEXT,      -- 原文（可读）+ 主键（可溯源）
+    attrs_json TEXT DEFAULT '{}',           -- 结构化属性（装备=T-90 这种键值对）
+    ...时间/重要性/衰减字段...               -- 与 MemoryEntry 一一对应
+);
+"""
+def search_attrs(self, attrs: dict, top_k=5):
+    """属性精确过滤——参数级召回（ChatDB 符号查询的落地）"""
+    for row in self.conn.execute("SELECT * FROM facts").fetchall():
+        e = self._row_to_entry(row)
+        if all(e.metadata.get(k) == v for k, v in attrs.items()):  # 全字段 AND 匹配
+            e.mark_recalled()
+            hits.append(RetrievedMemory(entry=e, score=1.0, route="sql"))  # 恒 1.0：确定性命中
+```
+> 升级路径：真模型后加"自然语言→属性条件"解析层（"红方 T-90 多快"→`{"装备":"T-90"}`），存储层零改动——这就是 NL→SQL 的渐进实现。

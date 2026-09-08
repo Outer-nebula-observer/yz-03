@@ -63,3 +63,46 @@
 - 三阶段流水线：`train.py`（经验收集）→ `insight_extraction.py`（提炼）→ `eval.py`（评测）。
 - 看 `memory/episode.py`（轨迹存储）、`agent/{expel,react,reflect}.py`（三种 agent）、`envs/`（ALFWorld/WebShop）。
 - 赛题用法：经验记忆"向量召回+提炼"基线实现，**代码最完整可直接改造**。
+
+## 论文核心代码（paper_code 索引 · 带注释）
+
+- 仓库：`paper_code/03_记忆检索/ExpeL/`
+
+```python
+# memory/episode.py::Trajectory（论文核心数据结构，加注释讲解）
+class Trajectory:
+    def __init__(self, task, trajectory, splitter, identifier, step_splitter,
+                 embedder=None, reflections=None):
+        self._task = task                 # 任务描述（检索时的 query 锚）
+        self._trajectory = trajectory     # 完整轨迹文本（成功/失败都存）
+        self._reflections = deepcopy(reflections)  # 轨迹附带的反思（Reflexion 复用）
+        # 按 splitter/identifier 把轨迹解析成 observations/actions/thoughts 三流
+        for line in splitter(self._trajectory):
+            setattr(self, f'_{identifier(line)}s', ...)  # 动态分流到 _observations 等
+        self._steps = step_splitter(...)  # 再聚合成 step（经验提炼的粒度）
+        if embedder is not None:
+            self._keys['task'] = [embedder(self.task)]   # 任务向量 = 检索键
+            for step in self.steps:
+                ...                        # 每个 step 也编向量（细粒度召回）
+```
+> 精髓：**一条轨迹 = 任务向量（粗检索键）+ step 向量（细召回键）+ 反思文本**——我们经验库的"content+source 联合编码"就是它的简化版。
+
+## 我们的实现（memsys）
+
+- **思路**：不做"轨迹三流解析"（MVP 无 ReAct 环境信号），保留"成功轨迹+提炼教训双形态"——原始复盘文本存 `content`，提炼产物即经验条目本身；
+- **代码索引**：`memsys/long_term/experiential_store.py::search()`（Faiss Top-K 的 dict 版）。
+
+## 代码详解（Top-K 召回 + 重要性加权 + 命中强化三合一）
+
+```python
+# experiential_store.py::search()（节选）
+raw = self.vindex.search(query, top_k=top_k * 2)   # 多取一倍再重排（ExpeL 取 top-K 的工程细节）
+for mid, cos in raw:
+    e = self._entries.get(mid)
+    # 融合分 = 0.8*语义相似 + 0.2*重要性（Reflexion：失败教训 importance 高 → 更易浮上来）
+    score = 0.8 * cos + 0.2 * min(e.importance / 3.0, 1.0)
+    e.mark_recalled()    # 艾宾浩斯命中强化：S+1（被用过的经验更难忘）
+    results.append(RetrievedMemory(entry=e, score=score, route="vector"))
+results.sort(key=lambda r: r.score, reverse=True)  # 加权重排后截断 top_k
+```
+> 与 ExpeL 差异：我们无 insights 独立库（提炼即写入经验库）；权重 0.8/0.2 是 G3 消融扫描点。

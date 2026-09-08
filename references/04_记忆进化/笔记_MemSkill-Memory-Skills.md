@@ -58,6 +58,47 @@
 ---
 *进化三路线补全：TiM（操作集）→ SCM/PREMem（控制器/预存储）→ Mem-α/MemSkill（可学习操作）。*
 
+## 论文核心代码（paper_code 索引 · 带注释）
+
+- 仓库：`paper_code/04_记忆进化/MemSkill/`
+
+```python
+# src/operation_bank.py::Operation（论文核心：可进化记忆操作，加注释讲解）
+class Operation:
+    """Single memory operation —— 一条'怎么记'的技能（元记忆）"""
+    def __init__(self, name, description, instruction_template, update_type, meta_info=None):
+        self.name = name                  # 操作名（如 insert_factual）
+        self.description = description    # 什么时候该用它（控制器据此选择）
+        self.instruction_template = instruction_template  # 执行器 prompt 模板（技能本体）
+        self.update_type = update_type    # insert / update / delete / noop —— 四操作！
+        self.meta_info = meta_info or {
+            "usage_count": 0,        # 被用过几次（流行度）
+            "avg_reward": 0.0,       # 平均回报（设计师复盘难例后更新——进化信号）
+            "recent_rewards": [],    # 近期回报序列（淘汰退化技能的依据）
+            "recent_usage_ema": 0.0, # 使用率滑动平均（热度衰减）
+        }
+```
+> 精髓：**操作本身带使用统计与回报**——设计师复盘"这技能最近干得怎么样"，据此改模板/生新技能/淘汰差技能，操作集自我进化（区别于 Mem-α 的 RL 训练路线）。
+
+## 我们的实现（memsys）
+
+- **思路**：MVP 的四操作是**固定方法**（write/merge/forget/abstract），未做成可进化技能；但 `op_history` 字段已记录每条记忆经历的操作——为"操作效果统计"留了数据基础；
+- **代码索引**：`memsys/evolution/memory_evolution.py`（四操作方法）+ `memsys/schema.py::MemoryEntry.op_history`。
+
+## 代码详解（操作统计的数据基础已埋好）
+
+```python
+# schema.py（节选）—— 每条记忆自带操作履历
+op_history: List[str] = field(default_factory=list)  # 如 ["write", "merge", "abstract"]
+
+# evolution.py::abstract()（节选）—— 抽象产物 importance+0.5 且记来源
+abstract_entry = new_entry(MemoryType.EXPERIENCE, abstract_text,
+                           importance=max(...) + 0.5,          # 抽象经验更值钱
+                           merged_from=[e.id for e in entries], # 来源可回放
+                           op_history=[MemoryOp.ABSTRACT.value])
+```
+> 升级路径（对齐 MemSkill）：统计 `op_history` 频次与该操作产物的召回率 → 周期复盘"哪些操作模板好用"→ 进化 prompt 模板——`EvolutionReport` 就是现成的统计输入。
+
 ## 代码实证（结合 paper_code/）
 
 - 仓库：`paper_code/04_记忆进化/MemSkill/`

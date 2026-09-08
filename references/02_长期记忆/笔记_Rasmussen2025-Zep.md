@@ -71,6 +71,33 @@
 ---
 *事实记忆路线：MemoryBank（摘要式，见 `笔记_Zhong2023-MemoryBank.md`）；Zep（图谱式，本笔记）。*
 
+## 论文核心代码（paper_code 索引）
+
+- 仓库：`paper_code/02_长期记忆/graphiti/`
+- `graphiti_core/`：三层图引擎核心——`edges.py`（episode/semantic/community 三类边）、`nodes.py`、`graph_queries.py`（Cypher 查询）、`driver/`（Neo4j 适配）；`docker-compose.yml` 一键起服务。
+
+## 我们的实现（memsys）
+
+- **思路**：MVP 不上图谱（构建贵），但保留其两个精髓——①**可溯源**：每条检索结果带 provenance（对应 Zep 的 episode↔semantic 双向索引）；②**事实走结构化**：SQLite 属性过滤对应其精确召回；
+- **代码索引**：`memsys/schema.py::provenance()` + `memsys/long_term/factual_store.py::search_attrs()`。
+
+## 代码详解（溯源如何随检索结果流动）
+
+```python
+# schema.py::provenance() —— 条目自带溯源包
+def provenance(self):
+    return {"id": self.id, "type": self.type.value, "source": self.source,
+            "session_id": self.session_id, "timestamp": self.timestamp,
+            "recall_count": self.recall_count}
+
+# pipeline.py（节选）—— 溯源随每条检索结果输出（创新点 E）
+result.retrieved = [{"id": h.entry.id, "score": round(h.score, 4),
+                     "route": h.route, "content": h.entry.content[:80],
+                     "provenance": h.entry.provenance()}  # ← 注入规划的记忆可回查来历
+                    for h in hits]
+```
+> 对应 Zep 的"semantic artifact 可回溯到源 episode"——我们的轻量版：`source='复盘:P001'` 即能回答"这条教训哪来的"。进阶接 graphiti 时把 provenance 升级为图节点回链。
+
 ## 代码实证（结合 paper_code/）
 
 - 仓库：`paper_code/02_长期记忆/graphiti/`（Graphiti 引擎）

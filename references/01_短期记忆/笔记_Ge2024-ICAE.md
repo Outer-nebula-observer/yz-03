@@ -62,3 +62,24 @@
 
 ---
 *与 LLMLingua 系（删 token 式）对照：ICAE=可学习软槽位，见 `笔记_Jiang2023-LLMLingua.md`。*
+
+## 论文核心代码（paper_code 索引）
+
+- 未 clone（需微调资源，赛题内以调研参考为主）；官方仓库 https://github.com/ARISE-Initiative/ICAE ，关键文件为 LoRA 编码器训练脚本与 `[AE]` 特殊 token 的预训练数据构造（论文 §2）。
+
+## 我们的实现（memsys）
+
+- **思路**：不做可学习压缩（无微调预算），但吸收其"压缩产物可直接条件化 + 可恢复校验"思想——我们的"递归摘要"就是非可学习版的 memory slots；
+- **代码索引**：`memsys/short_term/working_memory.py::_flush()` 与 `_recursive_summary` 字段——"旧摘要+被驱逐消息→新摘要"的递归压缩，产物直接进 render() 供 LLM 条件化。
+
+## 代码详解（我们的递归摘要 ≈ 非可学习 memory slots）
+
+```python
+# working_memory.py::_flush()（节选）
+evicted = self.slot.fifo_queue[:cut]              # 驱逐最旧 50%
+# 递归语义：新摘要 = f(旧摘要, 被驱逐消息) —— 每轮压缩都带着历史压缩结果
+material = (self._recursive_summary + "\n" + "\n".join(evicted)).strip()
+self._recursive_summary = self.llm.summarize(material, max_words=120)
+self.archived.append({"evicted": evicted, "summary": self._recursive_summary})  # 不丢，可回放
+```
+> 与 ICAE 的对应：`_recursive_summary` 扮演 memory slots（固定预算的压缩表征）；区别是 ICAE 用 LoRA 学出软 token，我们用摘要保真（可读可审计，符合赛题"可解释"要求）。

@@ -105,3 +105,25 @@
 
 ---
 *本综述是组会汇报_模型记忆体系综述.md 的主干来源；后续 2024–2025 新作（MIRIX/Mem-α/MemSkill/StructMem/PREMem）已在各自笔记中补入。*
+
+## 论文核心代码（paper_code 索引）
+
+- 仓库：`paper_code/00_综述/LLM_Agent_Memory_Survey/`（纯 README 论文清单，无算法代码）；
+- 综述的价值在**框架**而非实现：Table 2（记忆形式）/Table 3（写/管/读三操作逐模型打勾）是我们模块划分与选型的直接依据。
+
+## 我们的实现（memsys）
+
+- **思路**：综述的"写入→管理→读取"管道 = 我们的四模块 + controller；Table 3 的操作清单逐项落进 `memory_evolution.py`（Merging=merge / Reflection=abstract / Forgetting=forget / Writing=write）；
+- **代码索引**：全仓 `memsys/`（每个文件头注释都标注了对应的论文与综述小节）。
+
+## 代码详解（综述三操作 → evolution 方法的映射表）
+
+```python
+# 综述 §5.3 的操作分类 → 我们的方法签名（一一对应，可当"实现完整度"对照表）
+# Table 3: Writing  → memory_evolution.py::write()     （写入+PREMem查重）
+# Table 3: Merging  → memory_evolution.py::merge()     （合并+merged_from溯源）
+# Table 3: Reflection → memory_evolution.py::abstract()（反思→高阶教训）
+# Table 3: Forgetting → memory_evolution.py::forget()  （艾宾浩斯+保护线）
+# Table 3: Reading  → retrieval/hybrid.py::retrieve()  （三路融合+回填）
+```
+> 用途：答辩时拿这张映射表回答"综述框架你们实现了多少"——五项操作全落地，各自有独立消融开关。
