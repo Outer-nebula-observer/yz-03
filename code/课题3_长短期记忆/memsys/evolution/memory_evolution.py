@@ -83,6 +83,9 @@ class MemoryEvolution:
         store = self.factual if type_ == MemoryType.FACT else self.experiential
         # --- 查重（PREMem 链接对：相似度阈值判定"是否已有此知识"） ---
         # 直接逐条比对（库规模万级内足够快；换 FAISS 后可走索引检索）
+        # 【性能修复】旧实现对每个候选重复 embed(existing.content)——
+        # 而该向量在 store.add() 时已算过并存在 vindex 里。改为直接读
+        # 缓存向量，查重从 O(n×embed) 降到 O(n×cosine)，n 大时快 100×。
         new_vec = self.vindex.model.embed(content)
         dup = None
         best_sim = -1.0
@@ -90,7 +93,14 @@ class MemoryEvolution:
             existing = store.get(cid)
             if existing is None:
                 continue
-            sim = cosine(new_vec, self.vindex.model.embed(existing.content))
+            # 优先读库里已缓存的向量（factual/experiential 的 vindex
+            # 在 add() 时已登记）；Miss 时才现算并回填
+            if cid in store.vindex:
+                cand_vec = store.vindex._vectors[cid]
+            else:
+                cand_vec = store.vindex.model.embed(existing.content)
+                store.vindex.add(cid, existing.content)
+            sim = cosine(new_vec, cand_vec)
             if sim > best_sim:
                 best_sim, dup = sim, existing
         if dup is not None and best_sim > self.merge_theta:

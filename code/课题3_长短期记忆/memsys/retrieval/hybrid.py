@@ -36,11 +36,17 @@ class HybridRetriever:
     """
 
     def __init__(self, factual: FactualStore, experiential: ExperientialStore,
-                 alpha: float = 0.5, beta: float = 0.3, gamma: float = 0.2) -> None:
+                 alpha: float = 0.5, beta: float = 0.3, gamma: float = 0.2,
+                 min_score: float = 0.35) -> None:
         self.factual = factual
         self.experiential = experiential
         # 三路融合权重（G5 消融扫描点）
         self.alpha, self.beta, self.gamma = alpha, beta, gamma
+        # 【论文技巧落地】min_score 阈值（ExpeL/Mem-α/MemP 均有）：
+        # 融合分低于此值的记忆**不返回**——防止不相关记忆混进规划上下文
+        # （噪声进上下文比漏召回更伤：污染规划且被"装载"统计虚计）。
+        # 注意量纲：融合分是归一化后加权和，理论范围 [0, alpha+beta+gamma]=1。
+        self.min_score = min_score
         # BM25 语料惰性构建（每次检索前按当前两库内容重建；万级以下可接受）
         self._bm25_cache: Optional[BM25] = None
         self._bm25_size = -1
@@ -81,7 +87,9 @@ class HybridRetriever:
                 e = self.factual.get(mid) or self.experiential.get(mid)
                 if e is None or e.type.value != target:
                     continue
-                e.mark_recalled()
+                # 【Bug 修复】不再在此处 mark_recalled()——强化统一在 retrieve()
+                # 融合排序后执行（B2 修复的残留：bm25 路漏改，与 vector/sql
+                # 路不一致，导致 bm25 命中的记忆被双重强化、S 虚涨）
                 out.append(RetrievedMemory(entry=e, score=s, route="bm25"))
             return out[:top_k]
 
@@ -136,8 +144,10 @@ class HybridRetriever:
             fused[r.entry.id]["s"] += w * r.score
             fused[r.entry.id]["routes"].append(r.route)
 
-        # 4) 排序 + 回填 + 【Bug 修复】统一命中强化
-        ranked = sorted(fused.values(), key=lambda x: x["s"], reverse=True)[:top_k]
+        # 4) 排序 + 阈值过滤 + 回填 + 【Bug 修复】统一命中强化
+        #    【论文技巧】min_score：融合分不够格的直接丢弃（低分噪声不装载）
+        ranked = sorted(fused.values(), key=lambda x: x["s"], reverse=True)
+        ranked = [item for item in ranked if item["s"] >= self.min_score][:top_k]
         results: List[RetrievedMemory] = []
         for i, item in enumerate(ranked):
             r: RetrievedMemory = item["r"]

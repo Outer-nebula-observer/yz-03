@@ -18,6 +18,7 @@ from __future__ import annotations
 
 import json
 import sqlite3
+import threading
 from typing import List, Optional
 
 from ..schema import MemoryEntry, MemoryType, RetrievedMemory, new_entry
@@ -57,13 +58,18 @@ class FactualStore(BaseLongTermStore):
 
     def __init__(self, db_path: str = ":memory:",
                  embedding: Optional[MockEmbedding] = None) -> None:
-        self.conn = sqlite3.connect(db_path)
+        # 【线程安全修复】webui 用 ThreadingHTTPServer（每请求一线程），
+        # SQLite 默认禁止跨线程使用 → check_same_thread=False 放开限制，
+        # 并用 RLock 串行化全部读写（SQLite 单连接本身非并发安全）。
+        self._lock = threading.RLock()
+        self.conn = sqlite3.connect(db_path, check_same_thread=False)
         self.conn.row_factory = sqlite3.Row
         self.conn.executescript(_SCHEMA)
         self.vindex = MemoryVectorIndex(embedding or MockEmbedding())
         # 启动时把已有行登记进向量索引（幂等）
-        for row in self.conn.execute("SELECT id, content FROM facts"):
-            self.vindex.add(row["id"], row["content"])
+        with self._lock:
+            for row in self.conn.execute("SELECT id, content FROM facts"):
+                self.vindex.add(row["id"], row["content"])
 
     # ------------------------- 行 <-> 条目 转换 -------------------------
     @staticmethod
@@ -88,10 +94,11 @@ class FactualStore(BaseLongTermStore):
 
     # ------------------------- 写路径（进化层专用） -------------------------
     def add(self, entry: MemoryEntry) -> MemoryEntry:
-        self.conn.execute(
-            "INSERT OR REPLACE INTO facts VALUES (?,?,?,?,?,?,?,?,?,?,?,?)",
-            self._entry_params(entry))
-        self.conn.commit()
+        with self._lock:
+            self.conn.execute(
+                "INSERT OR REPLACE INTO facts VALUES (?,?,?,?,?,?,?,?,?,?,?,?)",
+                self._entry_params(entry))
+            self.conn.commit()
         self.vindex.add(entry.id, entry.content)
         return entry
 
@@ -103,28 +110,33 @@ class FactualStore(BaseLongTermStore):
         → 高频使用的事实也会被 forget() 误删。此方法由 hybrid 融合排序后
         统一调用（见 hybrid.py 第 4 步），保证强化真实落库。
         """
-        self.conn.execute(
-            "UPDATE facts SET recall_count=?, decay_strength=?, last_recalled_at=? "
-            "WHERE id=?",
-            (entry.recall_count, entry.decay_strength,
-             entry.last_recalled_at, entry.id))
-        self.conn.commit()
+        with self._lock:
+            self.conn.execute(
+                "UPDATE facts SET recall_count=?, decay_strength=?, last_recalled_at=? "
+                "WHERE id=?",
+                (entry.recall_count, entry.decay_strength,
+                 entry.last_recalled_at, entry.id))
+            self.conn.commit()
 
     def update(self, entry: MemoryEntry) -> None:
         self.add(entry)  # INSERT OR REPLACE 幂等
 
     def remove(self, entry_id: str) -> None:
-        self.conn.execute("DELETE FROM facts WHERE id=?", (entry_id,))
-        self.conn.commit()
+        with self._lock:
+            self.conn.execute("DELETE FROM facts WHERE id=?", (entry_id,))
+            self.conn.commit()
         self.vindex.remove(entry_id)
 
     # ------------------------- 读路径（检索层） -------------------------
     def get(self, entry_id: str) -> Optional[MemoryEntry]:
-        row = self.conn.execute("SELECT * FROM facts WHERE id=?", (entry_id,)).fetchone()
+        with self._lock:
+            row = self.conn.execute("SELECT * FROM facts WHERE id=?",
+                                    (entry_id,)).fetchone()
         return self._row_to_entry(row) if row else None
 
     def candidates(self) -> List[str]:
-        return [r["id"] for r in self.conn.execute("SELECT id FROM facts")]
+        with self._lock:
+            return [r["id"] for r in self.conn.execute("SELECT id FROM facts")]
 
     def search(self, query: str, top_k: int = 5) -> List[RetrievedMemory]:
         """混合检索：向量相似（主）+ 内容关键词包含（兜底）。
@@ -140,8 +152,11 @@ class FactualStore(BaseLongTermStore):
             if e:
                 results.append(RetrievedMemory(entry=e, score=score, route="vector"))
         # 2) 关键词直查兜底（低级但精确——参数名直给时最稳）
-        for row in self.conn.execute(
-                "SELECT * FROM facts WHERE content LIKE ?", (f"%{query}%",)).fetchall():
+        with self._lock:
+            rows = self.conn.execute(
+                "SELECT * FROM facts WHERE content LIKE ?",
+                (f"%{query}%",)).fetchall()
+        for row in rows:
             e = self._row_to_entry(row)
             if not any(r.entry.id == e.id for r in results):
                 results.append(RetrievedMemory(entry=e, score=1.0, route="sql"))
@@ -158,7 +173,9 @@ class FactualStore(BaseLongTermStore):
         同 search()：纯只读，强化在 hybrid 层统一做。
         """
         hits: List[RetrievedMemory] = []
-        for row in self.conn.execute("SELECT * FROM facts").fetchall():
+        with self._lock:
+            all_rows = self.conn.execute("SELECT * FROM facts").fetchall()
+        for row in all_rows:
             e = self._row_to_entry(row)
             if all(e.metadata.get(k) == v for k, v in attrs.items()):
                 hits.append(RetrievedMemory(entry=e, score=1.0, route="sql"))

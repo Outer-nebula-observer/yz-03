@@ -10,7 +10,7 @@
 ```bash
 cd code/课题3_长短期记忆
 
-# 1) 冒烟测试（7 组用例全过 = 框架健康）
+# 1) 冒烟测试（10 组用例全过 = 框架健康）
 python tests/test_smoke.py
 
 # 2) G0–G5 消融跑批（检索指标 + 库规模）
@@ -18,6 +18,9 @@ python -m eval.ablation
 
 # 3) 七步闭环演示（两场次，验证"越用越强"）
 python examples/demo_pipeline.py
+
+# 4) Web 控制台（浏览器操作七步闭环，组会演示首选）
+python webui/server.py            # → http://127.0.0.1:8765
 ```
 
 **无需安装任何第三方包**：LLM/Embedding 均有 Mock 实现（确定性、离线）。
@@ -53,6 +56,10 @@ python examples/demo_pipeline.py
 │   └── ablation.py            #   G0–G5 消融跑批（种子测试集）
 ├── tests/test_smoke.py        # 冒烟测试（零依赖，不用 pytest）
 ├── examples/demo_pipeline.py  # 两场次闭环演示（组会可放屏）
+├── webui/                     # Web 控制台（零依赖 http.server）
+│   ├── server.py              #   API 路由 + 全局 controller（线程安全）
+│   ├── _selftest.py           #   全链路自测（20 项：七步闭环逐接口）
+│   └── static/                #   index.html / app.js / style.css（原生 JS）
 ├── engine.py                  # 老师平台 SDK 插件适配器（MemoryEnginePlugin）
 ├── __init__.py                # 包入口（导出 engine_plugin 供平台发现）
 └── README.md                  # 本文件

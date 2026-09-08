@@ -126,6 +126,10 @@ class MemoryController:
         report = self.evolution.evolve_from_review(material,
                                                    session_id=self._wm.slot.plan_id)
         self._wm.close()
+        # 【语义修复】场次结束后清除引用——working_memory 返回 None、
+        # render_context 返回空串（此前仍持已关闭槽位，状态查询与
+        # webui 会把"已关场次"当成活动场次展示）。
+        self._wm = None
         return report
 
     # ---------------------------------------------------------------- 便捷读取

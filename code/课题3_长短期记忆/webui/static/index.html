@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>赛题③ 记忆系统控制台</title>
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<header>
+  <h1>长短期记忆系统 · 控制台 <span class="sub">赛题③ memsys v0.1</span></h1>
+  <div class="chips">
+    <span class="chip" id="chip-facts">事实库 0</span>
+    <span class="chip" id="chip-exps">经验库 0</span>
+    <span class="chip" id="chip-session">无场次</span>
+    <span class="chip warn" id="chip-pressure" style="display:none">⚠ 容量预警</span>
+  </div>
+</header>
+
+<main>
+  <!-- ══════════ 左栏：场次控制（七步闭环操作台） ══════════ -->
+  <section class="col col-left">
+    <div class="card">
+      <h2>① 规划开场</h2>
+      <label>场次 ID <input id="plan-id" placeholder="P001（留空自动生成）"></label>
+      <label>作战目标 <input id="goal" placeholder="夜间夺占 2 号高地"></label>
+      <label>作战约束（每行一条，不可压缩） <textarea id="constraints" rows="2">禁止越境
+限时 4 小时</textarea></label>
+      <div class="queries" id="query-list">
+        <div class="query-row">
+          <span class="qtag">查询②</span>
+          <input class="q-intent" placeholder="意图（查地形/召回教训…）">
+          <select class="q-target"><option value="fact">事实</option><option value="experience">经验</option></select>
+          <select class="q-route"><option>vector</option><option>bm25</option><option>sql</option></select>
+          <input class="q-text" placeholder="查询文本">
+        </div>
+      </div>
+      <div class="btnrow">
+        <button class="ghost" onclick="addQueryRow()">+ 查询</button>
+        <button class="primary" onclick="startSession()">开场 ①②</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>③④ 检索装载</h2>
+      <label>top_k <input id="topk" type="number" value="3" min="1" max="10" style="width:70px"></label>
+      <div class="btnrow">
+        <button class="primary" onclick="retrieve()">检索并装载 ③④</button>
+        <button class="ghost" onclick="loadContext()">刷新上下文 ⑤</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>场次消息流</h2>
+      <label>推入工作记忆（自动处理超限 flush） <textarea id="msg" rows="2">指挥所：红方 3 营东侧集结完毕
+侦察：高地南坡发现两处反坦克火力点</textarea></label>
+      <button class="ghost" onclick="pushMsg()">推入 FIFO</button>
+    </div>
+
+    <div class="card">
+      <h2>⑥⑦ 复盘进化</h2>
+      <label>复盘文本（含"教训/经验"关键词行将被抽取） <textarea id="review" rows="3">复盘：任务部分达成。
+教训：夜间突袭未前置电子压制，接敌后通信被干扰。
+经验：突破口形成后预备队投入应提前 10 分钟。</textarea></label>
+      <button class="danger" onclick="closeSession()">复盘并进化 ⑥⑦</button>
+    </div>
+
+    <div class="card">
+      <h2>演示数据</h2>
+      <div class="btnrow">
+        <button class="ghost" onclick="seed()">预置战例/教训</button>
+        <button class="ghost" onclick="resetAll()">清空重置</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════ 中栏：上下文 + 检索结果 ══════════ -->
+  <section class="col col-mid">
+    <div class="card grow">
+      <h2>⑤ 工作记忆上下文 <span class="hint">（注入规划 LLM 的最终形态）</span></h2>
+      <div class="metric" id="ctx-metrics">tokens 0 · 0% · 未预警</div>
+      <pre id="context" class="ctx">（尚未开场）</pre>
+    </div>
+    <div class="card grow">
+      <h2>③ 检索命中 <span class="hint">（带溯源 · 创新点 E）</span></h2>
+      <div id="hits" class="hits"><div class="empty">（尚未检索）</div></div>
+    </div>
+    <div class="card">
+      <h2>⑦ 进化报告</h2>
+      <div id="report" class="report"><div class="empty">（尚未复盘）</div></div>
+    </div>
+  </section>
+
+  <!-- ══════════ 右栏：记忆库浏览 ══════════ -->
+  <section class="col col-right">
+    <div class="card grow">
+      <h2>记忆库浏览</h2>
+      <div class="tabs">
+        <button class="tab active" data-type="fact" onclick="switchTab(this)">事实库</button>
+        <button class="tab" data-type="experience" onclick="switchTab(this)">经验库</button>
+      </div>
+      <div class="searchrow">
+        <input id="search-q" placeholder="混合检索：如 夜战 侦察 / T-90">
+        <select id="search-target"><option value="fact">事实</option><option value="experience">经验</option></select>
+        <select id="search-route"><option>vector</option><option>bm25</option><option>sql</option></select>
+        <button class="primary sm" onclick="doSearch()">检</button>
+      </div>
+      <div id="memory-list" class="memlist"></div>
+    </div>
+    <div class="card">
+      <h2>边界审计 <span class="hint">（boundary 模块）</span></h2>
+      <div id="boundary-stats" class="metric">放行 0 · 拒绝 0</div>
+      <div id="audit" class="audit"><div class="empty">（暂无决策）</div></div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <span>七步闭环：①规划 → ②查询列表 → ③检索 → ④装载 → ⑤上下文 → ⑥反馈 → ⑦进化</span>
+  <span id="err" class="err"></span>
+</footer>
+
+<script src="/app.js"></script>
+</body>
+</html>

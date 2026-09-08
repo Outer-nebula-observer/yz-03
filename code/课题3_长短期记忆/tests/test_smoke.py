@@ -42,10 +42,14 @@ def ok(name: str) -> None:
 def test_schema() -> None:
     e = new_entry(MemoryType.EXPERIENCE, "教训：夜战需先遣侦察")
     assert e.id.startswith("experience-"), "id 前缀错误"
-    r0 = e.retention()
+    # 确定性构造：把创建时间回拨 10 秒，避免依赖真实时钟精度
+    # （Windows time.time() 分辨率 ~15ms，t≈0 时 r0 与强化后都是 1.0，断言会闪断；
+    #   回拨 1000s 会浮点下溢为 0，10s 时 r0≈e^-10≈4.5e-5，安全且确定性）
+    e.timestamp = time.time() - 10.0
+    e.last_recalled_at = e.timestamp
+    r0 = e.retention()  # ≈ e^(-1000/1) ≈ 0
     assert 0 < r0 <= 1.0, "留存率应在 (0,1]"
-    # 命中强化：召回后 S+1、t 重置 → 留存率应上升
-    time.sleep(0.01)
+    # 命中强化：召回后 S+1、t 重置 → 留存率应回到 ≈1（远大于 r0）
     e.mark_recalled()
     assert e.retention() > r0, "命中强化应提升留存率"
     assert e.provenance()["id"] == e.id, "溯源字段错误"
@@ -239,8 +243,43 @@ def test_bugfix_regressions() -> None:
     ok("Bug 修复回归：强化落库 + 单次强化 + render 清理")
 
 
+def test_bugfix_regression() -> None:
+    """锁定三轮检查修复的缺陷（防止回归）。"""
+    # --- R1: bm25 路双重强化（B2 残留）---
+    emb = MockEmbedding()
+    fs = FactualStore(":memory:", emb)
+    es = ExperientialStore(emb)
+    f = new_entry(MemoryType.FACT, "红方 T-90 坦克 最大速度 60km/h")
+    fs.add(f)
+    r = HybridRetriever(fs, es)
+    before = fs.get(f.id).recall_count
+    q = QueryItem(q_id="rb", intent="查装备", target="fact",
+                  route="bm25", query_text="T-90 速度")
+    hits = r.retrieve(q, top_k=3)
+    after = fs.get(f.id).recall_count
+    assert after - before == 1, f"一次检索 recall_count 应恰好 +1（实际 {before}→{after}）"
+    assert hits, "bm25 路命中不应为空"
+
+    # --- R2: min_score 阈值（低分噪声不返回）---
+    r.min_score = 0.99  # 极高阈值 → 几乎全滤掉
+    q2 = QueryItem(q_id="rm", intent="无关查询", target="fact",
+                   route="vector", query_text="量子纠缠 波函数")
+    hits2 = r.retrieve(q2, top_k=3)
+    assert hits2 == [], "极低相关查询应被 min_score 全部滤除"
+    r.min_score = 0.0   # 恢复关闭（兼容旧用法）
+
+    # --- R3: 查重读缓存向量（不重复 embed，且查重结果不变）---
+    from memsys import MemoryEvolution
+    llm = MockLLM()
+    ev = MemoryEvolution(fs, es, llm, emb)
+    id1 = ev.write(MemoryType.FACT, "蓝方 M1A2 坦克 主炮 120mm")
+    assert id1, "首条写入应成功"
+    dup = ev.write(MemoryType.FACT, "蓝方 M1A2 坦克 主炮 120mm")
+    assert dup is None, "重复内容应被查重拦截（缓存向量路径）"
+    ok("回归：bm25 单次强化 + min_score 滤噪 + 查重缓存向量")
+
+
 if __name__ == "__main__":
-    print("=" * 60)
     print("memsys 冒烟测试（零依赖 · 离线）")
     print("=" * 60)
     test_schema()
@@ -252,5 +291,6 @@ if __name__ == "__main__":
     test_pipeline()
     test_boundary()
     test_bugfix_regressions()
+    test_bugfix_regression()
     print("=" * 60)
     print("全部通过 [OK]")
