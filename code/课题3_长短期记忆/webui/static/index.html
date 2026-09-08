@@ -51,27 +51,10 @@
       <label>作战目标 <input id="goal" placeholder="夜间夺占 2 号高地"></label>
       <label>作战约束（每行一条，不可压缩） <textarea id="constraints" rows="2">禁止越境
 限时 4 小时</textarea></label>
-      <div class="queries" id="query-list">
-        <div class="query-row">
-          <span class="qtag">查询②</span>
-          <input class="q-intent" placeholder="意图（查地形/召回教训…）">
-          <select class="q-target"><option value="fact">事实</option><option value="experience">经验</option></select>
-          <select class="q-route"><option>vector</option><option>bm25</option><option>sql</option></select>
-          <input class="q-text" placeholder="查询文本">
-        </div>
-      </div>
+      <div class="queries" id="query-list"></div>
       <div class="btnrow">
         <button class="ghost" onclick="addQueryRow()">+ 查询</button>
         <button class="primary" onclick="startSession()">开场 ①②</button>
-      </div>
-    </div>
-
-    <div class="card">
-      <h2>③④ 检索装载</h2>
-      <label>top_k <input id="topk" type="number" value="3" min="1" max="10" style="width:70px"></label>
-      <div class="btnrow">
-        <button class="primary" data-need-session onclick="retrieve()">检索并装载 ③④</button>
-        <button class="ghost" onclick="loadContext()">刷新上下文 ⑤</button>
       </div>
     </div>
 
@@ -81,6 +64,15 @@
       <div class="stagebar" id="stage-bar"></div>
       <div class="btnrow">
         <button class="chain" data-need-session onclick="autoStageWalk()">⏩ 自动走完七阶段</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>③④ 手动检索装载 <span class="hint">（执行表单/场景查询）</span></h2>
+      <label>top_k <input id="topk" type="number" value="3" min="1" max="10" style="width:70px"></label>
+      <div class="btnrow">
+        <button class="primary" data-need-session onclick="retrieve()">检索并装载 ③④</button>
+        <button class="ghost" onclick="loadContext()">刷新上下文 ⑤</button>
       </div>
     </div>
 
@@ -137,7 +129,7 @@
     <div class="zone-label out">📦 产出 · 长期记忆 <span>检索命中 / 进化沉淀 / 场次历史 / 记忆库</span></div>
 
     <div class="card grow">
-      <h2>🎯 检索命中 <span class="hint">（带溯源 · 创新点 E）</span></h2>
+      <h2>🎯 检索命中 <span class="hint">（带溯源 · 创新点 E）</span><span class="hint" id="hits-stage"></span></h2>
       <div id="hits" class="hits"><div class="empty">（尚未检索）</div></div>
     </div>
 

@@ -97,6 +97,11 @@ class MemoryController:
         for q in self._wm.slot.query_list:
             if stage is not None and q.stage != stage:
                 continue
+            # 已按阶段执行过的查询不重复执行（advance_stage 有命中缓存）——
+            # 手动"检索并装载"只补执行手写/场景查询，防止阶段查询被再次
+            # 检索导致 recall_count / 艾宾浩斯 S 虚涨
+            if stage is None and q.stage and q.stage in self._stage_hits:
+                continue
             hits = self.retriever.retrieve(q, top_k=top_k)
             for h in hits:
                 self._wm.load_memory(h.entry.id)  # 溯源：记录装载了谁

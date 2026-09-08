@@ -162,8 +162,15 @@ check("GET /api/stages（MDMP 七阶段）",
       str(st)[:100])
 r = call("/api/session/start", {
     "plan_id": "W003", "goal": "夜间夺占 2 号高地", "constraints": ["禁止越境"],
-    "queries": []})   # 不带手写查询——全部由阶段模板生成
+    "queries": []})   # 不带手写查询——由阶段模板生成（老师意见的落地）
 check("W003 开场（无手写查询）", r.get("ok") is True, str(r))
+# 新默认：开场即装载"受领任务+任务分析"阶段查询（不再 goal 字面直查）
+r = call("/api/context")
+default_qs = [q for q in r.get("wm", {}).get("queries", []) if q.get("stage")]
+check("开场默认查询为阶段模板（受领任务+任务分析）",
+      any(q["stage"] == "mission_receipt" for q in default_qs)
+      and any(q["stage"] == "mission_analysis" for q in default_qs),
+      str([q.get("stage") for q in default_qs]))
 r = call("/api/session/stage", {"stage_id": "mission_analysis", "top_k": 3})
 check("POST /api/session/stage（任务分析）",
       r.get("ok") and r.get("stage", {}).get("name") == "任务分析", str(r)[:120])
@@ -185,6 +192,8 @@ check("进入推演阶段（查询追加不覆盖）",
       str(len(r.get("wm", {}).get("queries", []))))
 check("推演阶段召回经验教训",
       any(h["type"] == "experience" for h in r.get("hits", [])))
+# 补走"受领任务"阶段：开场默认查询在此执行并入缓存（供下方回归断言）
+call("/api/session/stage", {"stage_id": "mission_receipt", "top_k": 3})
 # 幂等：同阶段重复点击不虚涨 recall_count
 mem_before = call("/api/memory?type=experience")["items"]
 rc_before = {m["id"]: m["recall_count"] for m in mem_before}
@@ -200,6 +209,13 @@ stt2 = call("/api/status")
 check("阶段推进点亮 stepper ③④⑤",
       stt2["steps"]["s3"] and stt2["steps"]["s4"] and stt2["steps"]["s5"],
       str(stt2["steps"]))
+# 手动检索跳过已缓存阶段查询（recall 不虚涨）
+rcb = {m["id"]: m["recall_count"] for m in call("/api/memory?type=experience")["items"]}
+r3 = call("/api/session/retrieve", {"top_k": 3})
+rca = {m["id"]: m["recall_count"] for m in call("/api/memory?type=experience")["items"]}
+check("手动检索不重跑已缓存阶段查询（recall 不变）",
+      rcb == rca and r3.get("hits") == [],
+      str({k: (rcb.get(k), rca.get(k)) for k in rca if rcb.get(k) != rca.get(k)})[:120])
 ev = call("/api/events")
 check("阶段切换进事件流",
       any("规划阶段" in e["title"] for e in ev["events"]))

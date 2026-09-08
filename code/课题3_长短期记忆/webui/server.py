@@ -34,7 +34,9 @@ import argparse
 import json
 import os
 import sys
+import threading
 import time
+import webbrowser
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import urlparse, parse_qs
 
@@ -46,7 +48,7 @@ sys.path.insert(0, ROOT)
 from memsys import (  # noqa: E402
     MemoryController, MemoryType, QueryItem, new_entry, MockLLM, MockEmbedding,
     FactualStore, ExperientialStore,
-    MDMP_STAGES, STAGE_NAMES, get_stage,
+    MDMP_STAGES, STAGE_NAMES, get_stage, queries_for_stage,
 )
 
 STATIC_DIR = os.path.join(HERE, "static")
@@ -125,6 +127,9 @@ class AppState:
              {"地点": "2号高地", "stage": "mission_analysis"}),
             ("3 号高地海拔 210 米，地形开阔，两条机械化通路。",
              {"地点": "3号高地", "stage": "mission_analysis"}),
+            # 命令拟制阶段：条令/协同格式事实（sql 路演示）
+            ("条令：营进攻战斗炮火准备不少于 15 分钟，步坦协同按三线配置。",
+             {"类别": "条令", "stage": "orders_production"}),
         ]
         exps = [
             ("教训：夜间行军未派先遣侦察，先头连在东侧隘口遭遇伏击。",
@@ -133,6 +138,11 @@ class AppState:
              1.5, "coa_development"),
             ("教训：渡河架桥耗时超预估 40%，导致主攻梯队迟到。",
              2.0, "coa_analysis"),
+            # 补齐各阶段经验，让"自动走完七阶段"每步都有供给
+            ("经验：方案比较应优先权衡风险与代价，而非只看预期战果。",
+             1.5, "coa_comparison"),
+            ("教训：定下决心时犹豫观望，曾错失最佳反击战机。",
+             2.0, "coa_approval"),
         ]
         for content, attrs in facts:
             self.ctl.factual.add(new_entry(MemoryType.FACT, content,
@@ -185,14 +195,13 @@ def api_session_start(body: dict) -> dict:
                   query_text=q.get("query_text", ""))
         for i, q in enumerate(queries_raw)
     ]
-    if not queries:  # 无外部查询时按 goal 自动生成两条（与 pipeline 默认一致）
+    if not queries:
+        # 无外部查询时按阶段模板生成（老师意见的落地）：
+        # 不再用 goal 字面直查（信息量太薄），开场即执行"受领任务 +
+        # 任务分析"两个阶段的模板查询——先看历史教训，再备情报事实。
         goal = body.get("goal", "")
-        queries = [
-            QueryItem(q_id="q1", intent="查相关装备/环境事实", target="fact",
-                      route="vector", query_text=goal),
-            QueryItem(q_id="q2", intent="召回相似历史经验教训", target="experience",
-                      route="vector", query_text=goal),
-        ]
+        queries = (queries_for_stage("mission_receipt", goal)
+                   + queries_for_stage("mission_analysis", goal))
     plan_id = body.get("plan_id") or f"P{int(time.time())%100000}"
     goal = body.get("goal", "")
     constraints = body.get("constraints") or []
@@ -711,11 +720,17 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="赛题③ 记忆系统 Web 控制台")
     parser.add_argument("--port", type=int, default=8765)
     parser.add_argument("--host", default="127.0.0.1")
+    parser.add_argument("--no-browser", action="store_true",
+                        help="启动后不自动打开浏览器")
     args = parser.parse_args()
     srv = ThreadingHTTPServer((args.host, args.port), Handler)
+    url = f"http://{args.host}:{args.port}"
+    if not args.no_browser:
+        # 延迟 1 秒开浏览器：等 serve_forever 就绪，避免首请求 404
+        threading.Timer(1.0, lambda: webbrowser.open(url)).start()
     print("=" * 60)
     print(f"赛题③ 记忆系统 Web 控制台已启动")
-    print(f"    地址: http://{args.host}:{args.port}")
+    print(f"    地址: {url}" + ("" if args.no_browser else "（即将自动打开浏览器）"))
     print(f"    静态目录: {STATIC_DIR}")
     print(f"    停止: Ctrl+C")
     print("=" * 60)

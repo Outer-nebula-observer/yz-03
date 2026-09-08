@@ -433,6 +433,19 @@ def test_stage_aware() -> None:
         pass
     ok("advance_stage 幂等（同阶段不重复检索）+ 未知阶段校验")
 
+    # 7b) 手动检索不重复执行已缓存的阶段查询（retrieve_after_stage 回归）
+    #     先补走"受领任务"阶段（开场默认查询在此执行并缓存）
+    ctl.advance_stage("mission_receipt", top_k=3)
+    rc_b = {eid: ctl.experiential.get(eid).recall_count
+            for eid in ctl.experiential.candidates()}
+    hits_manual = ctl.retrieve_and_load(top_k=3)   # stage=None：全量执行
+    rc_a = {eid: ctl.experiential.get(eid).recall_count
+            for eid in ctl.experiential.candidates()}
+    # 各阶段均已缓存 → 其查询不重复执行
+    assert rc_b == rc_a, f"手动检索不应重跑已缓存阶段查询：{rc_b} → {rc_a}"
+    assert hits_manual == [], f"全部查询均已按阶段缓存，手动检索应无新增命中：{len(hits_manual)}"
+    ok("手动检索跳过已缓存阶段查询（不虚涨 recall）")
+
     # 8) merge/abstract 保留 stage 标签（亲和资格不因进化丢失）
     evo2 = MemoryEvolution(FactualStore(":memory:", MockEmbedding()),
                            ExperientialStore(MockEmbedding()),

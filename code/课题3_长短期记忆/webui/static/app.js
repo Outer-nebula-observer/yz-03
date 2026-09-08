@@ -88,6 +88,7 @@ function addQueryRow() {
     <input class="q-intent" placeholder="意图">
     <select class="q-target"><option value="fact">事实</option><option value="experience">经验</option></select>
     <select class="q-route"><option>vector</option><option>bm25</option><option>sql</option></select>
+    <button class="q-del" title="删除此查询" onclick="this.closest('.query-row').remove()">×</button>
     <input class="q-text" placeholder="查询文本">`;
   $("query-list").appendChild(div);
 }
@@ -101,6 +102,7 @@ async function startSession() {
   if (!body.goal) { showErr("请填写作战目标"); return; }
   const r = await api("/api/session/start", body);
   if (!r) return;
+  resetStageBadges();
   await refreshStatus();
   await loadContext();
   await refreshEvents();
@@ -115,6 +117,7 @@ async function retrieve() {
   renderContext(r);
   renderWM(r.wm);
   renderReuseBanner(r.reused);
+  $("hits-stage").textContent = "｜手动/场景查询";
   await refreshStatus();
   await refreshEvents();
   await refreshSessions();
@@ -158,11 +161,24 @@ async function advanceStage(stageId) {
   renderWM(r.wm);
   renderReuseBanner(r.reused);
   updateStageBar(stageId);
+  setStageBadge(stageId, (r.hits || []).length);
+  $("hits-stage").textContent = `｜当前阶段：${r.stage.n} ${r.stage.name}`;
   $("stage-desc").textContent =
     `阶段 ${r.stage.n} ${r.stage.name}（${r.stage.en}）需要：${r.stage.knows} —— 已生成阶段查询并供给记忆`;
   await refreshStatus();
   await refreshEvents();
   await refreshSessions();
+}
+function setStageBadge(stageId, n) {
+  const btn = document.querySelector(`#stage-bar .stg[data-id="${stageId}"]`);
+  if (!btn) return;
+  let b = btn.querySelector(".cnt");
+  if (!b) { b = document.createElement("span"); b.className = "cnt"; btn.appendChild(b); }
+  b.textContent = n;
+}
+function resetStageBadges() {
+  document.querySelectorAll("#stage-bar .stg .cnt").forEach(b => b.remove());
+  $("hits-stage").textContent = "";
 }
 async function autoStageWalk() {
   /* 自动走完 MDMP 七阶段：每阶段停顿，直观展示"不同阶段供给不同记忆" */
@@ -520,7 +536,11 @@ async function fillScenario(force = false, sceneId = null) {
 }
 
 /* ---------------- 自动演示 ---------------- */
-/* 跑完一个场景的完整闭环（①→⑦）；opt.reset 控制是否先重置（连续两场时第二场不重置） */
+/* 阶段驱动的单场景闭环（老师意见的落地）：
+   开场（默认即装载"受领任务+任务分析"阶段查询）
+   → 逐阶段推进：任务分析(情报) → 方案拟制(战例) → 方案推演(教训)
+   → 手动/场景查询补执行 → 消息流 → 复盘进化。
+   opt.reset 控制是否先重置（连续两场时第二场不重置）。 */
 async function runScenario(sceneId, opt = {}) {
   const { reset = true, planId = null } = opt;
   const st = await api("/api/status");
@@ -535,8 +555,12 @@ async function runScenario(sceneId, opt = {}) {
   }
   await fillScenario(true, sceneId);
   if (planId) $("plan-id").value = planId;
-  await sleep(500);   await startSession();   // ①②
-  await sleep(700);   await retrieve();       // ③④⑤
+  await sleep(500);   await startSession();   // ①②（默认装载阶段 1/2 查询）
+  await sleep(600);   await advanceStage("mission_receipt");     // 阶段1：受领任务
+  await sleep(700);   await advanceStage("mission_analysis");    // 阶段2：情报供给
+  await sleep(700);   await advanceStage("coa_development");     // 阶段3：战例供给
+  await sleep(700);   await advanceStage("coa_analysis");        // 阶段4：教训供给
+  await sleep(600);   await retrieve();       // ③④ 场景/手写查询补执行（阶段查询走缓存）
   // 消息流逐条推入（视觉上像实时战报）
   const msgs = $("msg").value.split("\n").filter(x => x.trim());
   for (const m of msgs) {
@@ -550,10 +574,10 @@ async function runScenario(sceneId, opt = {}) {
 }
 
 async function autoDemo() {
-  /* 自动演示：代点当前所选场景的 ①→⑦ 全部按钮（每个动作间停顿便于讲解）。 */
+  /* 自动演示（阶段驱动）：当前场景跑完整闭环，全程按 MDMP 阶段供给记忆。 */
   await runScenario($("scene-select").value, { reset: true });
   $("scene-desc").textContent =
-    "✅ 自动演示完成：检索命中 → 装载 → 复盘进化 全链路已跑通（结果见中/右栏）";
+    "✅ 自动演示完成（阶段驱动）：受领任务→任务分析→方案拟制→方案推演 逐阶段供给 → 场景查询 → 消息流 → 复盘进化（见中栏事件流）";
 }
 
 async function demoTwoSessions() {
@@ -579,6 +603,7 @@ async function demoTwoSessions() {
 
 /* ---------------- 启动 ---------------- */
 window.addEventListener("DOMContentLoaded", async () => {
+  addQueryRow();          // 默认一条空查询行（可删；场景填充会重建）
   await loadStages();    // MDMP 七阶段（规划阶段副驾驶）——先于 seed，
                          // 保证首次渲染记忆列表/命中时 stageName 可用
   await seed();          // 首次进入自动预置演示数据（幂等），开箱即可玩
