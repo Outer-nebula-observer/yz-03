@@ -36,3 +36,6 @@ paper_code/*/*/
 .DS_Store
 Thumbs.db
 desktop.ini
+
+# ===== 注释版论文源码：仅本地保留，不入库不推送 =====
+annotated_code/
