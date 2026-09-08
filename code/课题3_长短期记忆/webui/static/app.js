@@ -234,8 +234,78 @@ async function refreshAll() {
   await loadContext();
 }
 
+/* ---------------- 场景库（自动填充样例 + 一键演示） ---------------- */
+let curScene = null;
+
+async function loadScenes() {
+  const r = await api("/api/scenarios");
+  if (!r) return;
+  const sel = $("scene-select");
+  sel.innerHTML = r.scenarios.map(s =>
+    `<option value="${s.id}">${s.title}</option>`).join("");
+  if (r.scenarios.length) fillScenario();   // 默认填充第一个
+}
+
+async function fillScenario(force = false) {
+  const id = $("scene-select").value;
+  if (!id) return;
+  if (!force && curScene === id) return;    // 同场景不重复拉取
+  const sc = await api("/api/scenario", { id });
+  if (!sc) return;
+  curScene = id;
+  // —— 填充四张表单 ——
+  $("goal").value = sc.goal;
+  $("constraints").value = sc.constraints.join("\n");
+  $("msg").value = sc.messages.join("\n");
+  $("review").value = sc.review;
+  // 查询列表：先清空再按场景重建
+  $("query-list").innerHTML = "";
+  sc.queries.forEach(q => {
+    addQueryRow();
+    const rows = document.querySelectorAll(".query-row");
+    const row = rows[rows.length - 1];
+    row.querySelector(".q-intent").value = q.intent;
+    row.querySelector(".q-target").value = q.target;
+    row.querySelector(".q-route").value = q.route;
+    row.querySelector(".q-text").value = q.query_text;
+  });
+  $("scene-desc").textContent = sc.desc;
+}
+
+const sleep = (ms) => new Promise(r => setTimeout(r, ms));
+
+async function autoDemo() {
+  /* 自动演示：代点 ①→⑦ 全部按钮（每个动作间停 800ms 便于讲解）。
+     若无场次先 reset+seed，保证从干净状态跑完整闭环。 */
+  const st = await api("/api/status");
+  if (!st) return;
+  if (st.session && st.session.open) {
+    await api("/api/session/close", { review_text: "（自动演示前的收尾）" });
+  }
+  await api("/api/reset", {});
+  await api("/api/seed", {});
+  await fillScenario(true);
+  await refreshAll();
+  await sleep(600);   await startSession();   // ①②
+  await sleep(800);   await retrieve();       // ③④
+  await sleep(800);   await loadContext();    // ⑤
+  // 消息流逐条推入（视觉上像实时战报）
+  const msgs = $("msg").value.split("\n").filter(x => x.trim());
+  for (const m of msgs) {
+    $("msg").value = m;
+    await pushMsg();
+    await sleep(500);
+  }
+  $("msg").value = msgs.join("\n");
+  await sleep(600);   await closeSession();   // ⑥⑦
+  await refreshAll();
+  $("scene-desc").textContent =
+    "✅ 自动演示完成：检索命中 → 装载 → 复盘进化 全链路已跑通（结果见中/右栏）";
+}
+
 /* ---------------- 启动 ---------------- */
 window.addEventListener("DOMContentLoaded", async () => {
   await seed();          // 首次进入自动预置演示数据，开箱即可玩
+  await loadScenes();    // 场景库加载并默认填充第一场景
   await refreshAll();
 });

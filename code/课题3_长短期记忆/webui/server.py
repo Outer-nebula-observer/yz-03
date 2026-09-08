@@ -232,6 +232,93 @@ def api_audit() -> dict:
     return {"stats": b.stats(), "log": b.audit_log()[-50:]}
 
 
+# ---------------------------------------------------------------- 场景库（自动样例）
+# 设计动机：课程演示时手敲 goal/查询/消息/复盘太慢且易错——预置 4 个完整场景，
+# 前端一键填充全部表单（含查询列表、消息流、复盘文本），或"自动演示"逐按钮代点。
+SCENARIOS = {
+    "night_hill": {
+        "title": "夜间夺占 2 号高地（标准闭环）",
+        "desc": "演示七步闭环全流程：地形事实召回 + 夜战教训复用 + 复盘沉淀新经验",
+        "goal": "夜间夺占 2 号高地，歼灭守敌 1 个加强排",
+        "constraints": ["禁止越境", "限时 4 小时", "优先保存装甲力量"],
+        "queries": [
+            {"intent": "查目标区域地形与通行条件", "target": "fact",
+             "route": "vector", "query_text": "2 号高地 地形 装甲 通行 道路"},
+            {"intent": "召回夜间作战历史教训", "target": "experience",
+             "route": "bm25", "query_text": "夜战 侦察 伏击 教训"},
+        ],
+        "messages": ["指挥所：红方 3 营于东侧集结完毕",
+                     "侦察分队：高地南坡发现两处反坦克火力点",
+                     "气象：今夜 02:00 起降雨，能见度不足 300 米"],
+        "review": ("复盘：任务部分达成，突袭队按时抵达但遭遇伏击。"
+                   "教训：夜间突袭未前置电子压制，接敌后通信被干扰。"
+                   "经验：突破口形成后预备队投入应提前 10 分钟。"),
+    },
+    "river_cross": {
+        "title": "强渡青川河（教训复用）",
+        "desc": "上一场'渡河架桥超时'的教训应被召回并影响本场规划",
+        "goal": "强渡青川河，建立对岸桥头堡",
+        "constraints": ["天亮前完成渡河", "工兵分队随行"],
+        "queries": [
+            {"intent": "查渡河装备与水文事实", "target": "fact",
+             "route": "vector", "query_text": "舟桥 水文 流速 渡河 装备"},
+            {"intent": "召回渡河/架桥历史教训", "target": "experience",
+             "route": "bm25", "query_text": "渡河 架桥 超时 教训"},
+        ],
+        "messages": ["工兵：侦察渡口水深 2.1 米，流速 1.8 米/秒",
+                     "指挥所：蓝方巡逻艇每 40 分钟过境一次"],
+        "review": ("复盘：任务达成。教训：渡口选择保守，未利用上游浅滩。"
+                   "经验：假渡口佯动 15 分钟可有效牵制敌火力。"),
+    },
+    "urban_raid": {
+        "title": "城市街区突击（容量压缩）",
+        "desc": "密集消息流触发 memory_pressure → 演示压缩归档 + 约束保护",
+        "goal": "夺控中心街区 3 号建筑群",
+        "constraints": ["避免平民伤亡", "禁用重炮"],
+        "queries": [
+            {"intent": "查街区建筑布局", "target": "fact",
+             "route": "vector", "query_text": "街区 建筑 布局 通道"},
+        ],
+        # 20 条消息灌爆 4000 token 容量 → 触发 flush 演示
+        "messages": [f"单元{i}：报告接触情况与位置更新 #{i}，街区巷战逐屋推进，"
+                     f"交火点持续上报，弹药消耗统计，伤员后送请求，支援火力协调"
+                     for i in range(1, 21)],
+        "review": ("复盘：任务达成但耗时超预期。教训：逐屋清剿未交替掩护。"
+                   "经验：无人机先行标注火力点可缩短 30% 清剿时间。"),
+    },
+    "defense_hill": {
+        "title": "仓促防御 5 号高地（事实精确检索）",
+        "desc": "装备参数查询走 sql 路——演示精确召回（参数级）",
+        "goal": "组织仓促防御，迟滞蓝方装甲冲击 6 小时",
+        "constraints": ["无空中支援", "反坦克弹药有限"],
+        "queries": [
+            {"intent": "查反坦克武器参数（精确）", "target": "fact",
+             "route": "sql", "query_text": "红方 反坦克 破甲厚度"},
+            {"intent": "召回防御作战经验", "target": "experience",
+             "route": "vector", "query_text": "防御 反冲击 装甲 教训"},
+        ],
+        "messages": ["观察哨：蓝方装甲营成纵队接近，距前沿 4 公里"],
+        "review": ("复盘：防御达成迟滞目的。教训：反坦克阵地间距过近遭炮火覆盖。"
+                   "经验：预设多个预备阵地每 20 分钟轮换可显著降低损失。"),
+    },
+}
+
+
+def api_scenarios() -> dict:
+    """场景库列表（id+标题+说明）——前端下拉选择。"""
+    return {"scenarios": [{"id": k, "title": v["title"], "desc": v["desc"]}
+                          for k, v in SCENARIOS.items()]}
+
+
+def api_scenario(body: dict) -> dict:
+    """取单个场景全文（前端一键填充表单用）。"""
+    sid = body.get("id", "")
+    sc = SCENARIOS.get(sid)
+    if sc is None:
+        raise ValueError(f"未知场景 id: {sid}")
+    return {"id": sid, **sc}
+
+
 # ---------------------------------------------------------------- HTTP 服务
 class Handler(BaseHTTPRequestHandler):
     """极简路由：/api/* 走 JSON，其余走静态文件。"""
@@ -249,6 +336,8 @@ class Handler(BaseHTTPRequestHandler):
         ("GET", "/api/memory"): lambda params, body: api_memory(params),
         ("POST", "/api/search"): lambda params, body: api_search(body),
         ("GET", "/api/audit"): lambda params, body: api_audit(),
+        ("GET", "/api/scenarios"): lambda params, body: api_scenarios(),
+        ("POST", "/api/scenario"): lambda params, body: api_scenario(body),
     }
 
     def log_message(self, fmt, *args):  # 安静模式：不刷屏

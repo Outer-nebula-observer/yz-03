@@ -20,6 +20,16 @@
 <main>
   <!-- ══════════ 左栏：场次控制（七步闭环操作台） ══════════ -->
   <section class="col col-left">
+    <div class="card scene-card">
+      <h2>🎬 演示场景（自动填充样例）</h2>
+      <label>选择场景 <select id="scene-select" onchange="fillScenario()"></select></label>
+      <div class="scene-desc" id="scene-desc">选择场景后自动填充下方全部表单；「自动演示」将代点 ①→⑦ 全部按钮。</div>
+      <div class="btnrow">
+        <button class="ghost" onclick="fillScenario(true)">↺ 重新填充</button>
+        <button class="warn" onclick="autoDemo()">▶ 自动演示全流程</button>
+      </div>
+    </div>
+
     <div class="card">
       <h2>① 规划开场</h2>
       <label>场次 ID <input id="plan-id" placeholder="P001（留空自动生成）"></label>
