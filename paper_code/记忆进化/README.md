@@ -4,7 +4,7 @@
 
 | 论文 | name | 官方仓库 |
 |---|---|---|
-| TiM | TiM | https://github.com/Jiahao-Wang-ZJU/TiM |
+| TiM | — | 无公开代码仓库（论文/arXiv 页均未提供）；论文 https://arxiv.org/abs/2311.08719 |
 | SCM | SCM | https://github.com/wbbeyourself/SCM4LLMs |
 | PREMem | PREMem | https://github.com/sangyeop-kim/PREMem |
 | MemSkill | MemSkill | https://github.com/ViktorAxelsen/MemSkill |

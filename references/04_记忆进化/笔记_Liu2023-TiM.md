@@ -3,7 +3,7 @@
 > - **作者 / 机构**：Lei Liu、Binbin Hu 等（港中深 & 蚂蚁集团）
 > - **发表**：arXiv 2023（2311.08719）
 > - **对应**：`references/04_记忆进化/Liu2023-TiM.pdf` → 同名 `.md`
-> - **官方代码**：https://github.com/Jiahao-Wang-ZJU/TiM
+> - **官方代码**：无公开代码仓库（论文与 arXiv 页均未提供，GitHub 检索无官方实现；原记录的 `Jiahao-Wang-ZJU/TiM` 账号不存在，系误录）
 
 ## 一句话总结
 
@@ -38,7 +38,7 @@
 
 ## 4. 代码索引
 
-- 官方：https://github.com/Jiahao-Wang-ZJU/TiM
+- 官方：无公开代码仓库；论文 https://arxiv.org/abs/2311.08719
 - 本仓库语境：**"前向检索+后向进化"闭环教科书实现**，赛题七步闭环直系模板；复现位 `paper_code/记忆进化/`。
 
 ## 5. 优点 / 局限（深化）

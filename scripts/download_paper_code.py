@@ -15,7 +15,7 @@
     python scripts/download_paper_code.py --only MemGPT,Voyager,Reflexion
 
     # 2) 下载整个模块
-    python scripts/download_paper_code.py --module 04_记忆进化
+    python scripts/download_paper_code.py --module 记忆进化
     python scripts/download_paper_code.py --module 短期记忆      # 模块名片段也可
 
     # 3) 下载全部（慎用，体积大）
@@ -33,7 +33,8 @@
     - 克隆下来的目录被 .gitignore 忽略（不入库，每人本地按需拉）；
     - 无公开代码仓库的论文（LARP / ChatDB 仅项目主页）会在清单里标注，不会尝试 clone；
     - MIRIX 用其 public_evaluation 分支；
-    - 失败的会在汇总里列出，多为网络/代理问题——见末尾"网络提示"。
+    - 失败的会在汇总里列出，多为网络/代理问题——见末尾"网络提示"；
+    - 若 git 配了代理但代理没开（直连本可用），克隆失败后会自动绕过代理直连重试一次。
 
 网络提示（克隆 GitHub 同样可能被重置）：
     - 直连失败时配 git 走本地代理（v2rayN 默认 10809）：
@@ -60,40 +61,38 @@ PAPERS = [
     # ---- 01 短期记忆 ----
     ("LLMLingua", "短期记忆", "https://github.com/microsoft/LLMLingua",
      "LLMLingua", "LLMLingua / LongLLMLingua / LLMLingua-2 全家桶"),
-    ("ICAE", "01_短期记忆", "https://github.com/ARISE-Initiative/ICAE",
-     "ICAE", "In-context Autoencoder 上下文压缩"),
-    ("MemGPT", "01_短期记忆", "https://github.com/cpacker/MemGPT",
+    ("ICAE", "短期记忆", "https://github.com/getao/icae",
+     "ICAE", "In-context Autoencoder 上下文压缩（Tao Ge 官方发布；旧链 ARISE-Initiative/ICAE 已失效）"),
+    ("MemGPT", "短期记忆", "https://github.com/cpacker/MemGPT",
      "MemGPT", "虚拟内存分页式工作记忆（现 Letta：https://github.com/letta-ai/letta）"),
     # ---- 02 长期记忆 ----
-    ("Reflexion", "长期记忆", "https://github.com/noahshinn024/reflexion",
-     "reflexion", "语言反思 + 情景记忆"),
-    ("Voyager", "02_长期记忆", "https://github.com/MineDojo/Voyager",
+    ("Reflexion", "长期记忆", "https://github.com/noahshinn/reflexion",
+     "reflexion", "语言反思 + 情景记忆（原 noahshinn024 已改名 noahshinn）"),
+    ("Voyager", "长期记忆", "https://github.com/MineDojo/Voyager",
      "Voyager", "可执行技能库 + 自动课程"),
-    ("Memp", "02_长期记忆", "https://github.com/zjunlp/MemP",
+    ("Memp", "长期记忆", "https://github.com/zjunlp/MemP",
      "MemP", "程序性记忆 Build/Retrieve/Update"),
-    ("MemoryBank", "02_长期记忆", "https://github.com/zhongwanjun/MemoryBank-SiliconFriend",
+    ("MemoryBank", "长期记忆", "https://github.com/zhongwanjun/MemoryBank-SiliconFriend",
      "MemoryBank-SiliconFriend", "艾宾浩斯遗忘曲线 + 每日摘要"),
-    ("Zep", "02_长期记忆", "https://github.com/getzep/graphiti",
+    ("Zep", "长期记忆", "https://github.com/getzep/graphiti",
      "graphiti", "时序知识图谱引擎（Zep 核心）；另有服务端 https://github.com/getzep/zep"),
-    ("MemoChat", "02_长期记忆", "https://github.com/LuJunru/MemoChat",
+    ("MemoChat", "长期记忆", "https://github.com/LuJunru/MemoChat",
      "MemoChat", "memo 化长程对话一致"),
     # ---- 03 记忆检索 ----
     ("ExpeL", "记忆检索", "https://github.com/LeapLabTHU/ExpeL",
      "ExpeL", "Faiss 向量召回 + 经验提炼"),
-    ("MIRIX", "03_记忆检索", "https://github.com/Mirix-AI/MIRIX",
+    ("MIRIX", "记忆检索", "https://github.com/Mirix-AI/MIRIX",
      "MIRIX", "六类记忆 + 多智能体（用 public_evaluation 分支）", "public_evaluation"),
-    ("MemAlpha", "03_记忆检索", "https://github.com/wangyu-ustc/Mem-alpha",
+    ("MemAlpha", "记忆检索", "https://github.com/wangyu-ustc/Mem-alpha",
      "Mem-alpha", "RL 学习记忆构建；HF 数据/模型见论文笔记"),
     # ---- 04 记忆进化 ----
-    ("TiM", "记忆进化", "https://github.com/Jiahao-Wang-ZJU/TiM",
-     "TiM", "Recalling + Post-thinking + 插入/遗忘/合并"),
-    ("SCM", "04_记忆进化", "https://github.com/wbbeyourself/SCM4LLMs",
+    ("SCM", "记忆进化", "https://github.com/wbbeyourself/SCM4LLMs",
      "SCM4LLMs", "记忆控制器 + flash/archived 双记忆"),
-    ("PREMem", "04_记忆进化", "https://github.com/sangyeop-kim/PREMem",
+    ("PREMem", "记忆进化", "https://github.com/sangyeop-kim/PREMem",
      "PREMem", "预存储推理 + 跨会话链接对"),
-    ("MemSkill", "04_记忆进化", "https://github.com/ViktorAxelsen/MemSkill",
+    ("MemSkill", "记忆进化", "https://github.com/ViktorAxelsen/MemSkill",
      "MemSkill", "可学习可进化记忆技能"),
-    ("StructMem", "04_记忆进化", "https://github.com/zjunlp/LightMem",
+    ("StructMem", "记忆进化", "https://github.com/zjunlp/LightMem",
      "LightMem", "事件级绑定 + 跨事件整合（论文脚注指向此仓库）"),
 ]
 
@@ -101,6 +100,7 @@ PAPERS = [
 NO_REPO_ONLY = {
     "LARP": "https://miao-ai-lab.github.io/LARP/ （项目主页，无公开代码仓库）",
     "ChatDB": "https://chatdatabase.github.io （项目主页，未见公开代码仓库）",
+    "TiM": "无公开代码仓库（论文/arXiv 页均未提供，GitHub 检索无官方实现）；论文 https://arxiv.org/abs/2311.08719",
 }
 
 
@@ -133,6 +133,19 @@ def clone(name, module, url, dirname, note, branch=None, shallow=True, force=Fal
         print(f"       完成")
         return "ok"
     except subprocess.CalledProcessError:
+        # 常见根因：git 全局配了代理但代理当前没开（直连其实可用）。
+        # 若配置了 http.proxy，则绕过代理直连重试一次，自愈这类失败。
+        r = subprocess.run(["git", "config", "--get", "http.proxy"],
+                           capture_output=True, text=True)
+        if r.returncode == 0 and r.stdout.strip():
+            print("       走代理失败，尝试绕过代理直连重试……")
+            retry = ["git", "-c", "http.proxy=", "-c", "https.proxy="] + cmd[1:]
+            try:
+                subprocess.run(retry, check=True)
+                print("       完成（直连）")
+                return "ok"
+            except subprocess.CalledProcessError:
+                pass
         print(f"       失败（多为网络/代理；见脚本顶部'网络提示'）")
         return "fail"
     except Exception as exc:
@@ -147,15 +160,15 @@ def print_list():
     for p in PAPERS:
         name, module, _url, dirname, note = p[0], p[1], p[2], p[3], p[4]
         print(f"{name:<14}{module:<14}{dirname:<30}{note}")
-    if NO_REPO:
+    if NO_REPO_ONLY:
         print("-" * 90)
         print("无公开代码仓库（仅项目主页）：")
-        for k, v in NO_REPO.items():
+        for k, v in NO_REPO_ONLY.items():
             print(f"  {k:<14}{v}")
     print("=" * 90)
     print(f"共 {len(PAPERS)} 个可克隆仓库；选择性下载：")
     print("  python scripts/download_paper_code.py --only ExpeL,MIRIX")
-    print("  python scripts/download_paper_code.py --module 04_记忆进化")
+    print("  python scripts/download_paper_code.py --module 记忆进化")
     print("  python scripts/download_paper_code.py --all")
 
 
@@ -183,8 +196,8 @@ def main():
         wanted = {x.strip() for x in args.only.split(",") if x.strip()}
         unknown = wanted - {p[0] for p in PAPERS}
         for u in unknown:
-            if u in NO_REPO:
-                print(f"[提示] {u}: {NO_REPO[u]}")
+            if u in NO_REPO_ONLY:
+                print(f"[提示] {u}: {NO_REPO_ONLY[u]}")
             else:
                 print(f"[警告] 未知 name '{u}'，已忽略。用 --list 查看可用 name。", file=sys.stderr)
         targets = [p for p in PAPERS if p[0] in wanted]
@@ -211,6 +224,10 @@ def main():
 
     print("\n===== 汇总 =====")
     print(f"成功 {ok}，跳过 {skip}，失败 {fail}")
+    if NO_REPO_ONLY:
+        print("\n以下论文无公开代码仓库，故不在下载范围（仅论文/主页）：")
+        for k, v in NO_REPO_ONLY.items():
+            print(f"  {k:<12}{v}")
     if fail:
         print("失败多为网络/代理问题，建议：")
         print("  git config --global http.proxy http://127.0.0.1:10809")

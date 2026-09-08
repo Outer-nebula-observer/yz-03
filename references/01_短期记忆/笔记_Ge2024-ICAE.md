@@ -3,7 +3,7 @@
 > - **作者 / 机构**：Tao Ge、Jing Hu、Lei Wang、Xun Wang、Si-Qing Chen、Furu Wei（Microsoft Research）
 > - **发表**：ICLR 2024（arXiv 2307.06945）
 > - **对应**：`references/01_短期记忆/Ge2024-ICAE.pdf` → 同名 `.md`
-> - **官方代码**：https://github.com/ARISE-Initiative/ICAE
+> - **官方代码**：https://github.com/getao/icae（一作 Tao Ge 发布；旧链 ARISE-Initiative/ICAE 已失效）
 
 ## 一句话总结
 
@@ -43,7 +43,7 @@
 
 ## 4. 代码索引
 
-- 官方仓库：https://github.com/ARISE-Initiative/ICAE
+- 官方仓库：https://github.com/getao/icae
 - 本仓库语境：属"可学习压缩器"路线，与 LLMLingua（删 token）互补；需微调资源，赛题内以调研参考为主；复现位 `paper_code/短期记忆/`。
 
 ## 5. 优点 / 局限（深化）

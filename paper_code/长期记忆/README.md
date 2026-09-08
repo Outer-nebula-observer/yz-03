@@ -4,7 +4,7 @@
 
 | 论文 | name | 官方仓库 |
 |---|---|---|
-| Reflexion | Reflexion | https://github.com/noahshinn024/reflexion |
+| Reflexion | Reflexion | https://github.com/noahshinn/reflexion |
 | Voyager | Voyager | https://github.com/MineDojo/Voyager |
 | Memp | Memp | https://github.com/zjunlp/MemP |
 | MemoryBank | MemoryBank | https://github.com/zhongwanjun/MemoryBank-SiliconFriend |

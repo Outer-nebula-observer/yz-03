@@ -3,7 +3,7 @@
 > - **作者 / 机构**：Noah Shinn、Edward Berman、Karthik Narasimhan、Shunyu Yao 等（Northeastern / Princeton / MIT）
 > - **发表**：NeurIPS 2023（arXiv 2303.11366）
 > - **对应**：`references/02_长期记忆/Shinn2023-Reflexion.pdf` → 同名 `.md`
-> - **官方代码**：https://github.com/noahshinn024/reflexion
+> - **官方代码**：https://github.com/noahshinn/reflexion（作者 GitHub 由 noahshinn024 改名为 noahshinn）
 
 ## 一句话总结
 
@@ -46,7 +46,7 @@ for trial in attempts:
 
 ## 5. 代码索引
 
-- 官方：https://github.com/noahshinn024/reflexion（HumanEval/ALFWorld/问答全套实验）
+- 官方：https://github.com/noahshinn/reflexion（HumanEval/ALFWorld/问答全套实验）
 - 本仓库语境：**经验记忆（经验→教训文本）代表作**；复现位 `paper_code/长期记忆/`。
 
 ## 6. 优点 / 局限（深化）
