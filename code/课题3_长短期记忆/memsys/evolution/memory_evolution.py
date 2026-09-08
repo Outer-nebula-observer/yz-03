@@ -25,6 +25,7 @@ from typing import Dict, List, Tuple
 from ..schema import MemoryEntry, MemoryType, MemoryOp, new_entry
 from ..llm import LLMClient
 from ..embeddings import MemoryVectorIndex, MockEmbedding, cosine
+from ..boundary import MemoryBoundary
 from ..long_term.factual_store import FactualStore
 from ..long_term.experiential_store import ExperientialStore
 
@@ -58,7 +59,8 @@ class MemoryEvolution:
     def __init__(self, factual: FactualStore, experiential: ExperientialStore,
                  llm: LLMClient, embedding: MockEmbedding,
                  merge_theta: float = 0.80, forget_threshold: float = 0.30,
-                 protected_importance: float = 2.0) -> None:
+                 protected_importance: float = 2.0,
+                 boundary: "MemoryBoundary | None" = None) -> None:
         self.factual = factual
         self.experiential = experiential
         self.llm = llm
@@ -66,6 +68,9 @@ class MemoryEvolution:
         self.merge_theta = merge_theta
         self.forget_threshold = forget_threshold
         self.protected_importance = protected_importance
+        # 长短期边界管理器：短期→长期晋升的唯一门控（docs/04 避坑点2/6）
+        # 缺省自建；controller 注入同一实例以便审计日志集中
+        self.boundary = boundary or MemoryBoundary()
 
     # ---------------------------------------------------------------- ① 写入
     def write(self, type_: MemoryType, content: str, source: str = "",
@@ -195,11 +200,19 @@ class MemoryEvolution:
         ops = self.llm.extract_memory_ops(review_dialogue)
         new_ids_by_type: Dict[str, List[str]] = {"fact": [], "experience": []}
 
-        # 1) 写入（含查重）
+        # 1) 写入（含查重 + 边界晋升门控）
         for op in ops:
             if op.get("op") != "write":
                 continue  # MVP：只处理 write 建议；merge/forget 由周期任务触发
             mtype = MemoryType.FACT if op.get("type") == "fact" else MemoryType.EXPERIENCE
+            # ★ 边界门控（docs/04 避坑点 2/6）：复盘候选过 promote()——
+            #   未命中事实/经验模板的"场次内容"被拒绝晋升（留在短期归档，不丢），
+            #   每次决策进 boundary.audit_log() 可审计。
+            gate = self.boundary.promote(op.get("content", ""))
+            if not gate.allowed:
+                report.skipped.append(
+                    f"[边界拒绝] {op.get('content', '')[:40]}… ({gate.reason[:40]})")
+                continue
             new_id = self.write(mtype, op.get("content", ""),
                                 source=f"复盘:{session_id}", session_id=session_id,
                                 importance=float(op.get("importance", 1.0)))

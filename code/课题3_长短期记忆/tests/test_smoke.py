@@ -30,7 +30,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from memsys import (MemoryType, MemoryEntry, QueryItem, new_entry,
                     MockLLM, MockEmbedding,
                     FactualStore, ExperientialStore,
-                    HybridRetriever, MemoryEvolution,
+                    HybridRetriever, MemoryEvolution, MemoryBoundary,
                     MemoryController, MemoryPipeline)
 
 
@@ -173,6 +173,72 @@ def test_pipeline() -> None:
     ok("pipeline：七步闭环端到端 + 第二场复用")
 
 
+# ---------------------------------------------------------------- 8. boundary（长短期边界）
+def test_boundary() -> None:
+    """两把尺子 + 双向禁止 + 晋升门控（Bug 修复回归 + 新能力）。"""
+    b = MemoryBoundary()
+
+    # ① 场中写入短期：放行（短期就是任务内的）
+    d = b.check_write("message", to="short_term")
+    assert d.allowed, "场次消息应留在短期"
+
+    # ② 双向禁止①：场中内容直写长期 → 拒绝
+    d = b.check_write("message", to="long_term.fact")
+    assert not d.allowed and "禁止" in d.reason, "场中直写长期必须被边界拒绝"
+
+    # ③ 晋升门控：教训类内容复盘晋升 → 放行到经验库
+    d = b.promote("教训：夜战需前置电子压制，接敌后通信被干扰")
+    assert d.allowed and d.layer == "long_term.experience", "教训应晋升经验库"
+
+    # ④ 晋升门控：参数类内容 → 事实库
+    d = b.promote("2 号高地海拔 320 米，北坡缓南坡陡")
+    assert d.allowed and d.layer == "long_term.fact", "地形参数应晋升事实库"
+
+    # ⑤ 晋升门控：纯场次闲聊 → 拒绝（留在短期归档）
+    d = b.promote("指挥所说今天食堂有红烧肉")
+    assert not d.allowed, "场次闲聊不得晋升长期"
+
+    # ⑥ 审计日志与统计
+    log = b.audit_log()
+    assert len(log) >= 5 and all("reason" in x for x in log), "决策必须可审计"
+    s = b.stats()
+    assert s["allowed"] >= 2 and s["rejected"] >= 2, "放行/拒绝计数应正确"
+    ok("boundary：两把尺子 + 双向禁止 + 晋升门控 + 审计")
+
+
+# ---------------------------------------------------------------- 9. Bug 修复回归
+def test_bugfix_regressions() -> None:
+    """① 强化落库 ② 三路互检不重复强化 ③ render 无死代码。"""
+    emb = MockEmbedding()
+    fs = FactualStore(":memory:", emb)
+    e = new_entry(MemoryType.FACT, "红方 T-90 坦克 最大速度 60km/h",
+                  attrs={"装备": "T-90"})
+    fs.add(e)
+
+    # ①② 三路互检下：一次 retrieve 对同一记忆只强化一次且落库
+    r = HybridRetriever(fs, ExperientialStore(emb))
+    q = QueryItem(q_id="q1", intent="查装备", target="fact", route="vector",
+                  query_text="T-90 坦克 速度")
+    r.retrieve(q, top_k=3)
+    after = fs.get(e.id)
+    assert after.recall_count == 1, \
+        f"一次检索应强化恰好 1 次（实际 {after.recall_count}）——三路互检污染回归"
+    assert after.decay_strength == 2.0, "S 应从 1.0 增至 2.0 且落库"
+    assert after.last_recalled_at is not None, "last_recalled_at 必须落库"
+
+    # ③ render 含【历史摘要】且无属性错误（原 hasattr 死代码已清理）
+    from memsys import WorkingMemory
+    wm = WorkingMemory("T9", capacity_tokens=200, llm=MockLLM())
+    wm.set_goal("测试目标", constraints=["约束A"])
+    for i in range(30):
+        wm.push_message(f"消息{i}：红方向东机动")
+    ctx = wm.render()
+    assert "【目标】测试目标" in ctx and "【约束】约束A" in ctx
+    if wm._recursive_summary:
+        assert "【历史摘要】" in ctx, "flush 后 render 应含历史摘要"
+    ok("Bug 修复回归：强化落库 + 单次强化 + render 清理")
+
+
 if __name__ == "__main__":
     print("=" * 60)
     print("memsys 冒烟测试（零依赖 · 离线）")
@@ -184,5 +250,7 @@ if __name__ == "__main__":
     test_retrieval()
     test_evolution()
     test_pipeline()
+    test_boundary()
+    test_bugfix_regressions()
     print("=" * 60)
     print("全部通过 [OK]")

@@ -24,6 +24,7 @@ from .schema import (MemoryType, MemoryOp, WorkingMemorySlot, MemoryEntry,
 from .llm import LLMClient, MockLLM, OpenAICompatibleClient, get_llm
 from .embeddings import (EmbeddingModel, MockEmbedding, OpenAIEmbedding,
                          MemoryVectorIndex, cosine, tokenize)
+from .boundary import MemoryBoundary, BoundaryDecision, CONTENT_RULES, Scope
 from .short_term import WorkingMemory, get_strategy
 from .long_term import BaseLongTermStore, FactualStore, ExperientialStore
 from .retrieval import BM25, HybridRetriever
@@ -37,10 +38,11 @@ __all__ = [
     # schema
     "MemoryType", "MemoryOp", "WorkingMemorySlot", "MemoryEntry",
     "QueryItem", "RetrievedMemory", "new_entry",
-    # llm / embeddings
+    # llm / embeddings / boundary
     "LLMClient", "MockLLM", "OpenAICompatibleClient", "get_llm",
     "EmbeddingModel", "MockEmbedding", "OpenAIEmbedding",
     "MemoryVectorIndex", "cosine", "tokenize",
+    "MemoryBoundary", "BoundaryDecision", "CONTENT_RULES", "Scope",
     # 模块
     "WorkingMemory", "get_strategy",
     "BaseLongTermStore", "FactualStore", "ExperientialStore",

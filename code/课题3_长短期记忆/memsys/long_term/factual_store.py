@@ -95,6 +95,21 @@ class FactualStore(BaseLongTermStore):
         self.vindex.add(entry.id, entry.content)
         return entry
 
+    def persist_recall(self, entry: MemoryEntry) -> None:
+        """把'命中强化'（recall_count/decay_strength/last_recalled_at）回写 SQLite。
+
+        【Bug 修复】此前 search() 里 e.mark_recalled() 只改了临时对象
+        （_row_to_entry 每次新建），重启即失、retention() 永远按原始时间衰减
+        → 高频使用的事实也会被 forget() 误删。此方法由 hybrid 融合排序后
+        统一调用（见 hybrid.py 第 4 步），保证强化真实落库。
+        """
+        self.conn.execute(
+            "UPDATE facts SET recall_count=?, decay_strength=?, last_recalled_at=? "
+            "WHERE id=?",
+            (entry.recall_count, entry.decay_strength,
+             entry.last_recalled_at, entry.id))
+        self.conn.commit()
+
     def update(self, entry: MemoryEntry) -> None:
         self.add(entry)  # INSERT OR REPLACE 幂等
 
@@ -112,20 +127,23 @@ class FactualStore(BaseLongTermStore):
         return [r["id"] for r in self.conn.execute("SELECT id FROM facts")]
 
     def search(self, query: str, top_k: int = 5) -> List[RetrievedMemory]:
-        """混合检索：向量相似（主）+ 内容关键词包含（兜底），并做'命中强化'。"""
+        """混合检索：向量相似（主）+ 内容关键词包含（兜底）。
+
+        【Bug 修复】此处不再调 mark_recalled()——强化副作用统一移到
+        hybrid.retrieve() 融合排序后执行（否则三路互检会让同一记忆
+        recall_count 虚涨 3 倍、艾宾浩斯模型失真）。纯只读检索。
+        """
         results: List[RetrievedMemory] = []
         # 1) 向量近似召回
         for mid, score in self.vindex.search(query, top_k=top_k):
             e = self.get(mid)
             if e:
-                e.mark_recalled()  # 艾宾浩斯：命中即强化
                 results.append(RetrievedMemory(entry=e, score=score, route="vector"))
         # 2) 关键词直查兜底（低级但精确——参数名直给时最稳）
         for row in self.conn.execute(
                 "SELECT * FROM facts WHERE content LIKE ?", (f"%{query}%",)).fetchall():
             e = self._row_to_entry(row)
             if not any(r.entry.id == e.id for r in results):
-                e.mark_recalled()
                 results.append(RetrievedMemory(entry=e, score=1.0, route="sql"))
         results.sort(key=lambda r: r.score, reverse=True)
         for i, r in enumerate(results[:top_k]):
@@ -137,11 +155,11 @@ class FactualStore(BaseLongTermStore):
 
         NL→SQL 的落地路径：LLM 把"红方 T-90 多快"解析为 attrs 过滤条件，
         再调本方法（后续接真模型时在 retrieval 层做意图解析）。
+        同 search()：纯只读，强化在 hybrid 层统一做。
         """
         hits: List[RetrievedMemory] = []
         for row in self.conn.execute("SELECT * FROM facts").fetchall():
             e = self._row_to_entry(row)
             if all(e.metadata.get(k) == v for k, v in attrs.items()):
-                e.mark_recalled()
                 hits.append(RetrievedMemory(entry=e, score=1.0, route="sql"))
         return hits[:top_k]

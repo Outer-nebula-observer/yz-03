@@ -62,10 +62,13 @@ class ExperientialStore(BaseLongTermStore):
         return list(self._entries)
 
     def search(self, query: str, top_k: int = 5) -> List[RetrievedMemory]:
-        """语义召回 + 重要性加权（重要教训更容易浮上来）+ 命中强化。
+        """语义召回 + 重要性加权（重要教训更容易浮上来）。
 
         score = 0.8 * cosine + 0.2 * min(importance/3, 1)
         （权重写死为 MVP 常数；消融 G3 可调，观察'重要性加权'是否增益。）
+
+        【Bug 修复】mark_recalled() 移除——强化统一在 hybrid 融合排序后
+        执行（此处强化会被三路互检重复计数）。
         """
         raw = self.vindex.search(query, top_k=top_k * 2)  # 多取一倍再重排
         results: List[RetrievedMemory] = []
@@ -74,9 +77,18 @@ class ExperientialStore(BaseLongTermStore):
             if e is None:
                 continue
             score = 0.8 * cos + 0.2 * min(e.importance / 3.0, 1.0)
-            e.mark_recalled()
             results.append(RetrievedMemory(entry=e, score=score, route="vector"))
         results.sort(key=lambda r: r.score, reverse=True)
         for i, r in enumerate(results[:top_k]):
             r.rank = i + 1
         return results[:top_k]
+
+    def persist_recall(self, entry: MemoryEntry) -> None:
+        """命中强化持久化（经验库本身在内存，mark_recalled 已即时生效）。
+
+        提供此方法是为了与 FactualStore 保持接口对称——hybrid 层统一调
+        persist_recall，无需判断库类型（将来经验库接 FAISS 落盘时在此实现）。
+        """
+        # 内存库：entry 即 self._entries[id] 的引用，mark_recalled 已改它
+        # 落盘库（未来）：在此写回 FAISS/Chroma 的元数据
+        return None

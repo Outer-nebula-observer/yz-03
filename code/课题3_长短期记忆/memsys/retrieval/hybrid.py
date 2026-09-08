@@ -88,7 +88,6 @@ class HybridRetriever:
         if q.route == "sql":
             # MVP：先用属性精确过滤，查不到再退化到内容 LIKE
             # （NL→SQL 的完整实现放到"接入真模型"阶段，接口不变）
-            e_all = (self.factual.search_attrs({}) if False else None)  # noqa: 保留提示
             direct = self.factual.search(q.query_text, top_k=top_k)
             return [r for r in direct if r.entry.type.value == target][:top_k]
 
@@ -137,13 +136,21 @@ class HybridRetriever:
             fused[r.entry.id]["s"] += w * r.score
             fused[r.entry.id]["routes"].append(r.route)
 
-        # 4) 排序 + 回填
+        # 4) 排序 + 回填 + 【Bug 修复】统一命中强化
         ranked = sorted(fused.values(), key=lambda x: x["s"], reverse=True)[:top_k]
         results: List[RetrievedMemory] = []
         for i, item in enumerate(ranked):
             r: RetrievedMemory = item["r"]
             r.score = item["s"]
             r.rank = i + 1
+            # ★ 强化只对最终 top_k 执行一次（此前在三路 search 里各做一次，
+            #   同一记忆 recall_count 虚涨 3 倍、艾宾浩斯 S 失真）。
+            r.entry.mark_recalled()          # S+1、t 重置（间隔效应）
+            # ★ 落库持久化：事实库（SQLite）必须回写；经验库为空实现（内存即持久）
+            store = (self.factual if r.entry.type.value == "fact"
+                     else self.experiential)
+            if hasattr(store, "persist_recall"):
+                store.persist_recall(r.entry)
             results.append(r)
         q.answer_memory_ids = [r.entry.id for r in results]  # 回填（创新点 C 可审计）
         return results

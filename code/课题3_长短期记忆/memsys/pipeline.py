@@ -91,7 +91,7 @@ class MemoryPipeline:
 
         # ⑤ 规划输出（TODO-INTEGRATION: 换智戎规划管线真实调用）
         context = self.controller.render_context()
-        result.context_tokens = WorkingMemoryTokens(context)
+        result.context_tokens = count_tokens(context)
         result.plan_output = self.llm.chat(
             "你是作战规划智能体。基于以下记忆上下文生成规划方案（要点式）。",
             context)
@@ -111,7 +111,7 @@ class MemoryPipeline:
         return result
 
 
-def WorkingMemoryTokens(text: str) -> int:
+def count_tokens(text: str) -> int:
     """简化 token 计数（与 WorkingMemory._count_tokens 口径一致）。"""
     cn = sum(1 for ch in text if 0x4E00 <= ord(ch) <= 0x9FFF)
     words = len([w for w in text.split() if w.isascii()])

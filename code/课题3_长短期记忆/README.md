@@ -29,11 +29,12 @@ python examples/demo_pipeline.py
 
 ```
 课题3_长短期记忆/
-├── memsys/                    # 核心包（四大模块 + 编排）
+├── memsys/                    # 核心包（五大模块 + 编排）
 │   ├── schema.py              #   统一数据模型：槽位/记忆条目/查询项/检索结果
 │   ├── llm.py                 #   LLM 抽象：MockLLM（离线）/ OpenAI 兼容骨架
 │   ├── embeddings.py          #   向量化：MockEmbedding（哈希词袋）/ 内存向量索引
-│   ├── short_term/            #   ① 短期/工作记忆（MemGPT 分层范式）
+│   ├── boundary.py            #   ① 长短期边界：两把尺子/边界矩阵/双向禁止/晋升门控
+│   ├── short_term/            #   ② 短期/工作记忆（MemGPT 分层范式）
 │   │   ├── working_memory.py  #     槽位 + FIFO + 阈值 flush + 递归摘要
 │   │   └── compression.py     #     压缩策略：truncate / summarize / llmlingua(预留)
 │   ├── long_term/             #   ② 长期记忆双库
@@ -136,10 +137,12 @@ pipe = MemoryPipeline(controller=ctl)
 
 ---
 
-## 七、验证状态（v0.1）
+## 七、验证状态（v0.2）
 
-- ✅ `tests/test_smoke.py`：7/7 通过（schema/embeddings/短期/双库/检索/进化/闭环）
-- ✅ `python -m eval.ablation`：G0–G5 跑通（种子集指标全 1.0——见不足#1，待真 embedding）
-- ✅ `examples/demo_pipeline.py`：两场次闭环，P002 成功召回 P001 复盘沉淀的教训（越用越强）
+- ✅ `tests/test_smoke.py`：**9/9 通过**（schema/embeddings/短期/双库/检索/进化/闭环/**边界**/**Bug 修复回归**）
+- ✅ Bug 修复（v0.2）：事实库强化落库（`persist_recall`）；三路互检只强化一次（移到融合排序后）；render 死代码清理；hybrid 死代码删除
+- ✅ 新增 `memsys/boundary.py`：长短期边界代码化（两把尺子/边界矩阵/双向禁止/promote 晋升门控/audit_log 审计）——接入 evolution 复盘晋升流程
+- ✅ `python -m eval.ablation`：G0–G5 跑通
+- ✅ `examples/demo_pipeline.py`：两场次闭环，P002 召回 P001 复盘教训（越用越强）
 - ✅ 包入口：`engine_plugin: LongShortTermMemoryEngine` 可被 SDK 环境发现
 - ⏳ 待办：见「五、当前不足」

@@ -112,7 +112,9 @@ class WorkingMemory:
             parts.append(f"【目标】{self.slot.goal}")
         if self.slot.constraints:
             parts.append("【约束】" + "；".join(self.slot.constraints))
-        if self.slot._recursive_summary if hasattr(self.slot, "_recursive_summary") else self._recursive_summary:
+        # 【Bug 修复】原写法 slot._recursive_summary 恒不存在（hasattr 恒 False），
+        # 属残留混乱代码；摘要本体就挂在管理器 self 上。
+        if self._recursive_summary:
             parts.append(f"【历史摘要】{self._recursive_summary}")
         if self.slot.working_context:
             parts.append(f"【关键信息】{self.slot.working_context}")
