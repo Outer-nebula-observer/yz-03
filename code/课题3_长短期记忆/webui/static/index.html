@@ -8,18 +8,32 @@
 </head>
 <body>
 <header>
-  <h1>长短期记忆系统 · 控制台 <span class="sub">赛题③ memsys v0.1</span></h1>
-  <div class="chips">
-    <span class="chip" id="chip-facts">事实库 0</span>
-    <span class="chip" id="chip-exps">经验库 0</span>
-    <span class="chip" id="chip-session">无场次</span>
-    <span class="chip warn" id="chip-pressure" style="display:none">⚠ 容量预警</span>
+  <div class="hd-row">
+    <h1>长短期记忆系统 · 控制台 <span class="sub">赛题③ memsys v0.1</span></h1>
+    <div class="chips">
+      <span class="chip" id="chip-facts">事实库 0</span>
+      <span class="chip" id="chip-exps">经验库 0</span>
+      <span class="chip" id="chip-session">无场次</span>
+      <span class="chip warn" id="chip-pressure" style="display:none">⚠ 容量预警</span>
+    </div>
   </div>
+  <!-- 七步闭环进度条：当前场次推进到哪一步，一眼可见 -->
+  <nav class="stepper" id="stepper">
+    <div class="step" data-step="s1"><i>①</i><span>规划开场</span></div>
+    <div class="step" data-step="s2"><i>②</i><span>查询列表</span></div>
+    <div class="step" data-step="s3"><i>③</i><span>检索</span></div>
+    <div class="step" data-step="s4"><i>④</i><span>装载</span></div>
+    <div class="step" data-step="s5"><i>⑤</i><span>上下文</span></div>
+    <div class="step" data-step="s6"><i>⑥</i><span>消息反馈</span></div>
+    <div class="step" data-step="s7"><i>⑦</i><span>复盘进化</span></div>
+  </nav>
 </header>
 
 <main>
-  <!-- ══════════ 左栏：场次控制（七步闭环操作台） ══════════ -->
+  <!-- ══════════ 左栏：📥 输入区 ══════════ -->
   <section class="col col-left">
+    <div class="zone-label in">📥 输入区 <span>goal / 约束 / 查询 / 消息 / 复盘</span></div>
+
     <div class="card scene-card">
       <h2>🎬 演示场景（自动填充样例）</h2>
       <label>选择场景 <select id="scene-select" onchange="fillScenario()"></select></label>
@@ -27,6 +41,7 @@
       <div class="btnrow">
         <button class="ghost" onclick="fillScenario(true)">↺ 重新填充</button>
         <button class="warn" onclick="autoDemo()">▶ 自动演示全流程</button>
+        <button class="chain" onclick="demoTwoSessions()">⏩ 连续两场（沉淀→复用）</button>
       </div>
     </div>
 
@@ -55,7 +70,7 @@
       <h2>③④ 检索装载</h2>
       <label>top_k <input id="topk" type="number" value="3" min="1" max="10" style="width:70px"></label>
       <div class="btnrow">
-        <button class="primary" onclick="retrieve()">检索并装载 ③④</button>
+        <button class="primary" data-need-session onclick="retrieve()">检索并装载 ③④</button>
         <button class="ghost" onclick="loadContext()">刷新上下文 ⑤</button>
       </div>
     </div>
@@ -64,7 +79,7 @@
       <h2>场次消息流</h2>
       <label>推入工作记忆（自动处理超限 flush） <textarea id="msg" rows="2">指挥所：红方 3 营东侧集结完毕
 侦察：高地南坡发现两处反坦克火力点</textarea></label>
-      <button class="ghost" onclick="pushMsg()">推入 FIFO</button>
+      <button class="ghost" data-need-session onclick="pushMsg()">推入 FIFO</button>
     </div>
 
     <div class="card">
@@ -72,7 +87,7 @@
       <label>复盘文本（含"教训/经验"关键词行将被抽取） <textarea id="review" rows="3">复盘：任务部分达成。
 教训：夜间突袭未前置电子压制，接敌后通信被干扰。
 经验：突破口形成后预备队投入应提前 10 分钟。</textarea></label>
-      <button class="danger" onclick="closeSession()">复盘并进化 ⑥⑦</button>
+      <button class="danger" data-need-session onclick="closeSession()">复盘并进化 ⑥⑦</button>
     </div>
 
     <div class="card">
@@ -84,30 +99,60 @@
     </div>
   </section>
 
-  <!-- ══════════ 中栏：上下文 + 检索结果 ══════════ -->
+  <!-- ══════════ 中栏：⚙️ 运行过程（输入→产出 + 短期记忆构成） ══════════ -->
   <section class="col col-mid">
+    <div class="zone-label run">⚙️ 运行过程 · 短期记忆 <span>输入→产出实时流水 · 本场工作记忆构成</span></div>
+
+    <!-- 跨场次复用横幅：长期记忆多轮生效的直观提示 -->
+    <div class="banner reuse" id="reuse-banner" style="display:none"></div>
+
     <div class="card grow">
-      <h2>⑤ 工作记忆上下文 <span class="hint">（注入规划 LLM 的最终形态）</span></h2>
+      <h2>📟 运行事件流 <span class="hint">（每次输入 → 每次产出，实时记录）</span></h2>
+      <div id="events" class="events"><div class="empty">（暂无事件——左侧任意操作都会在这里留下输入/产出记录）</div></div>
+    </div>
+
+    <div class="card grow">
+      <h2>🧠 短期记忆 · 本场工作记忆构成 <span class="hint">（场生场灭 · 约束永不压缩）</span></h2>
+      <div id="wm" class="wm"><div class="empty">（无场次——开场后这里实时展示：目标 / 约束 / 装载记忆 / FIFO 消息 / 容量水位）</div></div>
+    </div>
+
+    <div class="card grow">
+      <h2>⑤ 注入规划 LLM 的上下文 <span class="hint">（短期记忆的最终产出形态）</span></h2>
       <div class="metric" id="ctx-metrics">tokens 0 · 0% · 未预警</div>
       <pre id="context" class="ctx">（尚未开场）</pre>
     </div>
-    <div class="card grow">
-      <h2>③ 检索命中 <span class="hint">（带溯源 · 创新点 E）</span></h2>
-      <div id="hits" class="hits"><div class="empty">（尚未检索）</div></div>
-    </div>
-    <div class="card">
-      <h2>⑦ 进化报告</h2>
-      <div id="report" class="report"><div class="empty">（尚未复盘）</div></div>
-    </div>
   </section>
 
-  <!-- ══════════ 右栏：记忆库浏览 ══════════ -->
+  <!-- ══════════ 右栏：📦 产出 · 长期记忆（跨场次沉淀） ══════════ -->
   <section class="col col-right">
+    <div class="zone-label out">📦 产出 · 长期记忆 <span>检索命中 / 进化沉淀 / 场次历史 / 记忆库</span></div>
+
     <div class="card grow">
-      <h2>记忆库浏览</h2>
+      <h2>🎯 检索命中 <span class="hint">（带溯源 · 创新点 E）</span></h2>
+      <div id="hits" class="hits"><div class="empty">（尚未检索）</div></div>
+    </div>
+
+    <div class="card">
+      <h2>🧬 进化报告 <span class="hint">（本场复盘产出）</span></h2>
+      <div id="report" class="report"><div class="empty">（尚未复盘）</div></div>
+    </div>
+
+    <div class="card">
+      <h2>🗂 场次历史 <span class="hint">（多轮沉淀主线：每场留下什么、复用什么）</span></h2>
+      <div id="sessions" class="sessions"><div class="empty">（暂无场次——开场后本场会出现在这里）</div></div>
+    </div>
+
+    <div class="card grow">
+      <h2>📚 长期记忆库 <span class="hint">（跨场次持久 · 艾宾浩斯衰减）</span></h2>
       <div class="tabs">
         <button class="tab active" data-type="fact" onclick="switchTab(this)">事实库</button>
         <button class="tab" data-type="experience" onclick="switchTab(this)">经验库</button>
+        <select id="mem-sort" class="sortsel" onchange="renderMemoryList()">
+          <option value="importance">按重要性</option>
+          <option value="recall_count">按召回次数</option>
+          <option value="retention">按留存率</option>
+          <option value="timestamp">按写入时间</option>
+        </select>
       </div>
       <div class="searchrow">
         <input id="search-q" placeholder="混合检索：如 夜战 侦察 / T-90">
@@ -118,7 +163,7 @@
       <div id="memory-list" class="memlist"></div>
     </div>
     <div class="card">
-      <h2>边界审计 <span class="hint">（boundary 模块）</span></h2>
+      <h2>🛡 边界审计 <span class="hint">（boundary 模块）</span></h2>
       <div id="boundary-stats" class="metric">放行 0 · 拒绝 0</div>
       <div id="audit" class="audit"><div class="empty">（暂无决策）</div></div>
     </div>

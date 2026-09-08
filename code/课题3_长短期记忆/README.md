@@ -57,8 +57,8 @@ python webui/server.py            # → http://127.0.0.1:8765
 ├── tests/test_smoke.py        # 冒烟测试（零依赖，不用 pytest）
 ├── examples/demo_pipeline.py  # 两场次闭环演示（组会可放屏）
 ├── webui/                     # Web 控制台（零依赖 http.server）
-│   ├── server.py              #   API 路由 + 全局 controller（线程安全）
-│   ├── _selftest.py           #   全链路自测（20 项：七步闭环逐接口）
+│   ├── server.py              #   API 路由 + 全局 controller + 事件流/场次历史
+│   ├── _selftest.py           #   全链路自测（48 项：七步闭环 + 过程可视化 + 跨场次复用）
 │   └── static/                #   index.html / app.js / style.css（原生 JS）
 ├── engine.py                  # 老师平台 SDK 插件适配器（MemoryEnginePlugin）
 ├── __init__.py                # 包入口（导出 engine_plugin 供平台发现）

@@ -10,10 +10,17 @@ webui/server.py — 赛题③ 记忆系统 Web 控制台（零依赖，纯 Pytho
   ① 规划开场   POST /api/session/start   （goal/constraints/查询列表）
   ③④ 检索装载  POST /api/session/retrieve（混合检索 + 装载 + 上下文渲染）
   场次消息     POST /api/session/push
-  ⑤ 上下文     GET  /api/context         （当前注入 LLM 的完整上下文）
+  ⑤ 上下文     GET  /api/context         （注入规划 LLM 的上下文 + 工作记忆构成）
   ⑦ 复盘进化   POST /api/session/close   （四操作报告 + 边界审计）
   记忆浏览/检索 GET/POST /api/memory, /api/search
   演示数据     POST /api/seed  /api/reset
+
+"输入 → 运行过程 → 产出"可视化支撑：
+  GET /api/events    运行事件流（每次输入/产出一条记录，前端过程面板实时展示）
+  GET /api/sessions  场次历史（多轮沉淀：每场目标、写入/复用了哪些记忆）
+  GET /api/status    附带七步闭环进度（stepper）+ 场次计数
+  POST /api/session/retrieve 返回 reused（本场召回了哪些**往场沉淀**的记忆）
+  GET /api/context   附带 wm（工作记忆逐块构成：目标/约束/装载/FIFO/归档/水位）
 
 实现说明：
   - http.server.ThreadingHTTPServer + json：不引入任何第三方依赖（与 memsys 哲学一致）；
@@ -43,9 +50,13 @@ from memsys import (  # noqa: E402
 
 STATIC_DIR = os.path.join(HERE, "static")
 
+# 七步闭环的步骤 key（stepper 数据源）
+STEPS = ("s1", "s2", "s3", "s4", "s5", "s6", "s7")
+
+
 # ---------------------------------------------------------------- 全局状态
 class AppState:
-    """服务进程内的全局状态：一个 controller + 演示种子。"""
+    """服务进程内的全局状态：一个 controller + 过程数据。"""
 
     def __init__(self) -> None:
         self.reset()
@@ -60,9 +71,45 @@ class AppState:
         )
         self.last_hits = []          # 最近一次检索结果（含溯源）
         self.last_report = None      # 最近一次进化报告
+        # —— "输入→产出"运行事件流（前端过程面板） ——
+        self.events = []             # [{t, kind, step, title, detail}]
+        # —— 场次历史（多轮沉淀的主线：每场写入/复用了什么） ——
+        self.sessions = []           # [{plan_id, goal, started_at, closed_at, report, produced, reused, stats}]
+        # —— 当前场次七步进度（stepper） ——
+        self.progress = {s: False for s in STEPS}
 
+    # ---------- 事件流 ----------
+    def add_event(self, kind: str, step: str, title: str, detail: str = "") -> None:
+        """追加一条运行事件。
+
+        kind: input（用户输入）/ output（系统产出）/ info（状态）/ divider（场次分隔）
+        """
+        self.events.append({"t": time.time(), "kind": kind, "step": step,
+                            "title": title, "detail": detail})
+        if len(self.events) > 300:
+            self.events = self.events[-300:]
+
+    # ---------- 场次历史 ----------
+    @property
+    def current_session(self) -> dict | None:
+        """最近一条未关闭的场次历史项。"""
+        for s in reversed(self.sessions):
+            if s["closed_at"] is None:
+                return s
+        return None
+
+    def past_plan_ids(self) -> set:
+        """已关闭场次 id 集合（判定"往场沉淀"复用）。"""
+        return {s["plan_id"] for s in self.sessions if s["closed_at"]}
+
+    # ---------- 演示种子 ----------
     def seed(self) -> dict:
-        """预置演示记忆（战例事实 + 历史教训），返回写入数量。"""
+        """预置演示记忆（战例事实 + 历史教训），幂等：已有种子则跳过。"""
+        if self.ctl.factual.stats()["count"] >= 4 and \
+           self.ctl.experiential.stats()["count"] >= 3:
+            return {"facts": self.ctl.factual.stats()["count"],
+                    "experiences": self.ctl.experiential.stats()["count"],
+                    "skipped": True}
         facts = [
             ("红方 T-90 主战坦克：最大速度 60km/h，主炮 125mm。",
              {"装备": "T-90", "阵营": "红方"}),
@@ -109,6 +156,11 @@ def api_status() -> dict:
         "min_score": ctl.retriever.min_score,
         "weights": {"alpha": ctl.retriever.alpha, "beta": ctl.retriever.beta,
                     "gamma": ctl.retriever.gamma},
+        # —— 可视化新增 ——
+        "steps": dict(STATE.progress),                 # 七步闭环进度
+        "sessions_total": len(STATE.sessions),         # 已开场场次数
+        "sessions_closed": len(STATE.past_plan_ids()), # 已复盘场次数
+        "events": len(STATE.events),
     }
 
 
@@ -130,9 +182,26 @@ def api_session_start(body: dict) -> dict:
             QueryItem(q_id="q2", intent="召回相似历史经验教训", target="experience",
                       route="vector", query_text=goal),
         ]
-    wm = STATE.ctl.start_session(
-        body.get("plan_id") or f"P{int(time.time())%100000}",
-        body.get("goal", ""), body.get("constraints"), queries)
+    plan_id = body.get("plan_id") or f"P{int(time.time())%100000}"
+    goal = body.get("goal", "")
+    constraints = body.get("constraints") or []
+    wm = STATE.ctl.start_session(plan_id, goal, constraints, queries)
+    # —— 过程数据：进度 + 场次历史 + 事件（输入/产出配对） ——
+    STATE.progress = {s: False for s in STEPS}
+    STATE.progress["s1"] = True
+    STATE.progress["s2"] = bool(queries)
+    STATE.sessions.append({
+        "plan_id": plan_id, "goal": goal,
+        "started_at": time.time(), "closed_at": None,
+        "report": None, "produced": [], "reused": [], "stats": {},
+    })
+    STATE.add_event("divider", "①", f"场次 {plan_id} 开启", goal)
+    STATE.add_event("input", "①", f"输入：规划任务 {plan_id}",
+                    f"目标「{goal}」；约束 {len(constraints)} 条；"
+                    f"查询列表 {len(queries)} 条（"
+                    + "；".join(f"{q.intent}·{q.route}" for q in queries) + "）")
+    STATE.add_event("output", "①②", "产出：工作记忆槽位已建立",
+                    f"目标/约束已固化为不可压缩字段；{len(queries)} 条查询进入待检索队列")
     return {"ok": True, "plan_id": wm.slot.plan_id}
 
 
@@ -140,39 +209,140 @@ def api_session_retrieve(body: dict) -> dict:
     wm = STATE.ctl.working_memory
     if wm is None or wm.slot.status != "open":
         raise ValueError("没有活动场次，请先 start")
-    hits = STATE.ctl.retrieve_and_load(top_k=int(body.get("top_k", 3)))
+    top_k = int(body.get("top_k", 3))
+    n_queries = len(wm.slot.query_list)
+    STATE.add_event("input", "③", f"输入：执行查询列表（{n_queries} 条 × top_k={top_k}）",
+                    "；".join(f"{q.q_id}[{q.route}→{q.target}] {q.query_text or q.intent}"
+                              for q in wm.slot.query_list))
+    hits = STATE.ctl.retrieve_and_load(top_k=top_k)
     STATE.last_hits = hits
+    # —— 跨场次复用统计：命中里有多少来自**往场沉淀**（多轮长期性的直观证据） ——
+    past = STATE.past_plan_ids()
+    reuse_counter: dict = {}
+    for h in hits:
+        sid = h.entry.session_id
+        if sid and sid != wm.slot.plan_id and sid in past:
+            reuse_counter[sid] = reuse_counter.get(sid, 0) + 1
+    reused = [{"plan_id": k, "count": v} for k, v in reuse_counter.items()]
+    if STATE.current_session is not None:
+        known = {r["plan_id"]: r["count"] for r in STATE.current_session["reused"]}
+        for r in reused:
+            known[r["plan_id"]] = max(known.get(r["plan_id"], 0), r["count"])
+        STATE.current_session["reused"] = [{"plan_id": k, "count": v}
+                                           for k, v in known.items()]
+    # —— 事件（产出） ——
+    n_fact = sum(1 for h in hits if h.entry.type.value == "fact")
+    n_exp = len(hits) - n_fact
+    detail = (f"命中 {len(hits)} 条（事实 {n_fact} / 经验 {n_exp}），"
+              f"全部装载进工作记忆并登记溯源")
+    if reused:
+        detail += "；其中 " + "、".join(
+            f"{r['plan_id']} 沉淀 ×{r['count']}" for r in reused) + " 为往场复用"
+    if wm.memory_pressure:
+        detail += "；⚠ 触发容量预警，已自动压缩"
+    STATE.add_event("output", "③④", f"产出：检索装载完成", detail)
+    STATE.progress["s3"] = True
+    STATE.progress["s4"] = True
+    STATE.progress["s5"] = True
     return {"ok": True, "hits": [hit_dict(h) for h in hits],
             "context": STATE.ctl.render_context(),
             "tokens": wm.used_tokens, "ratio": round(wm.used_ratio, 3),
-            "pressure": wm.memory_pressure, "stats": STATE.ctl.session_stats}
+            "pressure": wm.memory_pressure, "stats": STATE.ctl.session_stats,
+            "reused": reused, "wm": wm_dict(wm)}
 
 
 def api_session_push(body: dict) -> dict:
     wm = STATE.ctl.working_memory
     if wm is None or wm.slot.status != "open":
         raise ValueError("没有活动场次")
-    STATE.ctl.push(body.get("msg", ""))
-    return {"ok": True, "tokens": wm.used_tokens, "ratio": round(wm.used_ratio, 3),
-            "pressure": wm.memory_pressure,
-            "archived": len(wm.archived)}
+    msg = body.get("msg", "")
+    STATE.add_event("input", "⑥", "输入：场次消息",
+                    msg[:120] + ("…" if len(msg) > 120 else ""))
+    STATE.ctl.push(msg)
+    flushed = len(wm.archived)
+    STATE.progress["s6"] = True
+    out = {"ok": True, "tokens": wm.used_tokens, "ratio": round(wm.used_ratio, 3),
+           "pressure": wm.memory_pressure, "archived": flushed}
+    if flushed:
+        STATE.add_event("output", "⑥", "产出：消息入队（触发 flush 归档）",
+                        f"tokens {wm.used_tokens}/{wm.capacity_tokens}"
+                        f"（{round(wm.used_ratio*100)}%）· 最旧消息已驱逐并生成递归摘要，"
+                        f"累计归档 {flushed} 批（不丢失，复盘时并入沉淀材料）")
+    else:
+        STATE.add_event("output", "⑥", "产出：消息入队",
+                        f"tokens {wm.used_tokens}/{wm.capacity_tokens}"
+                        f"（{round(wm.used_ratio*100)}%）· FIFO 现存 {len(wm.slot.fifo_queue)} 条")
+    return out
+
+
+def wm_dict(wm) -> dict | None:
+    """工作记忆逐块构成（前端"短期记忆·本场构成"面板的数据源）。"""
+    if wm is None:
+        return None
+    loaded = []
+    for mid in wm.slot.loaded_memory:
+        e = STATE.ctl.factual.get(mid) or STATE.ctl.experiential.get(mid)
+        if e is not None:
+            loaded.append({"id": e.id, "type": e.type.value, "content": e.content,
+                           "session_id": e.session_id, "source": e.source,
+                           "recall_count": e.recall_count})
+    return {
+        "plan_id": wm.slot.plan_id, "status": wm.slot.status,
+        "goal": wm.slot.goal, "constraints": wm.slot.constraints,
+        "queries": [{"q_id": q.q_id, "intent": q.intent, "target": q.target,
+                     "route": q.route, "query_text": q.query_text,
+                     "answer_memory_ids": q.answer_memory_ids}
+                    for q in wm.slot.query_list],
+        "loaded": loaded,
+        "fifo": list(wm.slot.fifo_queue),
+        "archived": [{"summary": a.get("summary", ""),
+                      "n_evicted": len(a.get("evicted", []))}
+                     for a in wm.archived],
+        "tokens": wm.used_tokens, "capacity": wm.capacity_tokens,
+        "ratio": round(wm.used_ratio, 3),
+        "warning_ratio": wm.warning_ratio, "flush_ratio": wm.flush_ratio,
+        "pressure": wm.memory_pressure,
+    }
 
 
 def api_context() -> dict:
     wm = STATE.ctl.working_memory
     if wm is None:
-        return {"context": "", "tokens": 0, "ratio": 0, "pressure": False}
+        return {"context": "", "tokens": 0, "ratio": 0, "pressure": False,
+                "wm": None}
     return {"context": STATE.ctl.render_context(), "tokens": wm.used_tokens,
-            "ratio": round(wm.used_ratio, 3), "pressure": wm.memory_pressure}
+            "ratio": round(wm.used_ratio, 3), "pressure": wm.memory_pressure,
+            "wm": wm_dict(wm)}
 
 
 def api_session_close(body: dict) -> dict:
     wm = STATE.ctl.working_memory
     if wm is None or wm.slot.status != "open":
         raise ValueError("没有活动场次")
-    report = STATE.ctl.close_session(body.get("review_text", ""))
+    review = body.get("review_text", "")
+    STATE.add_event("input", "⑦", "输入：复盘材料",
+                    review[:160] + ("…" if len(review) > 160 else ""))
+    plan_id = wm.slot.plan_id
+    report = STATE.ctl.close_session(review)
     STATE.last_report = report
-    return {"ok": True, "report": report_dict(report),
+    STATE.progress["s7"] = True
+    # —— 收口场次历史：本场产出哪些记忆、耗时多少 ——
+    entry = next((s for s in reversed(STATE.sessions)
+                  if s["plan_id"] == plan_id and s["closed_at"] is None), None)
+    if entry is not None:
+        entry["closed_at"] = time.time()
+        entry["report"] = report_dict(report)
+        entry["produced"] = list(report.wrote) + list(report.abstracted)
+        entry["stats"] = dict(STATE.ctl.session_stats)
+    rd = report_dict(report)
+    STATE.add_event(
+        "output", "⑦", "产出：记忆进化完成（本场沉淀）",
+        f"写入 {rd['write']} · 合并 {rd['merge']} · 遗忘 {rd['forget']} · "
+        f"抽象 {rd['abstract']} · 查重跳过 {rd['skip_duplicate']}"
+        + (f"；新记忆 id：{'、'.join((report.wrote + report.abstracted)[:6])}"
+           if (report.wrote or report.abstracted) else "")
+        + " —— 这些记忆将在**后续场次**被检索复用（多轮长期性）")
+    return {"ok": True, "report": rd,
             "boundary": STATE.ctl.evolution.boundary.stats(),
             "audit": STATE.ctl.evolution.boundary.audit_log()[-20:]}
 
@@ -190,6 +360,7 @@ def api_memory(params: dict) -> dict:
             "recall_count": e.recall_count,
             "retention": round(e.retention(), 4),
             "source": e.source, "session_id": e.session_id,
+            "timestamp": e.timestamp,
             "metadata": e.metadata, "merged_from": e.merged_from,
             "op_history": e.op_history,
         })
@@ -202,7 +373,12 @@ def api_search(body: dict) -> dict:
                   target=body.get("target", "fact"),
                   route=body.get("route", "vector"),
                   query_text=body.get("query", ""))
+    STATE.add_event("input", "③", "输入：独立检索（记忆库面板）",
+                    f"[{q.route}→{q.target}] {q.query_text}")
     hits = STATE.ctl.retriever.retrieve(q, top_k=int(body.get("top_k", 5)))
+    STATE.add_event("output", "③", f"产出：检索命中 {len(hits)} 条",
+                    "；".join(f"#{h.rank} {h.entry.type.value} {h.score:.3f}"
+                              for h in hits[:5]) or "（低于 min_score 全被过滤）")
     return {"hits": [hit_dict(h) for h in hits],
             "answer_memory_ids": q.answer_memory_ids}
 
@@ -232,9 +408,28 @@ def api_audit() -> dict:
     return {"stats": b.stats(), "log": b.audit_log()[-50:]}
 
 
+def api_events() -> dict:
+    """运行事件流（前端过程面板）：输入/产出/信息/场次分隔。"""
+    return {"events": STATE.events[-120:],
+            "sessions_total": len(STATE.sessions)}
+
+
+def api_sessions() -> dict:
+    """场次历史（多轮沉淀主线）：每场目标、产出记忆、复用往场情况。"""
+    out = []
+    for s in reversed(STATE.sessions):
+        item = dict(s)
+        item["duration_s"] = round(
+            (s["closed_at"] or time.time()) - s["started_at"], 1)
+        out.append(item)
+    return {"sessions": out}
+
+
 # ---------------------------------------------------------------- 场景库（自动样例）
-# 设计动机：课程演示时手敲 goal/查询/消息/复盘太慢且易错——预置 4 个完整场景，
+# 设计动机：课程演示时手敲 goal/查询/消息/复盘太慢且易错——预置 5 个完整场景，
 # 前端一键填充全部表单（含查询列表、消息流、复盘文本），或"自动演示"逐按钮代点。
+# night_hill_2 是 night_hill 的"第二夜"：专为演示**跨场次记忆复用**设计——
+# 连跑两场（先 night_hill 后 night_hill_2），第二场应召回第一场复盘沉淀的教训。
 SCENARIOS = {
     "night_hill": {
         "title": "夜间夺占 2 号高地（标准闭环）",
@@ -253,6 +448,25 @@ SCENARIOS = {
         "review": ("复盘：任务部分达成，突袭队按时抵达但遭遇伏击。"
                    "教训：夜间突袭未前置电子压制，接敌后通信被干扰。"
                    "经验：突破口形成后预备队投入应提前 10 分钟。"),
+    },
+    "night_hill_2": {
+        "title": "第二夜·再战 2 号高地（跨场次复用）",
+        "desc": "紧接上一场：本场应召回**上一场复盘沉淀**的'电子压制/预备队'教训——"
+                "这就是长期记忆的多轮生效（建议先跑完上一场再开本场）",
+        "goal": "第二夜再次夺占 2 号高地，全歼守敌",
+        "constraints": ["限时 3 小时", "预备队随行", "保持无线电静默"],
+        "queries": [
+            {"intent": "召回上一场夜间突袭教训", "target": "experience",
+             "route": "bm25", "query_text": "夜间 突袭 电子压制 通信 干扰"},
+            {"intent": "查目标区域地形与通行条件", "target": "fact",
+             "route": "vector", "query_text": "2 号高地 地形 装甲 通行"},
+        ],
+        "messages": ["指挥所：按上场教训，炮火准备前先置电子压制",
+                     "电子对抗分队：已于开进路线实施电磁静默部署",
+                     "侦察分队：反坦克火力点位置与上场复盘记录一致"],
+        "review": ("复盘：任务达成，未遭伏击。"
+                   "经验：复用上场'前置电子压制'教训后通信全程未受干扰。"
+                   "教训：预备队投入仍偏晚，应随突破口同步展开。"),
     },
     "river_cross": {
         "title": "强渡青川河（教训复用）",
@@ -326,8 +540,8 @@ class Handler(BaseHTTPRequestHandler):
     # ----- 路由表 -----
     API = {
         ("GET", "/api/status"): lambda params, body: api_status(),
-        ("POST", "/api/reset"): lambda params, body: (STATE.reset(), {"ok": True})[1],
-        ("POST", "/api/seed"): lambda params, body: STATE.seed(),
+        ("POST", "/api/reset"): lambda params, body: _reset(),
+        ("POST", "/api/seed"): lambda params, body: _seed(),
         ("POST", "/api/session/start"): lambda params, body: api_session_start(body),
         ("POST", "/api/session/retrieve"): lambda params, body: api_session_retrieve(body),
         ("POST", "/api/session/push"): lambda params, body: api_session_push(body),
@@ -336,6 +550,8 @@ class Handler(BaseHTTPRequestHandler):
         ("GET", "/api/memory"): lambda params, body: api_memory(params),
         ("POST", "/api/search"): lambda params, body: api_search(body),
         ("GET", "/api/audit"): lambda params, body: api_audit(),
+        ("GET", "/api/events"): lambda params, body: api_events(),
+        ("GET", "/api/sessions"): lambda params, body: api_sessions(),
         ("GET", "/api/scenarios"): lambda params, body: api_scenarios(),
         ("POST", "/api/scenario"): lambda params, body: api_scenario(body),
     }
@@ -400,6 +616,22 @@ class Handler(BaseHTTPRequestHandler):
 
     def do_POST(self):
         self._handle("POST")
+
+
+def _seed() -> dict:
+    r = STATE.seed()
+    if not r.get("skipped"):
+        STATE.add_event("info", "—", "预置演示数据",
+                        f"事实库 +{r['facts']} 条（装备/地形参数），"
+                        f"经验库 +{r['experiences']} 条（历史教训）")
+    return r
+
+
+def _reset() -> dict:
+    STATE.reset()
+    STATE.add_event("info", "—", "系统已重置",
+                    "两个长期库与全部过程数据已清空，等待开场")
+    return {"ok": True}
 
 
 def main() -> None:

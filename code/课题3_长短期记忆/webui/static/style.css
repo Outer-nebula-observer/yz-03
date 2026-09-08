@@ -1,15 +1,16 @@
-/* 赛题③ 记忆系统控制台 — 军事沙盘风格（浅色硬朗） */
+/* 赛题③ 记忆系统控制台 — 军事沙盘风格（浅色硬朗）
+   布局主线：左=输入 / 中=运行过程·短期记忆 / 右=产出·长期记忆 */
 :root {
   --bg: #f0f2f5; --card: #ffffff; --ink: #1c2733; --ink2: #5b6b7b;
   --line: #d8dee6; --accent: #2e5e8c; --accent2: #1f7a5a;
-  --warn: #b3541e; --danger: #a03030; --chip: #e8eef5;
+  --warn: #b3541e; --danger: #a03030; --chip: #e8eef5; --past: #8a6116;
   --mono: Consolas, "Courier New", monospace;
 }
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body { font: 14px/1.55 "Microsoft YaHei", system-ui, sans-serif; background: var(--bg); color: var(--ink); }
 
-header { display: flex; justify-content: space-between; align-items: center;
-  padding: 10px 18px; background: #1c2733; color: #fff; flex-wrap: wrap; gap: 8px; }
+header { background: #1c2733; color: #fff; padding: 10px 18px 12px; }
+.hd-row { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; }
 header h1 { font-size: 17px; font-weight: 600; }
 header .sub { font-size: 12px; opacity: .65; font-weight: 400; margin-left: 8px; }
 .chips { display: flex; gap: 8px; flex-wrap: wrap; }
@@ -17,13 +18,33 @@ header .sub { font-size: 12px; opacity: .65; font-weight: 400; margin-left: 8px;
 .chip.on { background: var(--accent2); }
 .chip.warn { background: var(--warn); }
 
-main { display: grid; grid-template-columns: 330px 1fr 340px; gap: 12px;
+/* ---------------- 七步闭环进度条 ---------------- */
+.stepper { display: flex; gap: 4px; margin-top: 10px; flex-wrap: wrap; }
+.step { flex: 1; min-width: 86px; text-align: center; padding: 5px 4px;
+  border-radius: 5px; background: rgba(255,255,255,.08); color: rgba(255,255,255,.55);
+  font-size: 11px; position: relative; transition: all .25s; }
+.step i { font-style: normal; display: inline-block; margin-right: 4px; }
+.step.now { background: rgba(255,255,255,.2); color: #fff;
+  box-shadow: inset 0 -2px 0 #7fb3e0; }
+.step.done { background: var(--accent2); color: #fff; }
+.step.done::after { content: "✓"; position: absolute; top: 1px; right: 5px; font-size: 9px; opacity: .9; }
+
+main { display: grid; grid-template-columns: 320px 1fr 360px; gap: 12px;
   padding: 12px; align-items: start; }
 @media (max-width: 1100px) { main { grid-template-columns: 1fr; } }
 .col { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+
+/* 分区标签：输入 / 运行过程 / 产出 */
+.zone-label { font-size: 12px; font-weight: 600; letter-spacing: 1px;
+  padding: 4px 12px; border-radius: 12px; color: #fff; }
+.zone-label span { font-weight: 400; opacity: .75; margin-left: 6px; letter-spacing: 0; }
+.zone-label.in { background: var(--accent); }
+.zone-label.run { background: #6b5b95; }
+.zone-label.out { background: var(--accent2); }
+
 .card { background: var(--card); border: 1px solid var(--line); border-radius: 8px;
   padding: 12px 14px; box-shadow: 0 1px 2px rgba(28,39,51,.05); }
-.card.grow { min-height: 180px; }
+.card.grow { min-height: 160px; }
 .card h2 { font-size: 14px; margin-bottom: 10px; color: var(--accent);
   border-left: 3px solid var(--accent); padding-left: 8px; }
 .hint { font-size: 11px; color: var(--ink2); font-weight: 400; }
@@ -36,11 +57,13 @@ textarea { resize: vertical; font-family: var(--mono); font-size: 12px; }
 
 .btnrow { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
 button { padding: 7px 14px; border-radius: 5px; border: 1px solid var(--line);
-  background: #fff; cursor: pointer; font: inherit; font-size: 13px; }
+  background: #fff; cursor: pointer; font: inherit; font-size: 13px; transition: opacity .15s; }
 button.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
 button.danger { background: var(--danger); border-color: var(--danger); color: #fff; }
-button.ghost:hover, button:not(.primary):not(.danger):hover { border-color: var(--accent); color: var(--accent); }
+button.ghost:hover, button:not(.primary):not(.danger):not(:disabled):hover
+  { border-color: var(--accent); color: var(--accent); }
 button.sm { padding: 6px 12px; }
+button:disabled { opacity: .45; cursor: not-allowed; }
 
 .query-row { display: grid; grid-template-columns: 44px 1fr 70px 76px; gap: 6px;
   margin: 6px 0; align-items: center; }
@@ -50,16 +73,80 @@ button.sm { padding: 6px 12px; }
 .metric { font-size: 12px; color: var(--ink2); background: var(--chip);
   display: inline-block; padding: 2px 10px; border-radius: 10px; margin-bottom: 8px; }
 pre.ctx { background: #101820; color: #cde3f5; padding: 12px; border-radius: 6px;
-  font: 12px/1.6 var(--mono); white-space: pre-wrap; max-height: 320px; overflow: auto; }
+  font: 12px/1.6 var(--mono); white-space: pre-wrap; max-height: 300px; overflow: auto; }
 
+/* ---------------- 运行事件流（输入 → 产出） ---------------- */
+.events { max-height: 340px; overflow: auto; display: flex; flex-direction: column; gap: 5px; }
+.evt { display: flex; gap: 8px; align-items: flex-start; padding: 5px 8px;
+  border-radius: 5px; background: #f7fafc; font-size: 12px; }
+.evt .t { font-family: var(--mono); font-size: 10px; color: var(--ink2); margin-top: 2px; white-space: nowrap; }
+.evt .tag { font-size: 10px; padding: 1px 7px; border-radius: 8px; white-space: nowrap; margin-top: 1px; }
+.evt .tag.in { background: #e3ecf7; color: var(--accent); }
+.evt .tag.out { background: #e7f3ee; color: var(--accent2); }
+.evt .tag.sys { background: var(--chip); color: var(--ink2); }
+.evt .stepn { font-size: 10px; color: var(--ink2); white-space: nowrap; margin-top: 2px; }
+.evt .bd { flex: 1; min-width: 0; }
+.evt .bd b { font-size: 12px; }
+.evt .d { font-size: 11px; color: var(--ink2); margin-top: 2px; word-break: break-all; }
+.evt.in { border-left: 3px solid var(--accent); }
+.evt.out { border-left: 3px solid var(--accent2); background: #f6fbf9; }
+.evt.sys { border-left: 3px solid var(--line); }
+.evt.divider { display: flex; justify-content: center; align-items: center; gap: 10px;
+  background: none; padding: 7px 0 3px; color: var(--accent); }
+.evt.divider b { font-size: 12px; white-space: nowrap; }
+.evt.divider .d-line { flex: 1; height: 1px; background: var(--line); }
+
+/* ---------------- 工作记忆构成（短期记忆可视化） ---------------- */
+.wm { font-size: 12px; }
+.wm-sec { margin-bottom: 9px; padding-bottom: 8px; border-bottom: 1px dashed var(--line); }
+.wm-sec:last-child { border-bottom: none; }
+.wm-k { font-weight: 600; color: var(--accent); margin-right: 8px; }
+.wm-sec .cnt { font-size: 11px; color: var(--ink2); }
+.lock { font-size: 10px; color: var(--warn); background: #faf1e8;
+  padding: 1px 7px; border-radius: 8px; }
+.wm-v { margin-top: 4px; }
+.chips-inline { display: flex; gap: 6px; flex-wrap: wrap; }
+.lockchip { background: #faf1e8; color: #7a4a1e; font-size: 11px;
+  padding: 2px 9px; border-radius: 9px; }
+.qchip { display: inline-block; background: var(--chip); color: var(--ink);
+  font-size: 11px; padding: 2px 8px; border-radius: 9px; margin: 2px 4px 2px 0; }
+.loaded-item { display: flex; gap: 6px; align-items: baseline; padding: 3px 0; }
+.loaded-item .li-c { flex: 1; min-width: 0; }
+.fifo-item { padding: 2px 8px; background: #f7fafc; border-radius: 4px;
+  margin-top: 3px; color: var(--ink); font-size: 12px; }
+.fifo-item.last { background: #e3ecf7; }
+.fifo-item.last::after { content: "◀ 最新"; font-size: 9px; color: var(--accent); margin-left: 6px; }
+.arch { font-size: 11px; color: var(--ink2); background: #f4f1e8;
+  border-radius: 4px; padding: 2px 8px; margin-top: 3px; font-family: var(--mono); }
+
+/* 容量水位条 */
+.gauge { margin-bottom: 10px; }
+.g-track { height: 10px; background: #e6eaf0; border-radius: 5px; position: relative; overflow: hidden; }
+.g-fill { display: block; height: 100%; border-radius: 5px;
+  background: linear-gradient(90deg, #7fb3e0, var(--accent2)); transition: width .4s; }
+.g-fill.hot { background: linear-gradient(90deg, #e0a47f, var(--warn)); }
+.g-mark { position: absolute; top: -2px; width: 2px; height: 14px; background: var(--danger); }
+.g-text { font-size: 11px; color: var(--ink2); margin-top: 3px; }
+.g-text b { color: var(--ink); font-family: var(--mono); }
+.g-text .hot-t { color: var(--warn); font-weight: 600; }
+.g-text .dim { opacity: .7; }
+
+/* 跨场次复用横幅 */
+.banner { border-radius: 8px; padding: 9px 14px; font-size: 13px; }
+.banner.reuse { background: #fdf6e7; border: 1px solid #e8d5ab; color: #6b5216; }
+.banner.reuse b { color: #8a6116; }
+
+/* ---------------- 产出区：命中 / 报告 / 场次历史 ---------------- */
 .hits, .memlist, .audit { max-height: 300px; overflow: auto; }
 .hit { border: 1px solid var(--line); border-radius: 6px; padding: 8px 10px; margin-bottom: 8px; }
+.hit.past { border-color: #e8d5ab; background: #fffdf6; }
 .hit .head { display: flex; gap: 8px; align-items: center; margin-bottom: 4px; flex-wrap: wrap; }
 .hit .score { font-family: var(--mono); color: var(--accent2); font-weight: 600; }
 .badge { font-size: 10px; padding: 1px 7px; border-radius: 8px; background: var(--chip); color: var(--ink2); }
 .badge.fact { background: #e3ecf7; color: #2e5e8c; }
 .badge.experience { background: #e7f3ee; color: #1f7a5a; }
 .badge.route { background: #f3ead9; color: #8a6116; }
+.badge.past { background: #f3ead9; color: var(--past); font-weight: 600; }
 .hit .content { font-size: 13px; }
 .hit .prov { font-size: 11px; color: var(--ink2); margin-top: 4px;
   border-top: 1px dashed var(--line); padding-top: 4px; }
@@ -70,20 +157,46 @@ pre.ctx { background: #101820; color: #cde3f5; padding: 12px; border-radius: 6px
 .stat b { display: block; font-size: 20px; color: var(--accent); font-family: var(--mono); }
 .stat span { font-size: 11px; color: var(--ink2); }
 .stat.z b { color: var(--ink2); }
+.rep-note { margin-top: 8px; font-size: 12px; color: var(--ink2); }
+.idchip { display: inline-block; font-family: var(--mono); font-size: 10px;
+  background: #e7f3ee; color: var(--accent2); border-radius: 8px;
+  padding: 1px 7px; margin: 1px 2px; }
+.idchip.past { background: #f3ead9; color: var(--past); }
 
-.tabs { display: flex; gap: 6px; margin-bottom: 8px; }
+/* 场次历史（多轮沉淀） */
+.sessions { max-height: 260px; overflow: auto; }
+.sess { border: 1px solid var(--line); border-radius: 6px; padding: 8px 10px;
+  margin-bottom: 8px; background: #fbfcfe; }
+.sess.open { border-left: 4px solid var(--accent); }
+.sess.closed { border-left: 4px solid var(--accent2); }
+.sess .head { display: flex; justify-content: space-between; font-size: 12px; flex-wrap: wrap; gap: 4px; }
+.sess .head b { font-family: var(--mono); color: var(--accent); }
+.sess .head span { font-size: 11px; color: var(--ink2); }
+.sess .goal { font-size: 12px; margin: 3px 0; }
+.sess .badges { display: flex; gap: 6px; flex-wrap: wrap; }
+.sess .badges span { font-size: 10px; background: var(--chip); color: var(--ink2);
+  border-radius: 8px; padding: 1px 8px; }
+.sess .prod { font-size: 11px; color: var(--ink2); margin-top: 4px; }
+.sess .prod.reuse { color: var(--past); }
+
+/* ---------------- 记忆库 ---------------- */
+.tabs { display: flex; gap: 6px; margin-bottom: 8px; align-items: center; }
 .tab { padding: 4px 16px; border-radius: 14px; font-size: 12px; border: 1px solid var(--line); background: #fff; }
 .tab.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+.sortsel { width: 110px; font-size: 12px; padding: 4px 6px; margin-left: auto; }
 .searchrow { display: grid; grid-template-columns: 1fr 64px 72px 46px; gap: 6px; margin-bottom: 10px; }
 
 .mem { border: 1px solid var(--line); border-radius: 6px; padding: 8px 10px; margin-bottom: 8px; }
+.mem.past { border-color: #e8d5ab; background: #fffdf6; }
 .mem .head { display: flex; justify-content: space-between; gap: 6px; font-size: 11px;
   color: var(--ink2); margin-bottom: 3px; flex-wrap: wrap; }
 .mem .content { font-size: 13px; }
 .bar { height: 4px; background: #e6eaf0; border-radius: 2px; margin-top: 6px; overflow: hidden; }
 .bar i { display: block; height: 100%; background: linear-gradient(90deg, var(--warn), var(--accent2)); }
 .mem .ops { font-size: 10px; color: var(--ink2); margin-top: 4px; }
+.src-sess { color: var(--past); }
 
+/* ---------------- 边界审计 ---------------- */
 .audit .a-row { font-size: 11px; padding: 4px 8px; border-left: 3px solid var(--accent2);
   background: #f7fafc; margin-bottom: 4px; border-radius: 0 4px 4px 0; }
 .audit .a-row.rej { border-left-color: var(--danger); background: #fdf5f5; }
@@ -102,3 +215,5 @@ footer { padding: 8px 18px; font-size: 12px; color: var(--ink2);
 .scene-desc { font-size: 12px; color: #667; margin: 8px 0; line-height: 1.5; }
 button.warn { background: #e67e22; color: #fff; }
 button.warn:hover { background: #d35400; }
+button.chain { background: #6b5b95; color: #fff; border-color: #6b5b95; }
+button.chain:hover { background: #5a4b82; }
