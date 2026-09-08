@@ -1,36 +1,48 @@
-# annotated_code — 论文核心源码逐行注释（中文精读版）
+# annotated_code — 论文源码精读注释（入库分发版）
 
-> **定位**：`paper_code/` 下的克隆仓库**不入库**（.gitignore 全忽略，按需 `scripts/download_paper_code.py` 拉取）；
-> 本目录存放**我们加了逐行中文注释的核心源码副本**（或关键方法节选），随仓库分发——队友 clone 即得，无需下载几十 GB。
+> **定位**：对 `paper_code/`（克隆仓库，不入库）中**关键源码**的逐段中文注释副本。
+> 队友 clone 本仓库即得注释版，无需下载论文原仓库也能读懂核心机制。
+>
+> **约定**：注释文件 = "原文件核心节选 + 逐段中文注释"，文件头标注【论文定位】
+> 【为什么精读】【我们的实现对照】三块，代码内注释保持原逻辑顺序（行号可对照原文件）。
+> 只注释**关键组件**（检索核心/数据结构/进化机制），不求全文覆盖。
 
 ## 目录
 
-| 论文 | 文件 | 注释内容 | 对应我们的实现 |
+| 注释文件 | 源自（paper_code/） | 内容 | 关联论文笔记 |
 |---|---|---|---|
-| **ExpeL**（AAAI'24 Oral） | `ExpeL/episode.py` | Trajectory 经验数据结构全文注释：三流解析/三级检索键 | `memsys/long_term/experiential_store.py` |
-| | `ExpeL/expel_核心方法节选.py` | setup_vectorstore（经验入库）+ update_dynamic_prompt_components（推理时召回）+ 规则合并 | `memsys/retrieval/hybrid.py` |
-| **MemSkill**（arXiv 2602.02474） | `MemSkill/operation_bank.py` | Operation（技能=模板+统计元数据）与 OperationBank（淘汰最差/探索偏置）全文注释 | `memsys/schema.py::op_history`（创新点 A 依据） |
-| **SCM**（ACL'23 Findings） | `SCM/chat_核心方法节选.py` | ChatBot 控制器：is_history_need / judge_drop_or_summary（三级判定）/ get_related_turn（相似检索） | `memsys/controller.py`（直系祖先） |
+| `ExpeL/episode.py` | `03_记忆检索/ExpeL/memory/episode.py` | Trajectory：经验库原子单元，三流解析+三级检索键（全文注释） | `references/03_记忆检索/笔记_Zhao2023-ExpeL.md` |
+| `ExpeL/expel_核心注释.py` | `03_记忆检索/ExpeL/agent/expel.py` | 五粒度入库+反查表、多取再筛+重排、推理时召回 | 同上 |
+| `ExpeL/README_精读导读.md` | — | ExpeL 三阶段流水线导读（先读这个再看代码） | 同上 |
+| `LLMLingua/prompt_compressor_核心注释.py` | `01_短期记忆/LLMLingua/llmlingua/prompt_compressor.py` | get_ppl 困惑度打分（KV cache+shift 技巧）、compress_prompt 三级过滤主流程 | `references/01_短期记忆/笔记_Jiang2023-LLMLingua.md` |
+| `MemSkill/operation_bank_注释.py` | `04_记忆进化/MemSkill/src/operation_bank.py` | Operation 元记忆统计（EMA/增量均值）、末位淘汰、确定性排序 | `references/04_记忆进化/笔记_MemSkill-Memory-Skills.md` |
+| `MemSkill/designer_核心注释.py` | `04_记忆进化/MemSkill/src/designer.py` | CaseCollector 滚动失败池、频次聚合、三段式归因 | 同上 |
+| `MemSkill/README_精读导读.md` | — | 三角色架构（controller/executor/designer）导读 | 同上 |
+| `SCM/chat_核心注释.py` | `04_记忆进化/SCM4LLMs/core/chat.py` | judge_drop_or_summary 三态降级、预算内贪心检索、保守二答 | `references/04_记忆进化/笔记_Liang2023-SCM.md` |
+| `SCM/README_精读导读.md` | — | PREMem 四脚本 + SCM 三组件导读 | 同上 + PREMem 笔记 |
 
-每篇另有 `README_精读导读.md`（三阶段流水线地图 + 可搬走的设计清单）。
+## 阅读顺序建议
 
-## 注释怎么读
+```
+1. 各目录 README_精读导读.md（5 分钟建地图）
+2. ExpeL/episode.py → expel_核心注释.py（经验库怎么建怎么查）
+3. LLMLingua/prompt_compressor_核心注释.py（压缩在算什么）
+4. MemSkill/operation_bank_注释.py → designer_核心注释.py（可进化操作）
+5. SCM/chat_核心注释.py（控制器决策——我们 controller 的祖先）
+```
 
-每条注释按三层写：
-1. **这行代码在干什么**（基础开发者可读）；
-2. **【论文对应】**——对应论文哪节哪个机制；
-3. **【我们的实现对照】**——memsys 里对应哪个文件哪个方法、我们做了什么改造（如"确定性阈值替代 LLM 判断"）。
+## 与我们代码（memsys）的对照总表
 
-## 与其它文档的关系
+| 论文机制（注释版） | 我们的实现 | 改造点 |
+|---|---|---|
+| ExpeL 多粒度检索+反查 | `experiential_store.py` 单级 | 教训即产物，无轨迹可拆（设计差异非简化） |
+| ExpeL 多取再筛+重排 | `hybrid.py` top_k*2 | 三路融合替代单路重排 |
+| LLMLingua force_tokens | `compression.py` 约束不进压缩器 | 更彻底：整字段隔离 |
+| MemSkill update_type 四值 | `schema.py` MemoryOp | +abstract 第五操作 |
+| MemSkill 末位淘汰/统计 | `EvolutionReport` 计数版 | 升级方向：带 reward 的技能进化 |
+| MemSkill 滚动失败池 | `EvolutionReport.skipped` | 升级方向：难例档案+频次触发 |
+| SCM 三态降级 raw/summary/drop | `_flush()` 二态+archived 不丢 | 更保守（可回放），代价 archived 增长 |
+| SCM 保守二答（模糊=否） | 未实现 | 待搬：进化判定处采纳 |
 
-- 想看"为什么这么设计" → `docs/08_代码设计思路.md`
-- 想看"怎么跑起来" → `docs/07_运行指南与效果说明.md`
-- 想看"答辩怎么说创新" → `docs/09_想法与创新答辩指南.md`
-- 想看单篇论文全貌 → `references/<模块>/笔记_*.md`（每篇末尾三节：论文核心代码/我们的实现/代码详解）
-
-## 补充注释的约定
-
-1. 新注释一个文件 → 复制到 `annotated_code/<论文名>/`（保持原文件名，节选加 `_核心方法节选` 后缀）；
-2. 文件头写三段：论文定位 / 为什么精读 / 我们的实现对照表；
-3. 原作者的 bug/怪写法**保留原样**并注明"上游遗留，勿学"（如 episode.py 的 `_replace`）；
-4. 注释不改任何逻辑——验证方式：`python -m py_compile <文件>` 通过（节选文件除外，它们是教学摘录）。
+> **加新注释的流程**：从 paper_code 复制核心段到对应子目录 → 文件头写三块定位 →
+> 代码内逐段注释 → 本 README 登记一行 → 对照总表加一行。
