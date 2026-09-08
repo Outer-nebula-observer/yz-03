@@ -26,6 +26,7 @@ from ..schema import MemoryEntry, MemoryType, MemoryOp, new_entry
 from ..llm import LLMClient
 from ..embeddings import MemoryVectorIndex, MockEmbedding, cosine
 from ..boundary import MemoryBoundary
+from ..stages import attr_stage
 from ..long_term.factual_store import FactualStore
 from ..long_term.experiential_store import ExperientialStore
 
@@ -135,6 +136,8 @@ class MemoryEvolution:
             importance=max(e.importance for e in entries),
             merged_from=[e.id for e in entries],
             op_history=[MemoryOp.MERGE.value],
+            # 保留被合并者的阶段标签（否则合并产物丢失 stage 亲和资格）
+            metadata={"stage": base.metadata.get("stage", "")},
         )
         store = self.factual if merged.type == MemoryType.FACT else self.experiential
         store.add(merged)
@@ -189,7 +192,9 @@ class MemoryEvolution:
             importance=max(e.importance for e in entries) + 0.5,  # 抽象经验更重要
             merged_from=[e.id for e in entries],
             op_history=[MemoryOp.ABSTRACT.value],
-            metadata={"theme": theme},
+            # 保留源经验的阶段标签 + 主题（抽象教训仍参与阶段亲和）
+            metadata={"theme": theme,
+                      "stage": entries[0].metadata.get("stage", "")},
         )
         self.experiential.add(abstract_entry)
         return abstract_entry.id
@@ -223,9 +228,15 @@ class MemoryEvolution:
                 report.skipped.append(
                     f"[边界拒绝] {op.get('content', '')[:40]}… ({gate.reason[:40]})")
                 continue
+            # ★ 阶段归因（本轮升级：stage-aware memory）——
+            #   教训归因到规划阶段写入 metadata.stage，下场**同阶段**检索
+            #   时被 hybrid 的亲和加分优先召回（"阶段对阶段"的经验复用）。
+            #   MVP 关键词模板归因；接真模型换 LLM 归因（接口不变）。
+            stage = attr_stage(op.get("content", ""))
             new_id = self.write(mtype, op.get("content", ""),
                                 source=f"复盘:{session_id}", session_id=session_id,
-                                importance=float(op.get("importance", 1.0)))
+                                importance=float(op.get("importance", 1.0)),
+                                attrs={"stage": stage})
             if new_id:
                 report.wrote.append(new_id)
                 new_ids_by_type[mtype.value].append(new_id)

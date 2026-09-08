@@ -72,6 +72,7 @@ class WorkingMemorySlot:
     working_context: str = ""         # 高频关键信息（常驻，压缩时最后动它）
     fifo_queue: List[str] = field(default_factory=list)   # 滚动消息队列（最旧先出）
     status: str = "open"              # open / closed
+    current_stage: str = ""           # 当前规划阶段（MDMP 七步之一，stages.py）
     created_at: float = field(default_factory=time.time)
     updated_at: float = field(default_factory=time.time)
 
@@ -179,6 +180,7 @@ class QueryItem:
     target: str = "fact"              # fact / experience / short_term
     route: str = "vector"             # vector / bm25 / sql
     query_text: str = ""              # 实际查询文本
+    stage: str = ""                   # 产生该查询的规划阶段（stages.py，MDMP）
     answer_memory_ids: List[str] = field(default_factory=list)  # 命中的记忆 id（回填）
 
     def to_dict(self) -> Dict[str, Any]:

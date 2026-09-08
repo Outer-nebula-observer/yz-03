@@ -155,6 +155,66 @@ check("场次历史记录 W002 复用往场",
 # 复盘收口第二场（保持库干净，供后续手动演示）
 call("/api/session/close", {"review_text": "复盘：任务达成。经验：复用上场教训有效。"})
 
+# 8b) ★ 阶段感知（MDMP）：查询按规划阶段生成 + 阶段亲和 + 事件流
+st = call("/api/stages")
+check("GET /api/stages（MDMP 七阶段）",
+      len(st.get("stages", [])) == 7 and st["stages"][0]["id"] == "mission_receipt",
+      str(st)[:100])
+r = call("/api/session/start", {
+    "plan_id": "W003", "goal": "夜间夺占 2 号高地", "constraints": ["禁止越境"],
+    "queries": []})   # 不带手写查询——全部由阶段模板生成
+check("W003 开场（无手写查询）", r.get("ok") is True, str(r))
+r = call("/api/session/stage", {"stage_id": "mission_analysis", "top_k": 3})
+check("POST /api/session/stage（任务分析）",
+      r.get("ok") and r.get("stage", {}).get("name") == "任务分析", str(r)[:120])
+check("阶段查询已生成（带 stage 字段）",
+      any(q.get("stage") == "mission_analysis"
+          for q in r.get("wm", {}).get("queries", [])),
+      str(r.get("wm", {}).get("queries", []))[:120])
+check("任务分析命中事实（阶段供给）",
+      any(h["type"] == "fact" for h in r.get("hits", [])), str(r.get("hits", []))[:100])
+check("命中带 stage 标签", any(h.get("stage") for h in r.get("hits", [])))
+check("上下文带【规划阶段】", "【规划阶段】mission_analysis" in r.get("context", ""))
+stt = call("/api/status")
+check("status 带 current_stage",
+      stt.get("session", {}).get("current_stage") == "mission_analysis")
+r = call("/api/session/stage", {"stage_id": "coa_analysis", "top_k": 3})
+check("进入推演阶段（查询追加不覆盖）",
+      r.get("ok") and sum(1 for q in r.get("wm", {}).get("queries", [])
+                          if q.get("stage")) >= 3,
+      str(len(r.get("wm", {}).get("queries", []))))
+check("推演阶段召回经验教训",
+      any(h["type"] == "experience" for h in r.get("hits", [])))
+# 幂等：同阶段重复点击不虚涨 recall_count
+mem_before = call("/api/memory?type=experience")["items"]
+rc_before = {m["id"]: m["recall_count"] for m in mem_before}
+r2 = call("/api/session/stage", {"stage_id": "coa_analysis", "top_k": 3})
+check("同阶段重复推进返回缓存命中", r2.get("ok") and len(r2.get("hits", [])) > 0)
+mem_after = call("/api/memory?type=experience")["items"]
+rc_after = {m["id"]: m["recall_count"] for m in mem_after}
+check("重复推进不虚涨 recall_count", rc_before == rc_after,
+      str({k: (rc_before.get(k), rc_after.get(k)) for k in rc_after
+           if rc_before.get(k) != rc_after.get(k)})[:120])
+# steps 进度：走阶段后 ②③④⑤ 应点亮
+stt2 = call("/api/status")
+check("阶段推进点亮 stepper ③④⑤",
+      stt2["steps"]["s3"] and stt2["steps"]["s4"] and stt2["steps"]["s5"],
+      str(stt2["steps"]))
+ev = call("/api/events")
+check("阶段切换进事件流",
+      any("规划阶段" in e["title"] for e in ev["events"]))
+call("/api/session/close", {"review_text": "复盘：教训：夜间遭伏击通信被干扰。经验：佯动奏效。"})
+r = call("/api/memory?type=experience")
+staged = [m for m in r.get("items", []) if m.get("metadata", {}).get("stage")]
+check("复盘教训已带阶段归因标签",
+      any(m["session_id"] == "W003" and m["metadata"].get("stage")
+          for m in staged), str([m["id"] for m in staged])[:100])
+try:
+    call("/api/session/stage", {"stage_id": "no_such"})
+    check("未知阶段 400", False, "未抛错")
+except urllib.error.HTTPError as e:
+    check("未知阶段 400", e.code == 400)
+
 # 9) 独立检索接口（无需场次）
 r = call("/api/search", {"query": "T-90 速度", "target": "fact", "route": "bm25", "top_k": 3})
 check("POST /api/search", len(r.get("hits", [])) > 0)

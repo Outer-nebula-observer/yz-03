@@ -59,6 +59,11 @@ class WorkingMemory:
         self.slot.query_list = queries
         self.slot.touch()
 
+    def set_stage(self, stage_id: str) -> None:
+        """进入指定规划阶段（MDMP 七步之一，stages.py 的 stage_id）。"""
+        self.slot.current_stage = stage_id
+        self.slot.touch()
+
     def push_message(self, msg: str) -> None:
         """消息进入 FIFO 队列；超 flush 阈值自动驱逐最旧并更新递归摘要。"""
         self.slot.fifo_queue.append(msg)
@@ -108,6 +113,8 @@ class WorkingMemory:
           尾部：查询列表 + 最近消息（FIFO 末尾=最新）
         """
         parts: List[str] = []
+        if self.slot.current_stage:
+            parts.append(f"【规划阶段】{self.slot.current_stage}")
         if self.slot.goal:
             parts.append(f"【目标】{self.slot.goal}")
         if self.slot.constraints:

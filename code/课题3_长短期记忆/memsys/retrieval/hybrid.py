@@ -37,7 +37,7 @@ class HybridRetriever:
 
     def __init__(self, factual: FactualStore, experiential: ExperientialStore,
                  alpha: float = 0.5, beta: float = 0.3, gamma: float = 0.2,
-                 min_score: float = 0.35) -> None:
+                 min_score: float = 0.35, stage_bonus: float = 0.15) -> None:
         self.factual = factual
         self.experiential = experiential
         # 三路融合权重（G5 消融扫描点）
@@ -47,6 +47,10 @@ class HybridRetriever:
         # （噪声进上下文比漏召回更伤：污染规划且被"装载"统计虚计）。
         # 注意量纲：融合分是归一化后加权和，理论范围 [0, alpha+beta+gamma]=1。
         self.min_score = min_score
+        # 【本轮升级·阶段感知】stage_bonus：记忆的 metadata.stage 与查询的
+        # stage 一致时，融合分加这么多（"任务分析阶段的教训优先供给任务分析"）。
+        # 放在 min_score 过滤**之前**——阶段对口的记忆应能借亲和分过阈值。
+        self.stage_bonus = stage_bonus
         # BM25 语料惰性构建（每次检索前按当前两库内容重建；万级以下可接受）
         self._bm25_cache: Optional[BM25] = None
         self._bm25_size = -1
@@ -143,6 +147,15 @@ class HybridRetriever:
             fused.setdefault(r.entry.id, {"r": r, "s": 0.0, "routes": []})
             fused[r.entry.id]["s"] += w * r.score
             fused[r.entry.id]["routes"].append(r.route)
+
+        # 3.5) 阶段亲和加分（本轮升级：stage-aware memory）——
+        #      记忆 metadata.stage == 查询 stage（当前规划阶段）时加分：
+        #      "任务分析阶段的教训，优先供给任务分析阶段"（MIRIX 路由思想的
+        #      阶段化扩展）。加分在 min_score 过滤之前，保证对口记忆能过阈值。
+        if getattr(q, "stage", ""):
+            for item in fused.values():
+                if item["r"].entry.metadata.get("stage") == q.stage:
+                    item["s"] += self.stage_bonus
 
         # 4) 排序 + 阈值过滤 + 回填 + 【Bug 修复】统一命中强化
         #    【论文技巧】min_score：融合分不够格的直接丢弃（低分噪声不装载）

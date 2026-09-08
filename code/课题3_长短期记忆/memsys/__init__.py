@@ -25,6 +25,8 @@ from .llm import LLMClient, MockLLM, OpenAICompatibleClient, get_llm
 from .embeddings import (EmbeddingModel, MockEmbedding, OpenAIEmbedding,
                          MemoryVectorIndex, cosine, tokenize)
 from .boundary import MemoryBoundary, BoundaryDecision, CONTENT_RULES, Scope
+from .stages import (MDMP_STAGES, STAGE_IDS, STAGE_NAMES, STAGE_TEMPLATES,
+                     queries_for_stage, attr_stage, get_stage)
 from .short_term import WorkingMemory, get_strategy
 from .long_term import BaseLongTermStore, FactualStore, ExperientialStore
 from .retrieval import BM25, HybridRetriever
@@ -43,6 +45,8 @@ __all__ = [
     "EmbeddingModel", "MockEmbedding", "OpenAIEmbedding",
     "MemoryVectorIndex", "cosine", "tokenize",
     "MemoryBoundary", "BoundaryDecision", "CONTENT_RULES", "Scope",
+    "MDMP_STAGES", "STAGE_IDS", "STAGE_NAMES", "STAGE_TEMPLATES",
+    "queries_for_stage", "attr_stage", "get_stage",
     # 模块
     "WorkingMemory", "get_strategy",
     "BaseLongTermStore", "FactualStore", "ExperientialStore",

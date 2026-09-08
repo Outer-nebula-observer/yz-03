@@ -31,7 +31,8 @@ from memsys import (MemoryType, MemoryEntry, QueryItem, new_entry,
                     MockLLM, MockEmbedding,
                     FactualStore, ExperientialStore,
                     HybridRetriever, MemoryEvolution, MemoryBoundary,
-                    MemoryController, MemoryPipeline)
+                    MemoryController, MemoryPipeline,
+                    MDMP_STAGES, STAGE_IDS, queries_for_stage, attr_stage)
 
 
 def ok(name: str) -> None:
@@ -325,6 +326,131 @@ def test_integration_zhirong() -> None:
     ok("集成验收：智戎三挂接点 mock + 时延记录 + 异常降级")
 
 
+# ---------------------------------------------------------------- 12. 阶段感知（本轮升级）
+def test_stage_aware() -> None:
+    """MDMP 七阶段模板 / 阶段亲和加分 / 复盘教训阶段归因 / advance_stage。"""
+    # 1) 七阶段定义完整（MDMP 七步）
+    assert len(MDMP_STAGES) == 7, "MDMP 应为七阶段"
+    assert [s["n"] for s in MDMP_STAGES] == list(range(1, 8)), "阶段序号 1-7"
+    assert all(STAGE_IDS[i] != STAGE_IDS[i+1] for i in range(6)), "阶段 id 不重复"
+
+    # 2) 阶段模板生成查询：带 stage 字段、target/route 合法
+    qs = queries_for_stage("mission_analysis", goal="夜间夺占 2 号高地")
+    assert qs and all(q.stage == "mission_analysis" for q in qs)
+    assert all(q.target in ("fact", "experience") for q in qs)
+    assert all(q.route in ("vector", "bm25", "sql") for q in qs)
+    assert any("2 号高地" in q.query_text for q in qs), "{goal} 应注入查询文本"
+    ok("MDMP 七阶段定义 + 阶段模板查询生成")
+
+    # 3) 复盘教训阶段归因（关键词模板）
+    assert attr_stage("教训：侦察不力，敌情漏判") == "mission_analysis"
+    assert attr_stage("经验：突破口选在南坡，佯动奏效") == "coa_development"
+    assert attr_stage("教训：夜间遭伏击，通信被干扰") == "coa_analysis"
+    assert attr_stage("教训：命令格式不规范") == "orders_production"
+    assert attr_stage("随便一句话") == "coa_analysis", "无命中默认归推演阶段"
+    # 与 seed 硬编码归因保持一致（炮火准备属战法拟制，不是推演暴露）
+    assert attr_stage("经验：炮火准备前置 20 分钟，可显著压制敌方反坦克火力点。") \
+        == "coa_development", "炮火准备应归方案拟制（与 seed 一致）"
+    ok("复盘教训阶段归因（关键词模板）")
+
+    # 4) 阶段亲和加分：同内容，stage 对口者融合分更高/可过阈值
+    emb = MockEmbedding()
+    factual = FactualStore(":memory:", emb)
+    exp = ExperientialStore(emb)
+    for store in (factual, exp):
+        store.add(new_entry(MemoryType.EXPERIENCE, "教训：夜间突袭未前置电子压制，遭敌干扰。",
+                            source="seed", importance=2.0,
+                            attrs={"stage": "coa_analysis"}))
+        store.add(new_entry(MemoryType.EXPERIENCE, "教训：夜间突袭未前置电子压制，遭敌干扰。",
+                            source="seed2", importance=2.0))
+    r = HybridRetriever(factual, exp)
+    q_with = QueryItem(q_id="s1", intent="推演", target="experience", route="vector",
+                       query_text="夜间 突袭 干扰", stage="coa_analysis")
+    q_without = QueryItem(q_id="s2", intent="推演", target="experience", route="vector",
+                          query_text="夜间 突袭 干扰")
+    hits_w = r.retrieve(q_with, top_k=5)
+    hits_o = r.retrieve(q_without, top_k=5)
+    sw = {h.entry.id: h.score for h in hits_w}
+    so = {h.entry.id: h.score for h in hits_o}
+    assert sw and so
+    for eid in sw:
+        if eid in so:
+            assert abs(sw[eid] - so[eid]) <= 1e-9 or sw[eid] > so[eid], \
+                "对口条目加分后不应更低"
+    tagged = [h for h in hits_w if h.entry.metadata.get("stage") == "coa_analysis"]
+    untagged_o = [h for h in hits_o
+                  if not h.entry.metadata.get("stage")]
+    if tagged and untagged_o:
+        assert sw[tagged[0].entry.id] >= so.get(untagged_o[0].entry.id, 0) - 1e-9 + 0.1, \
+            "阶段对口条目应获得 stage_bonus 加分"
+    ok("阶段亲和加分（stage_bonus=0.15，过滤前生效）")
+
+    # 5) 复盘写入带 stage 标签（evolution → metadata.stage）
+    evo = MemoryEvolution(factual, exp, MockLLM(), emb)
+    evo.evolve_from_review("教训：渡河架桥超时导致梯队迟到。", session_id="S1")
+    wrote = [exp.get(eid) for eid in exp.candidates()]
+    assert any(e and e.metadata.get("stage") for e in wrote), "复盘写入应带阶段标签"
+    ok("复盘教训写入带 stage 标签（阶段归因落库）")
+
+    # 6) controller.advance_stage：阶段切换 + 只执行本阶段查询
+    ctl = MemoryController(factual=FactualStore(":memory:", MockEmbedding()),
+                           experiential=ExperientialStore(MockEmbedding()),
+                           llm=MockLLM(), embedding=MockEmbedding())
+    ctl.factual.add(new_entry(MemoryType.FACT, "2 号高地海拔 320 米，仅东侧可装甲通行。",
+                              source="seed", attrs={"stage": "mission_analysis",
+                                                    "地点": "2号高地"}))
+    ctl.experiential.add(new_entry(
+        MemoryType.EXPERIENCE, "教训：夜间行军未派先遣侦察遭伏击。",
+        source="seed", importance=2.0, attrs={"stage": "coa_analysis"}))
+    ctl.start_session("STG1", goal="夜间夺占 2 号高地",
+                      constraints=["禁止越境"], queries=[])
+    ctl.advance_stage("mission_analysis", top_k=3)
+    assert ctl.working_memory.slot.current_stage == "mission_analysis"
+    n_q1 = len(ctl.working_memory.slot.query_list)
+    assert n_q1 >= 1, "任务分析阶段应生成查询"
+    ctl.advance_stage("coa_analysis", top_k=3)
+    assert ctl.working_memory.slot.current_stage == "coa_analysis"
+    n_q2 = len(ctl.working_memory.slot.query_list)
+    assert n_q2 > n_q1, "新阶段查询应追加（审计轨迹累积）"
+    # 渲染带阶段标记
+    ctx = ctl.render_context()
+    assert "【规划阶段】coa_analysis" in ctx
+    ok("advance_stage：阶段切换 + 阶段查询滚动生成 + 渲染带阶段")
+
+    # 7) 幂等：同阶段重复推进不重复检索（recall_count 不虚涨）
+    rc_before = {eid: ctl.experiential.get(eid).recall_count
+                 for eid in ctl.experiential.candidates()}
+    hits_again = ctl.advance_stage("coa_analysis", top_k=3)
+    rc_after = {eid: ctl.experiential.get(eid).recall_count
+                for eid in ctl.experiential.candidates()}
+    assert rc_before == rc_after, f"重复推进不应强化记忆：{rc_before} → {rc_after}"
+    assert hits_again, "重复推进应返回缓存命中（UI 回显用）"
+    # 未知阶段应报错（防 current_stage 被写入垃圾值）
+    try:
+        ctl.advance_stage("no_such_stage")
+        raise AssertionError("未知阶段未报错")
+    except ValueError:
+        pass
+    ok("advance_stage 幂等（同阶段不重复检索）+ 未知阶段校验")
+
+    # 8) merge/abstract 保留 stage 标签（亲和资格不因进化丢失）
+    evo2 = MemoryEvolution(FactualStore(":memory:", MockEmbedding()),
+                           ExperientialStore(MockEmbedding()),
+                           MockLLM(), MockEmbedding())
+    e1 = new_entry(MemoryType.EXPERIENCE, "教训：侦察不力敌情漏判。",
+                   source="t", importance=2.0, attrs={"stage": "mission_analysis"})
+    e2 = new_entry(MemoryType.EXPERIENCE, "教训：侦察分队敌情漏判失误。",
+                   source="t", importance=2.0, attrs={"stage": "mission_analysis"})
+    evo2.experiential.add(e1)
+    evo2.experiential.add(e2)
+    merged_id = evo2.merge([e1.id, e2.id])
+    assert merged_id, "merge 应成功"
+    merged = evo2.experiential.get(merged_id)
+    assert merged.metadata.get("stage") == "mission_analysis", \
+        f"合并产物应保留 stage 标签：{merged.metadata}"
+    ok("merge 保留 stage 标签（抽象同理，见 abstract metadata）")
+
+
 if __name__ == "__main__":
     print("memsys 冒烟测试（零依赖 · 离线）")
     print("=" * 60)
@@ -339,5 +465,6 @@ if __name__ == "__main__":
     test_bugfix_regressions()
     test_bugfix_regression()
     test_integration_zhirong()
+    test_stage_aware()
     print("=" * 60)
     print("全部通过 [OK]")

@@ -47,6 +47,8 @@ async function refreshStatus() {
   $("boundary-stats").textContent =
     `放行 ${s.boundary.allowed} · 拒绝 ${s.boundary.rejected}`;
   updateStepper(s.steps || {});
+  if (typeof MDMP !== "undefined" && MDMP.length)
+    updateStageBar(s.session?.current_stage || "");
   // 无场次时禁用需要活动场次的按钮
   const open = !!(sess && sess.open);
   document.querySelectorAll("button[data-need-session]")
@@ -126,6 +128,55 @@ function renderReuseBanner(reused) {
     —— 上一场复盘的教训正在影响本场规划（多轮长期性）`;
 }
 
+/* ---------------- 🎯 规划阶段推进（MDMP 七步·阶段化记忆供给） ---------------- */
+let MDMP = [];
+let curStage = "";
+const stageName = (id) => {
+  const s = MDMP.find(x => x.id === id);
+  return s ? `${s.name}` : id;
+};
+async function loadStages() {
+  const r = await api("/api/stages");
+  if (!r) return;
+  MDMP = r.stages;
+  $("stage-bar").innerHTML = MDMP.map(s => `
+    <button class="stg" data-id="${s.id}" data-need-session title="${esc(s.knows)}"
+      onclick="advanceStage('${s.id}')"><i>${s.n}</i>${esc(s.name)}</button>`).join("");
+  updateStageBar("");
+}
+function updateStageBar(cur) {
+  curStage = cur || "";
+  document.querySelectorAll("#stage-bar .stg").forEach(b =>
+    b.classList.toggle("cur", b.dataset.id === curStage));
+}
+async function advanceStage(stageId) {
+  const r = await api("/api/session/stage",
+    { stage_id: stageId, top_k: +$("topk").value || 3 });
+  if (!r) return;
+  renderHits(r.hits);
+  renderContext(r);
+  renderWM(r.wm);
+  renderReuseBanner(r.reused);
+  updateStageBar(stageId);
+  $("stage-desc").textContent =
+    `阶段 ${r.stage.n} ${r.stage.name}（${r.stage.en}）需要：${r.stage.knows} —— 已生成阶段查询并供给记忆`;
+  await refreshStatus();
+  await refreshEvents();
+  await refreshSessions();
+}
+async function autoStageWalk() {
+  /* 自动走完 MDMP 七阶段：每阶段停顿，直观展示"不同阶段供给不同记忆" */
+  const st = await api("/api/status");
+  if (!st) return;
+  if (!st.session || !st.session.open) { showErr("请先 ①② 开场再走阶段"); return; }
+  for (const s of MDMP) {
+    await advanceStage(s.id);
+    await sleep(750);
+  }
+  $("stage-desc").textContent =
+    "✅ 七阶段走完——中栏事件流可回看：每阶段自动生成的查询与命中的记忆类型各不相同";
+}
+
 /* ---------------- ⑤ 上下文 + 工作记忆构成 ---------------- */
 async function loadContext() {
   const r = await api("/api/context");
@@ -154,8 +205,10 @@ function renderWM(wm) {
       ${wm.pressure ? '<span class="hot-t">⚠ 已过预警线（70%）</span>' : "· 未预警"}
       <span class="dim">预警线 ${warnAt}% · flush 线 100%</span></div>
   </div>`;
-  // 目标 / 约束（不可压缩）
+  // 目标 / 约束（不可压缩）+ 当前规划阶段
   let h = g + `
+    <div class="wm-sec"><span class="wm-k">🎯 规划阶段</span><span class="cnt">${wm.current_stage ? esc(stageName(wm.current_stage)) : "（未进入）"}</span>
+      <div class="wm-v dim2">${wm.current_stage ? "记忆供给按该阶段需要生成（阶段亲和加分生效）" : "进入任一规划阶段后，查询按阶段模板自动生成"}</div></div>
     <div class="wm-sec"><span class="wm-k">🎯 目标</span><span class="lock">🔒 不可压缩</span>
       <div class="wm-v">${esc(wm.goal) || "—"}</div></div>`;
   if (wm.constraints?.length) {
@@ -246,11 +299,13 @@ function renderHits(hits) {
   $("hits").innerHTML = hits.map(h => {
     const sid = h.provenance?.session_id || "";
     const past = sid && pastPlanIds.has(sid);
+    const stageMatch = h.stage && h.stage === curStage;
     return `
     <div class="hit${past ? " past" : ""}">
       <div class="head">
         <span class="badge ${h.type}">${h.type === "fact" ? "事实" : "经验"}</span>
         <span class="badge route">${h.route}</span>
+        ${h.stage ? `<span class="badge stageb${stageMatch ? " match" : ""}">🎯 ${esc(stageName(h.stage))}${stageMatch ? " 对口" : ""}</span>` : ""}
         <span class="score">${h.score.toFixed(3)}</span>
         <span style="font-size:11px;color:var(--ink2)">#${h.rank}</span>
         ${past ? `<span class="badge past">⏪ 往场 ${esc(sid)} 沉淀</span>` : ""}
@@ -292,6 +347,7 @@ function renderMemoryList() {
       <div class="bar"><i style="width:${ret}%"></i></div>
       <div class="ops">留存 ${ret}% · 来源 ${esc(m.source || "—")}
         ${sid ? ` · <span class="src-sess">场次 ${esc(sid)}</span>` : ""}
+        ${m.metadata?.stage ? ` · <span class="src-sess">🎯 ${esc(stageName(m.metadata.stage))}</span>` : ""}
         ${m.op_history.length ? " · 操作 " + m.op_history.join("→") : ""}
         ${m.merged_from.length ? " · 合并自 " + m.merged_from.length + " 条" : ""}</div>
     </div>`;
@@ -523,6 +579,8 @@ async function demoTwoSessions() {
 
 /* ---------------- 启动 ---------------- */
 window.addEventListener("DOMContentLoaded", async () => {
+  await loadStages();    // MDMP 七阶段（规划阶段副驾驶）——先于 seed，
+                         // 保证首次渲染记忆列表/命中时 stageName 可用
   await seed();          // 首次进入自动预置演示数据（幂等），开箱即可玩
   await loadScenes();    // 场景库加载并默认填充第一场景
   await refreshAll();

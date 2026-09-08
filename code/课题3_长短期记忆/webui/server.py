@@ -46,6 +46,7 @@ sys.path.insert(0, ROOT)
 from memsys import (  # noqa: E402
     MemoryController, MemoryType, QueryItem, new_entry, MockLLM, MockEmbedding,
     FactualStore, ExperientialStore,
+    MDMP_STAGES, STAGE_NAMES, get_stage,
 )
 
 STATIC_DIR = os.path.join(HERE, "static")
@@ -104,7 +105,12 @@ class AppState:
 
     # ---------- 演示种子 ----------
     def seed(self) -> dict:
-        """预置演示记忆（战例事实 + 历史教训），幂等：已有种子则跳过。"""
+        """预置演示记忆（战例事实 + 历史教训），幂等：已有种子则跳过。
+
+        事实带 stage=mission_analysis（情报类知识，任务分析阶段用）；
+        教训按内容归因阶段（推演暴露类 → coa_analysis，战法部署类 →
+        coa_development）——让"阶段亲和加分"在演示里看得见。
+        """
         if self.ctl.factual.stats()["count"] >= 4 and \
            self.ctl.experiential.stats()["count"] >= 3:
             return {"facts": self.ctl.factual.stats()["count"],
@@ -112,25 +118,29 @@ class AppState:
                     "skipped": True}
         facts = [
             ("红方 T-90 主战坦克：最大速度 60km/h，主炮 125mm。",
-             {"装备": "T-90", "阵营": "红方"}),
+             {"装备": "T-90", "阵营": "红方", "stage": "mission_analysis"}),
             ("蓝方 M1A2 主战坦克：最大速度 67km/h，主炮 120mm。",
-             {"装备": "M1A2", "阵营": "蓝方"}),
+             {"装备": "M1A2", "阵营": "蓝方", "stage": "mission_analysis"}),
             ("2 号高地海拔 320 米，北坡缓南坡陡，仅东侧可装甲通行。",
-             {"地点": "2号高地"}),
+             {"地点": "2号高地", "stage": "mission_analysis"}),
             ("3 号高地海拔 210 米，地形开阔，两条机械化通路。",
-             {"地点": "3号高地"}),
+             {"地点": "3号高地", "stage": "mission_analysis"}),
         ]
         exps = [
-            ("教训：夜间行军未派先遣侦察，先头连在东侧隘口遭遇伏击。", 2.0),
-            ("经验：炮火准备前置 20 分钟，可显著压制敌方反坦克火力点。", 1.5),
-            ("教训：渡河架桥耗时超预估 40%，导致主攻梯队迟到。", 2.0),
+            ("教训：夜间行军未派先遣侦察，先头连在东侧隘口遭遇伏击。",
+             2.0, "coa_analysis"),
+            ("经验：炮火准备前置 20 分钟，可显著压制敌方反坦克火力点。",
+             1.5, "coa_development"),
+            ("教训：渡河架桥耗时超预估 40%，导致主攻梯队迟到。",
+             2.0, "coa_analysis"),
         ]
         for content, attrs in facts:
             self.ctl.factual.add(new_entry(MemoryType.FACT, content,
                                            source="seed", attrs=attrs))
-        for content, imp in exps:
+        for content, imp, stage in exps:
             self.ctl.experiential.add(new_entry(
-                MemoryType.EXPERIENCE, content, source="seed", importance=imp))
+                MemoryType.EXPERIENCE, content, source="seed", importance=imp,
+                attrs={"stage": stage}))
         return {"facts": len(facts), "experiences": len(exps)}
 
 
@@ -151,6 +161,7 @@ def api_status() -> dict:
             "constraints": wm.slot.constraints if wm else [],
             "pressure": wm.memory_pressure if wm else False,
             "used_ratio": round(wm.used_ratio, 3) if wm else 0,
+            "current_stage": wm.slot.current_stage if wm else "",
         } if wm else None,
         "boundary": ctl.evolution.boundary.stats(),
         "min_score": ctl.retriever.min_score,
@@ -289,8 +300,10 @@ def wm_dict(wm) -> dict | None:
     return {
         "plan_id": wm.slot.plan_id, "status": wm.slot.status,
         "goal": wm.slot.goal, "constraints": wm.slot.constraints,
+        "current_stage": wm.slot.current_stage,
         "queries": [{"q_id": q.q_id, "intent": q.intent, "target": q.target,
                      "route": q.route, "query_text": q.query_text,
+                     "stage": q.stage,
                      "answer_memory_ids": q.answer_memory_ids}
                     for q in wm.slot.query_list],
         "loaded": loaded,
@@ -368,6 +381,63 @@ def api_memory(params: dict) -> dict:
     return {"type": mtype, "items": items, "count": len(items)}
 
 
+def api_stages() -> dict:
+    """MDMP 七阶段定义（前端"规划阶段副驾驶"面板数据源）。"""
+    return {"stages": MDMP_STAGES}
+
+
+def api_session_stage(body: dict) -> dict:
+    """进入指定规划阶段：按阶段模板生成查询 → 检索装载（阶段亲和加分）。
+
+    老师意见的落地：记忆供给由"规划进行到哪一步"驱动，而非 goal 字面。
+    """
+    wm = STATE.ctl.working_memory
+    if wm is None or wm.slot.status != "open":
+        raise ValueError("没有活动场次，请先 start")
+    stage_id = body.get("stage_id", "")
+    stage = get_stage(stage_id)
+    if stage is None:
+        raise ValueError(f"未知阶段 id: {stage_id}（见 GET /api/stages）")
+    top_k = int(body.get("top_k", 3))
+    STATE.add_event("input", "阶段", f"输入：进入规划阶段 {stage['n']} {stage['name']}",
+                    f"该阶段需要：{stage['knows']}")
+    hits = STATE.ctl.advance_stage(stage_id, top_k=top_k)
+    STATE.last_hits = hits
+    # 阶段推进同样完成 ②③④⑤（查询生成 + 检索 + 装载 + 上下文渲染）
+    STATE.progress["s2"] = True
+    STATE.progress["s3"] = True
+    STATE.progress["s4"] = True
+    STATE.progress["s5"] = True
+    # 跨场次复用统计（同 retrieve）
+    past = STATE.past_plan_ids()
+    reuse_counter: dict = {}
+    for h in hits:
+        sid = h.entry.session_id
+        if sid and sid != wm.slot.plan_id and sid in past:
+            reuse_counter[sid] = reuse_counter.get(sid, 0) + 1
+    reused = [{"plan_id": k, "count": v} for k, v in reuse_counter.items()]
+    if STATE.current_session is not None:
+        known = {r["plan_id"]: r["count"] for r in STATE.current_session["reused"]}
+        for r in reused:
+            known[r["plan_id"]] = max(known.get(r["plan_id"], 0), r["count"])
+        STATE.current_session["reused"] = [{"plan_id": k, "count": v}
+                                           for k, v in known.items()]
+    n_stage_hits = sum(1 for h in hits
+                       if h.entry.metadata.get("stage") == stage_id)
+    reuse_txt = ("；往场复用 " + "、".join(
+        "{}×{}".format(r["plan_id"], r["count"]) for r in reused)) if reused else ""
+    STATE.add_event(
+        "output", "阶段", f"产出：阶段 {stage['name']} 记忆供给完成",
+        f"生成 {len([q for q in wm.slot.query_list if q.stage == stage_id])} 条"
+        f"阶段查询 → 命中 {len(hits)} 条（其中阶段对口 {n_stage_hits} 条被亲和加分）"
+        + reuse_txt)
+    return {"ok": True, "stage": stage, "hits": [hit_dict(h) for h in hits],
+            "context": STATE.ctl.render_context(),
+            "tokens": wm.used_tokens, "ratio": round(wm.used_ratio, 3),
+            "pressure": wm.memory_pressure, "stats": STATE.ctl.session_stats,
+            "reused": reused, "wm": wm_dict(wm)}
+
+
 def api_search(body: dict) -> dict:
     q = QueryItem(q_id="web", intent=body.get("intent", "web 检索"),
                   target=body.get("target", "fact"),
@@ -384,11 +454,12 @@ def api_search(body: dict) -> dict:
 
 
 def hit_dict(h) -> dict:
-    """检索结果 → JSON（含溯源，创新点 E 的可视化）。"""
+    """检索结果 → JSON（含溯源与创新点 E；stage = 阶段感知标签）。"""
     p = h.entry.provenance()
     return {"id": h.entry.id, "type": h.entry.type.value,
             "content": h.entry.content, "score": round(h.score, 4),
             "route": h.route, "rank": h.rank,
+            "stage": h.entry.metadata.get("stage", ""),
             "provenance": p}
 
 
@@ -540,6 +611,8 @@ class Handler(BaseHTTPRequestHandler):
     # ----- 路由表 -----
     API = {
         ("GET", "/api/status"): lambda params, body: api_status(),
+        ("GET", "/api/stages"): lambda params, body: api_stages(),
+        ("POST", "/api/session/stage"): lambda params, body: api_session_stage(body),
         ("POST", "/api/reset"): lambda params, body: _reset(),
         ("POST", "/api/seed"): lambda params, body: _seed(),
         ("POST", "/api/session/start"): lambda params, body: api_session_start(body),

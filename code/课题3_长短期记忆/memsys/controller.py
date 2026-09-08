@@ -22,6 +22,7 @@ from typing import Dict, List, Optional
 from .schema import QueryItem, RetrievedMemory
 from .llm import LLMClient, MockLLM
 from .embeddings import MockEmbedding
+from .stages import queries_for_stage, get_stage
 from .short_term.working_memory import WorkingMemory
 from .short_term.compression import get_strategy
 from .long_term.factual_store import FactualStore
@@ -63,6 +64,9 @@ class MemoryController:
         # 会话级检索统计（评估：每场命中多少条、走了哪些路）
         self.session_stats: Dict[str, int] = {"retrieved": 0, "loaded": 0,
                                               "compressed": 0}
+        # 阶段命中缓存：{stage_id: hits}——同阶段重复推进不重复检索
+        # （防止 UI 重复点击把 recall_count/艾宾浩斯 S 刷高，B2 同款精神）
+        self._stage_hits: Dict[str, List[RetrievedMemory]] = {}
 
     # ---------------------------------------------------------------- ① 开场
     def start_session(self, plan_id: str, goal: str,
@@ -75,15 +79,24 @@ class MemoryController:
         if queries:
             self._wm.set_query_list(queries)
         self.session_stats = {"retrieved": 0, "loaded": 0, "compressed": 0}
+        self._stage_hits = {}
         return self._wm
 
     # ---------------------------------------------------------------- ③④ 检索装载
-    def retrieve_and_load(self, top_k: int = 3) -> List[RetrievedMemory]:
-        """执行查询列表并装载：对每个 q 检索 top-k，全部登记进工作记忆。"""
+    def retrieve_and_load(self, top_k: int = 3,
+                          stage: Optional[str] = None) -> List[RetrievedMemory]:
+        """执行查询列表并装载：对每个 q 检索 top-k，全部登记进工作记忆。
+
+        stage 不为 None 时只执行该阶段的查询（advance_stage 用）——
+        阶段化推进时旧阶段查询不重复执行，但 slot.query_list 保留全部
+        查询作为审计轨迹（创新点 C：检索计划完整可查）。
+        """
         if self._wm is None:
             raise RuntimeError("先 start_session() 再检索")
         all_hits: List[RetrievedMemory] = []
         for q in self._wm.slot.query_list:
+            if stage is not None and q.stage != stage:
+                continue
             hits = self.retriever.retrieve(q, top_k=top_k)
             for h in hits:
                 self._wm.load_memory(h.entry.id)  # 溯源：记录装载了谁
@@ -96,6 +109,42 @@ class MemoryController:
                 self._wm, int(self.capacity_tokens * 0.7))
             self.session_stats["compressed"] += 1
         return all_hits
+
+    # ---------------------------------------------------------------- 阶段推进（本轮升级）
+    def advance_stage(self, stage_id: str, top_k: int = 3,
+                      auto_retrieve: bool = True) -> List[RetrievedMemory]:
+        """进入指定规划阶段（MDMP 七步之一）并按阶段供给记忆。
+
+        老师意见的落地：查询不再由 goal 字面生成，而由"规划进行到哪一步"
+        决定——任务分析要情报事实、方案拟制要相似战例、推演要对抗教训
+        （stages.STAGE_TEMPLATES，MVP 确定性模板；真模型后换 LLM 生成）。
+
+        行为：按阶段模板生成查询 → 追加进 query_list（审计轨迹完整）→
+              切换 current_stage → 只执行本阶段查询（带阶段亲和加分）。
+
+        幂等：同阶段重复推进返回缓存的首次命中、**不重复检索**——
+        防止 UI 重复点击把 recall_count / 艾宾浩斯 S 刷高（B2 同款精神）。
+        """
+        if self._wm is None or self._wm.slot.status != "open":
+            raise RuntimeError("没有活动场次")
+        if get_stage(stage_id) is None:
+            raise ValueError(f"未知规划阶段: {stage_id}（见 memsys.stages.MDMP_STAGES）")
+        # 幂等短路：该阶段已执行过 → 直接回缓存
+        if stage_id in self._stage_hits:
+            self._wm.set_stage(stage_id)
+            return list(self._stage_hits[stage_id])
+        queries = queries_for_stage(stage_id, self._wm.slot.goal)
+        existing = {(q.stage, q.q_id) for q in self._wm.slot.query_list}
+        new_qs = [q for q in queries if (q.stage, q.q_id) not in existing]
+        self._wm.set_stage(stage_id)
+        if new_qs:
+            self._wm.slot.query_list.extend(new_qs)
+            self._wm.slot.touch()
+        hits: List[RetrievedMemory] = []
+        if auto_retrieve:
+            hits = self.retrieve_and_load(top_k=top_k, stage=stage_id)
+            self._stage_hits[stage_id] = list(hits)
+        return hits
 
     # ---------------------------------------------------------------- 场次中消息
     def push(self, msg: str) -> None:

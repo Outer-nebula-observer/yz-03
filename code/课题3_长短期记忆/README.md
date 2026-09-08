@@ -37,6 +37,7 @@ python webui/server.py            # → http://127.0.0.1:8765
 │   ├── llm.py                 #   LLM 抽象：MockLLM（离线）/ OpenAI 兼容骨架
 │   ├── embeddings.py          #   向量化：MockEmbedding（哈希词袋）/ 内存向量索引
 │   ├── boundary.py            #   ① 长短期边界：两把尺子/边界矩阵/双向禁止/晋升门控
+│   ├── stages.py              #   ⑤ 阶段感知：MDMP 七阶段模板查询 + 复盘教训阶段归因
 │   ├── short_term/            #   ② 短期/工作记忆（MemGPT 分层范式）
 │   │   ├── working_memory.py  #     槽位 + FIFO + 阈值 flush + 递归摘要
 │   │   └── compression.py     #     压缩策略：truncate / summarize / llmlingua(预留)
