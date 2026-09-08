@@ -45,7 +45,33 @@ except ImportError:  # 独立运行：定义最小占位，保持接口形状一
         async def list_data(self) -> Dict[str, Any]: return {}
 
     class EngineCapabilities:  # type: ignore[no-redef]
-        def __init__(self, **kw: Any) -> None: ...
+        """占位能力声明（字段与 SDK 契约一一对应，支持属性访问）。
+
+        SDK 环境用的是 dataclass；占位版用显式字段，保证 sdk_check
+        的属性检查在无 SDK 环境同样可跑（此前 **kw 版无属性会崩）。
+        """
+
+        def __init__(self, supports_ingest: bool = False, supports_delete: bool = False,
+                     supports_generate: bool = True, supports_stream: bool = True,
+                     supports_browse: bool = False,
+                     supported_suffixes: "list | None" = None,
+                     ingest_granularity: str = "file",
+                     storage_backend: str = "") -> None:
+            self.supports_ingest = supports_ingest
+            self.supports_delete = supports_delete
+            self.supports_generate = supports_generate
+            self.supports_stream = supports_stream
+            self.supports_browse = supports_browse
+            self.supported_suffixes = supported_suffixes or []
+            self.ingest_granularity = ingest_granularity
+            self.storage_backend = storage_backend
+
+
+# 【契约合规】score 归一化上限（SDK §3.2：score 必须 0~1）。
+# 我们的融合分 = alpha*cos + beta*bm25 + gamma*sql，理论上限 = 三权重和
+# （多路命中同一条时累加）。检索器构造时权重和≈1.0，此处除以实际权重和
+# 归一，保证不同权重配置下 score 始终落在 [0,1]。
+_SCORE_MAX = 1.0
 
 
 class LongShortTermMemoryEngine(MemoryEnginePlugin):
@@ -76,8 +102,9 @@ class LongShortTermMemoryEngine(MemoryEnginePlugin):
             supports_ingest=False,   # 写入走进化模块（场次复盘），不做文件级 ingest
             supports_delete=False,
             supports_generate=False, # 生成由智戎规划管线负责，本引擎只管检索
-            supported_suffixes=[".txt"],
-            ingest_granularity="none",
+            supports_stream=False,   # 同上：检索面插件，SSE 层发 engine_done(unsupported)
+            supported_suffixes=[],   # 不认领文件后缀（避免与内建 standard_rag 争 .txt）
+            ingest_granularity="file",  # 契约值仅为 file/directory/both；无 ingest 时声明 file
             storage_backend="memsys(sqlite+vector)",
         )
 
@@ -86,19 +113,37 @@ class LongShortTermMemoryEngine(MemoryEnginePlugin):
 
     async def search(self, query: str, top_k: int = 10,
                      timeout: float = 30.0) -> List[dict]:
-        """SDK 检索入口：query → 双库混合检索 → SDK 结果结构。"""
+        """SDK 检索入口：query → 双库混合检索 → SDK 结果结构。
+
+        【契约合规要点（SDK §3.2/§9）】
+        - score 归一化 0~1：融合分除以三权重和（多路累加的上限）后截断；
+        - 异常不吞：检索异常向上抛（SDK 路由器有熔断接管），不返回空列表；
+        - source_file：用条目 source（复盘场次/seed 等可辨识标记），
+          绝不放系统绝对路径；
+        - chunk_id：条目唯一 id（去重键）。
+        """
+        # 同步检索放到线程里跑——SDK §9 陷阱 1：同步 IO 阻塞事件循环
+        import asyncio
+        return await asyncio.to_thread(self._search_sync, query, top_k)
+
+    def _search_sync(self, query: str, top_k: int) -> List[dict]:
+        """实际检索逻辑（同步实现，被 to_thread 包裹）。"""
         q = self._QueryItem(q_id="sdk", intent="平台检索", target="fact",
                             route="vector", query_text=query)
         fact_hits = self._ctl.retriever.retrieve(q, top_k=top_k)
         q2 = self._QueryItem(q_id="sdk-e", intent="平台检索", target="experience",
                              route="vector", query_text=query)
         exp_hits = self._ctl.retriever.retrieve(q2, top_k=top_k)
+        # 【score 归一化】融合分理论上限 = alpha+beta+gamma（多路命中累加）；
+        # 除以实际权重和，保证任意权重配置下 score ∈ [0,1]
+        wsum = (self._ctl.retriever.alpha + self._ctl.retriever.beta
+                + self._ctl.retriever.gamma) or 1.0
         out: List[dict] = []
         for h in fact_hits + exp_hits:
             p = h.entry.provenance()
             out.append({
                 "content": h.entry.content[:500],
-                "score": round(h.score, 4),
+                "score": round(min(h.score / wsum, 1.0), 4),
                 "source_file": h.entry.source or "memsys",
                 "chunk_id": h.entry.id,
                 "engine": self.name,

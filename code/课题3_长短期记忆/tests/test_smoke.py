@@ -279,6 +279,52 @@ def test_bugfix_regression() -> None:
     ok("回归：bm25 单次强化 + min_score 滤噪 + 查重缓存向量")
 
 
+def test_integration_zhirong() -> None:
+    """验收项：智戎链路三挂接点 mock 全链路 + 时延记录。"""
+    from integration import ZhirongAdapter
+    from memsys import MemoryType, new_entry
+
+    ad = ZhirongAdapter()
+    # 预置可召回记忆
+    ad.ctl.factual.add(new_entry(
+        MemoryType.FACT, "2 号高地海拔 320 米，仅东侧可装甲通行。",
+        source="seed", attrs={"地点": "2号高地"}))
+    ad.ctl.experiential.add(new_entry(
+        MemoryType.EXPERIENCE, "教训：夜间行军未派先遣侦察。",
+        source="seed", importance=2.0))
+
+    # ①②③④ 规划前挂接：增强上下文非空、有命中、时延已记
+    plan = ad.hook_plan("T-ZR", "夜间夺占 2 号高地", constraints=["禁止越境"])
+    assert plan["context"] and "禁止越境" in plan["context"], "上下文应含约束"
+    assert plan["retrieved"] >= 1, "应召回预置记忆"
+    assert plan["elapsed_ms"] >= 0, "时延已记录"
+
+    # ⑥ 反馈挂接
+    fb = ad.hook_feedback("推演：任务部分达成。教训：电子压制不足。")
+    assert fb["ok"]
+
+    # ⑦ 复盘进化挂接：写入新经验 + 边界审计激活
+    close = ad.hook_close(extra_review="经验：预备队投入提前 10 分钟。")
+    assert close.get("write", 0) >= 1, "复盘应写入新经验"
+    assert "boundary" in close, "应返回边界审计统计"
+
+    # 验收日志：三挂接点齐全 + 全部成功
+    s = ad.log.summary()
+    assert s["total_calls"] == 3 and s["all_ok"], f"三挂接点应全成功：{s}"
+    assert set(s["per_hook"]) == {"plan", "feedback", "close"}, "挂接点不齐"
+    # 降级路径：异常不阻断（hook_plan 返回空上下文而非抛出）
+    ad2 = ZhirongAdapter()
+    # 模拟检索层故障：注入必然抛错的 retriever（真实场景=向量库宕机等）
+    class _BrokenRetriever:
+        def retrieve(self, *a, **k):
+            raise RuntimeError("模拟检索层故障")
+    ad2.ctl.retriever = _BrokenRetriever()  # type: ignore[assignment]
+    p2 = ad2.hook_plan("T-ERR", "目标")
+    assert p2["context"] == "", "异常应降级为空上下文（不阻断智戎管线）"
+    assert ad2.log.records[-1].ok is False, "失败应记入集成日志（可观测）"
+    ok("集成验收：智戎三挂接点 mock + 时延记录 + 异常降级")
+
+
 if __name__ == "__main__":
     print("memsys 冒烟测试（零依赖 · 离线）")
     print("=" * 60)
@@ -292,5 +338,6 @@ if __name__ == "__main__":
     test_boundary()
     test_bugfix_regressions()
     test_bugfix_regression()
+    test_integration_zhirong()
     print("=" * 60)
     print("全部通过 [OK]")
