@@ -183,9 +183,13 @@ class MemoryEvolution:
         if len(entries) < 2:
             return None
         material = "\n".join(f"- {e.content}" for e in entries)
-        prompt = (f"以下为多条作战复盘经验（主题：{theme or '综合'}），"
-                  f"请抽象出 1 条可跨场次复用的通用教训：\n{material}")
-        abstract_text = self.llm.summarize(prompt, max_words=120)
+        # 【评审修复】改用 llm.abstract（指令留在实现侧）——此前把带
+        # "请抽象出 1 条…"指令前缀的 prompt 整段喂给 summarize，Mock 的
+        # 抽取式摘要会把指令文本写进记忆并永久入库（演示未暴露是因为
+        # 种子复盘只有单句、不触发 ≥2 条的抽象条件）。
+        abstract_text = self.llm.abstract(material, theme=theme or "综合")
+        if not abstract_text:
+            return None
         abstract_entry = new_entry(
             MemoryType.EXPERIENCE, abstract_text, source="abstract",
             session_id=entries[0].session_id,

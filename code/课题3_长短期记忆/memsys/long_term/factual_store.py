@@ -44,6 +44,12 @@ CREATE INDEX IF NOT EXISTS idx_facts_ts ON facts(timestamp);
 """
 
 
+def _escape_like(query: str) -> str:
+    """转义 LIKE 元字符（%/_/\\），配合 ESCAPE '\\\\' 子句做字面匹配。"""
+    return (query.replace("\\", "\\\\").replace("%", "\\%")
+            .replace("_", "\\_"))
+
+
 class FactualStore(BaseLongTermStore):
     """事实记忆库：SQLite 行存 + 向量辅助索引。
 
@@ -66,6 +72,10 @@ class FactualStore(BaseLongTermStore):
         self.conn.row_factory = sqlite3.Row
         self.conn.executescript(_SCHEMA)
         self.vindex = MemoryVectorIndex(embedding or MockEmbedding())
+        # 【Bug 修复·BM25 缓存失效】语料版本号：add/update/remove 时 +1，
+        # hybrid 的 BM25 缓存据此重建（此前只看 size，内容原地更新/等量换血
+        # 时索引陈旧——检索到已不存在的词法命中）。
+        self.version = 0
         # 启动时把已有行登记进向量索引（幂等）
         with self._lock:
             for row in self.conn.execute("SELECT id, content FROM facts"):
@@ -100,6 +110,7 @@ class FactualStore(BaseLongTermStore):
                 self._entry_params(entry))
             self.conn.commit()
         self.vindex.add(entry.id, entry.content)
+        self.version += 1  # 语料变了 → BM25 缓存需重建
         return entry
 
     def persist_recall(self, entry: MemoryEntry) -> None:
@@ -126,6 +137,7 @@ class FactualStore(BaseLongTermStore):
             self.conn.execute("DELETE FROM facts WHERE id=?", (entry_id,))
             self.conn.commit()
         self.vindex.remove(entry_id)
+        self.version += 1  # 语料变了 → BM25 缓存需重建
 
     # ------------------------- 读路径（检索层） -------------------------
     def get(self, entry_id: str) -> Optional[MemoryEntry]:
@@ -152,10 +164,12 @@ class FactualStore(BaseLongTermStore):
             if e:
                 results.append(RetrievedMemory(entry=e, score=score, route="vector"))
         # 2) 关键词直查兜底（低级但精确——参数名直给时最稳）
+        # 【Bug 修复·LIKE 通配符】查询里的 %/_/\\ 原是 SQL LIKE 元字符
+        # （"fact-____" 会命中 "fact-1234"），先转义再拼 %…%。
         with self._lock:
             rows = self.conn.execute(
-                "SELECT * FROM facts WHERE content LIKE ?",
-                (f"%{query}%",)).fetchall()
+                "SELECT * FROM facts WHERE content LIKE ? ESCAPE '\\'",
+                (f"%{_escape_like(query)}%",)).fetchall()
         for row in rows:
             e = self._row_to_entry(row)
             if not any(r.entry.id == e.id for r in results):
@@ -180,3 +194,36 @@ class FactualStore(BaseLongTermStore):
             if all(e.metadata.get(k) == v for k, v in attrs.items()):
                 hits.append(RetrievedMemory(entry=e, score=1.0, route="sql"))
         return hits[:top_k]
+
+    def search_vector(self, query: str, top_k: int = 5) -> List[RetrievedMemory]:
+        """纯向量检索（hybrid 的 vector 路专用）。
+
+        【评审修复】此前 vector 路复用 search()（向量 + LIKE 兜底混合），
+        导致"vector 单路"混入符号命中、且同一条目以 route=sql 标签重复
+        计分。本方法只走向量索引——保证单路消融（G5）的口径纯净。
+        """
+        results: List[RetrievedMemory] = []
+        for mid, score in self.vindex.search(query, top_k=top_k):
+            e = self.get(mid)
+            if e:
+                results.append(RetrievedMemory(entry=e, score=score,
+                                               route="vector"))
+        return results[:top_k]
+
+    def search_content_like(self, query: str, top_k: int = 5) -> List[RetrievedMemory]:
+        """纯词法包含匹配（hybrid 的 sql 路专用）：content LIKE %query%。
+
+        【Bug 修复·sql 路污染】此前 sql 路复用 search()（向量+LIKE 混合），
+        导致：① 零相似度的向量命中混进符号路（cos=0 也返回）；
+        ② 同一条目在 vector 路被重复计分（融合分虚高、min_score 失效）。
+        本方法只做 LIKE（通配符已转义），保证 sql 路是纯符号路径。
+        """
+        hits: List[RetrievedMemory] = []
+        with self._lock:
+            rows = self.conn.execute(
+                "SELECT * FROM facts WHERE content LIKE ? ESCAPE '\\'",
+                (f"%{_escape_like(query)}%",)).fetchall()
+        for row in rows[:top_k]:
+            hits.append(RetrievedMemory(entry=self._row_to_entry(row),
+                                        score=1.0, route="sql"))
+        return hits

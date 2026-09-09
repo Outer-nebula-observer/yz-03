@@ -1,0 +1,482 @@
+{
+  "groups": {
+    "G0": {
+      "task": {
+        "constraint_sat": 1.0,
+        "memory_citation": 0.0,
+        "noise_pollution": 0.0
+      },
+      "note": "无记忆基线：检索旁路（任务层对照）"
+    },
+    "G1": {
+      "task": {
+        "constraint_sat": 1.0,
+        "memory_citation": 0.0,
+        "noise_pollution": 0.0
+      },
+      "note": "仅短期：检索旁路（与 G0 的差异=会话流程本身）"
+    },
+    "G2": {
+      "retrieval": {
+        "gold_above_distractor": 0.6667,
+        "hit@3": 0.3409,
+        "hit@5": 0.3409,
+        "hit@5_ci": "[0.2045,0.4773]",
+        "mrr": 0.3409,
+        "n_returned": 0.7727,
+        "ndcg@3": 0.3409,
+        "ndcg@5": 0.3409,
+        "recall@3": 0.3409,
+        "recall@5": 0.3409,
+        "recall@5_ci": "[0.2045,0.4773]",
+        "_n": 44
+      },
+      "by_category": {
+        "A": {
+          "gold_above_distractor": 1.0,
+          "hit@3": 1.0,
+          "hit@5": 1.0,
+          "hit@5_ci": "[1.0,1.0]",
+          "mrr": 1.0,
+          "n_returned": 1.3333,
+          "ndcg@3": 1.0,
+          "ndcg@5": 1.0,
+          "recall@3": 1.0,
+          "recall@5": 1.0,
+          "recall@5_ci": "[1.0,1.0]",
+          "_n": 6
+        },
+        "B": {
+          "gold_above_distractor": 1.0,
+          "hit@3": 0.8333,
+          "hit@5": 0.8333,
+          "hit@5_ci": "[0.5,1.0]",
+          "mrr": 0.8333,
+          "n_returned": 2.3333,
+          "ndcg@3": 0.8333,
+          "ndcg@5": 0.8333,
+          "recall@3": 0.8333,
+          "recall@5": 0.8333,
+          "recall@5_ci": "[0.5,1.0]",
+          "_n": 6
+        },
+        "C": {
+          "hit@3": 0.0,
+          "hit@5": 0.0,
+          "hit@5_ci": "[0.0,0.0]",
+          "mrr": 0.0,
+          "n_returned": 0.0,
+          "ndcg@3": 0.0,
+          "ndcg@5": 0.0,
+          "recall@3": 0.0,
+          "recall@5": 0.0,
+          "recall@5_ci": "[0.0,0.0]",
+          "_n": 8
+        },
+        "D": {
+          "hit@3": 0.0,
+          "hit@5": 0.0,
+          "hit@5_ci": "[0.0,0.0]",
+          "mrr": 0.0,
+          "n_returned": 0.0,
+          "ndcg@3": 0.0,
+          "ndcg@5": 0.0,
+          "recall@3": 0.0,
+          "recall@5": 0.0,
+          "recall@5_ci": "[0.0,0.0]",
+          "_n": 4
+        },
+        "E": {
+          "hit@3": 0.0,
+          "hit@5": 0.0,
+          "hit@5_ci": "[0.0,0.0]",
+          "mrr": 0.0,
+          "n_returned": 0.0,
+          "ndcg@3": 0.0,
+          "ndcg@5": 0.0,
+          "recall@3": 0.0,
+          "recall@5": 0.0,
+          "recall@5_ci": "[0.0,0.0]",
+          "_n": 12
+        },
+        "F": {
+          "gold_above_distractor": 1.0,
+          "hit@3": 1.0,
+          "hit@5": 1.0,
+          "hit@5_ci": "[1.0,1.0]",
+          "mrr": 1.0,
+          "n_returned": 3.0,
+          "ndcg@3": 1.0,
+          "ndcg@5": 1.0,
+          "recall@3": 1.0,
+          "recall@5": 1.0,
+          "recall@5_ci": "[1.0,1.0]",
+          "_n": 4
+        },
+        "G": {
+          "gold_above_distractor": 0.0,
+          "hit@3": 0.0,
+          "hit@5": 0.0,
+          "hit@5_ci": "[0.0,0.0]",
+          "mrr": 0.0,
+          "n_returned": 0.0,
+          "ndcg@3": 0.0,
+          "ndcg@5": 0.0,
+          "recall@3": 0.0,
+          "recall@5": 0.0,
+          "recall@5_ci": "[0.0,0.0]",
+          "_n": 4
+        }
+      },
+      "task": {
+        "constraint_sat": 1.0,
+        "memory_citation": 0.6667,
+        "noise_pollution": 0.0
+      },
+      "note": "仅事实库：空经验库注入（固定用例集真对照）"
+    },
+    "G3": {
+      "retrieval": {
+        "gold_above_distractor": 1.0,
+        "hit@3": 0.6364,
+        "hit@5": 0.6364,
+        "hit@5_ci": "[0.5,0.7727]",
+        "mrr": 0.625,
+        "n_returned": 1.6136,
+        "ndcg@3": 0.628,
+        "ndcg@5": 0.628,
+        "recall@3": 0.6364,
+        "recall@5": 0.6364,
+        "recall@5_ci": "[0.5,0.7727]",
+        "_n": 44
+      },
+      "by_category": {
+        "A": {
+          "gold_above_distractor": 1.0,
+          "hit@3": 1.0,
+          "hit@5": 1.0,
+          "hit@5_ci": "[1.0,1.0]",
+          "mrr": 1.0,
+          "n_returned": 1.3333,
+          "ndcg@3": 1.0,
+          "ndcg@5": 1.0,
+          "recall@3": 1.0,
+          "recall@5": 1.0,
+          "recall@5_ci": "[1.0,1.0]",
+          "_n": 6
+        },
+        "B": {
+          "gold_above_distractor": 1.0,
+          "hit@3": 0.8333,
+          "hit@5": 0.8333,
+          "hit@5_ci": "[0.5,1.0]",
+          "mrr": 0.8333,
+          "n_returned": 2.3333,
+          "ndcg@3": 0.8333,
+          "ndcg@5": 0.8333,
+          "recall@3": 0.8333,
+          "recall@5": 0.8333,
+          "recall@5_ci": "[0.5,1.0]",
+          "_n": 6
+        },
+        "C": {
+          "hit@3": 0.625,
+          "hit@5": 0.625,
+          "hit@5_ci": "[0.25,0.875]",
+          "mrr": 0.5625,
+          "n_returned": 1.375,
+          "ndcg@3": 0.5789,
+          "ndcg@5": 0.5789,
+          "recall@3": 0.625,
+          "recall@5": 0.625,
+          "recall@5_ci": "[0.25,0.875]",
+          "_n": 8
+        },
+        "D": {
+          "hit@3": 1.0,
+          "hit@5": 1.0,
+          "hit@5_ci": "[1.0,1.0]",
+          "mrr": 1.0,
+          "n_returned": 2.25,
+          "ndcg@3": 1.0,
+          "ndcg@5": 1.0,
+          "recall@3": 1.0,
+          "recall@5": 1.0,
+          "recall@5_ci": "[1.0,1.0]",
+          "_n": 4
+        },
+        "E": {
+          "hit@3": 0.0,
+          "hit@5": 0.0,
+          "hit@5_ci": "[0.0,0.0]",
+          "mrr": 0.0,
+          "n_returned": 0.0,
+          "ndcg@3": 0.0,
+          "ndcg@5": 0.0,
+          "recall@3": 0.0,
+          "recall@5": 0.0,
+          "recall@5_ci": "[0.0,0.0]",
+          "_n": 12
+        },
+        "F": {
+          "gold_above_distractor": 1.0,
+          "hit@3": 1.0,
+          "hit@5": 1.0,
+          "hit@5_ci": "[1.0,1.0]",
+          "mrr": 1.0,
+          "n_returned": 3.0,
+          "ndcg@3": 1.0,
+          "ndcg@5": 1.0,
+          "recall@3": 1.0,
+          "recall@5": 1.0,
+          "recall@5_ci": "[1.0,1.0]",
+          "_n": 4
+        },
+        "G": {
+          "gold_above_distractor": 1.0,
+          "hit@3": 1.0,
+          "hit@5": 1.0,
+          "hit@5_ci": "[1.0,1.0]",
+          "mrr": 1.0,
+          "n_returned": 4.25,
+          "ndcg@3": 1.0,
+          "ndcg@5": 1.0,
+          "recall@3": 1.0,
+          "recall@5": 1.0,
+          "recall@5_ci": "[1.0,1.0]",
+          "_n": 4
+        }
+      },
+      "task": {
+        "constraint_sat": 1.0,
+        "memory_citation": 0.75,
+        "noise_pollution": 0.0
+      },
+      "note": "双库全开（主配置）"
+    },
+    "G3_vs_G2": {
+      "paired_n": 44,
+      "mean_diff_hit5": 0.2955,
+      "p_perm": 0.0001
+    },
+    "G4": {
+      "summary": {
+        "false_cross_recall": 0.0,
+        "from_s1_review": 0.8333,
+        "hit@3": 0.8333,
+        "hit@5": 0.8333,
+        "hit@5_ci": "[0.5,1.0]",
+        "mrr": 0.8333,
+        "ndcg@3": 0.8333,
+        "ndcg@5": 0.8333,
+        "recall@3": 0.8333,
+        "recall@5": 0.8333,
+        "recall@5_ci": "[0.5,1.0]",
+        "_n": 6
+      },
+      "store_size": 34,
+      "note": "H 类 6 条：场次1 复盘进化 → 场次2 查询（gold=场次1 沉淀）"
+    },
+    "G4_control(无场次1)": {
+      "summary": {
+        "false_cross_recall": 0.0,
+        "from_s1_review": 0.0,
+        "hit@3": 0.0,
+        "hit@5": 0.0,
+        "hit@5_ci": "[0.0,0.0]",
+        "mrr": 0.0,
+        "ndcg@3": 0.0,
+        "ndcg@5": 0.0,
+        "recall@3": 0.0,
+        "recall@5": 0.0,
+        "recall@5_ci": "[0.0,0.0]",
+        "_n": 6
+      },
+      "note": "对照：不跑场次1（gold 不可达应全 miss）"
+    },
+    "G4_vs_control": {
+      "paired_n": 5,
+      "p_perm": 0.0591,
+      "note": "h6 为负控不入检验（gold=None）"
+    },
+    "G5": {
+      "hybrid": {
+        "gold_above_distractor": 1.0,
+        "hit@3": 0.8571,
+        "hit@5": 0.8571,
+        "hit@5_ci": "[0.7143,0.9643]",
+        "mrr": 0.8393,
+        "n_returned": 1.9286,
+        "ndcg@3": 0.844,
+        "ndcg@5": 0.844,
+        "recall@3": 0.8571,
+        "recall@5": 0.8571,
+        "recall@5_ci": "[0.7143,0.9643]",
+        "_n": 28
+      },
+      "vector": {
+        "gold_above_distractor": 0.875,
+        "hit@3": 0.9286,
+        "hit@5": 0.9286,
+        "hit@5_ci": "[0.8214,1.0]",
+        "mrr": 0.8452,
+        "n_returned": 3.8214,
+        "ndcg@3": 0.8581,
+        "ndcg@5": 0.8581,
+        "recall@3": 0.9167,
+        "recall@5": 0.9167,
+        "recall@5_ci": "[0.8095,1.0]",
+        "_n": 28
+      },
+      "bm25": {
+        "gold_above_distractor": 0.875,
+        "hit@3": 0.7857,
+        "hit@5": 0.7857,
+        "hit@5_ci": "[0.6429,0.9286]",
+        "mrr": 0.7857,
+        "n_returned": 1.75,
+        "ndcg@3": 0.7857,
+        "ndcg@5": 0.7857,
+        "recall@3": 0.7857,
+        "recall@5": 0.7857,
+        "recall@5_ci": "[0.6429,0.9286]",
+        "_n": 28
+      },
+      "sql": {
+        "gold_above_distractor": 0.375,
+        "hit@3": 0.2143,
+        "hit@5": 0.2143,
+        "hit@5_ci": "[0.0714,0.3929]",
+        "mrr": 0.2143,
+        "n_returned": 0.2857,
+        "ndcg@3": 0.2143,
+        "ndcg@5": 0.2143,
+        "recall@3": 0.2143,
+        "recall@5": 0.2143,
+        "recall@5_ci": "[0.0714,0.3929]",
+        "_n": 28
+      },
+      "hybrid(α.5,β.3,γ.2)": {
+        "gold_above_distractor": 1.0,
+        "hit@3": 0.8571,
+        "hit@5": 0.8571,
+        "hit@5_ci": "[0.7143,0.9643]",
+        "mrr": 0.8393,
+        "n_returned": 1.9286,
+        "ndcg@3": 0.844,
+        "ndcg@5": 0.844,
+        "recall@3": 0.8571,
+        "recall@5": 0.8571,
+        "recall@5_ci": "[0.7143,0.9643]",
+        "_n": 28
+      },
+      "hybrid(α.7,β.2,γ.1)": {
+        "gold_above_distractor": 1.0,
+        "hit@3": 0.9286,
+        "hit@5": 0.9286,
+        "hit@5_ci": "[0.8214,1.0]",
+        "mrr": 0.869,
+        "n_returned": 2.7143,
+        "ndcg@3": 0.8844,
+        "ndcg@5": 0.8844,
+        "recall@3": 0.9286,
+        "recall@5": 0.9286,
+        "recall@5_ci": "[0.8214,1.0]",
+        "_n": 28
+      },
+      "hybrid(α.34,β.33,γ.33)": {
+        "gold_above_distractor": 1.0,
+        "hit@3": 0.8571,
+        "hit@5": 0.8571,
+        "hit@5_ci": "[0.7143,0.9643]",
+        "mrr": 0.8393,
+        "n_returned": 1.5357,
+        "ndcg@3": 0.844,
+        "ndcg@5": 0.844,
+        "recall@3": 0.8571,
+        "recall@5": 0.8571,
+        "recall@5_ci": "[0.7143,0.9643]",
+        "_n": 28
+      },
+      "hybrid(α.2,β.5,γ.3)": {
+        "gold_above_distractor": 1.0,
+        "hit@3": 0.8571,
+        "hit@5": 0.8571,
+        "hit@5_ci": "[0.7143,0.9643]",
+        "mrr": 0.8393,
+        "n_returned": 1.5,
+        "ndcg@3": 0.844,
+        "ndcg@5": 0.844,
+        "recall@3": 0.8571,
+        "recall@5": 0.8571,
+        "recall@5_ci": "[0.7143,0.9643]",
+        "_n": 28
+      }
+    },
+    "G5_hybrid_vs_vector": {
+      "paired_n": 28,
+      "p_perm": 0.626
+    },
+    "G6": {
+      "on(0.15)": {
+        "gold_above_distractor": 1.0,
+        "hit@3": 1.0,
+        "hit@5": 1.0,
+        "hit@5_ci": "[1.0,1.0]",
+        "mrr": 1.0,
+        "n_returned": 4.25,
+        "ndcg@3": 1.0,
+        "ndcg@5": 1.0,
+        "recall@3": 1.0,
+        "recall@5": 1.0,
+        "recall@5_ci": "[1.0,1.0]",
+        "_n": 4
+      },
+      "off(0)": {
+        "gold_above_distractor": 0.0,
+        "hit@3": 1.0,
+        "hit@5": 1.0,
+        "hit@5_ci": "[1.0,1.0]",
+        "mrr": 0.5,
+        "n_returned": 4.0,
+        "ndcg@3": 0.6309,
+        "ndcg@5": 0.6309,
+        "recall@3": 1.0,
+        "recall@5": 1.0,
+        "recall@5_ci": "[1.0,1.0]",
+        "_n": 4
+      }
+    },
+    "G6_significance": {
+      "metric": "gold_above_distractor（排序指标——同内容平局下 hit@5 无判别力）",
+      "paired_n": 4,
+      "p_perm": 0.1266,
+      "note": "G 类仅 4 对，置换检验功效不足，结果仅供方向参考"
+    }
+  },
+  "random_baseline": {
+    "note": "随机排序基线（解析式）——消融数字必须高于此才有意义",
+    "fact库(n=14)": {
+      "hit@5_单gold": 0.3571,
+      "hit@5_3gold": 0.7692,
+      "mrr_单gold": 0.2323
+    },
+    "exp库(n=14)": {
+      "hit@5_单gold": 0.3571,
+      "mrr_单gold": 0.2323
+    },
+    "旧种子集(n=6)参照": {
+      "hit@5_单gold": 0.8333,
+      "mrr": 0.4083,
+      "说明": "v1 全 1.0 的指标在此基线 0.83 之上——判别力不足的量化证明"
+    }
+  },
+  "task_layer_note": "MockLLM 为回显式输出（截取上下文前 300 字）：G2 装载记忆更少，固定 300 字回显覆盖其中更大比例 → 引用率反而更高。该指标在 Mock 下的有效对照是 G0/G1(=0，无装载) vs G2/G3(>0，有装载)；'LLM 善用记忆'的比率须接真模型后度量（口径不变）。",
+  "_meta": {
+    "testset": "50 cases (A–G 44 + H 6)",
+    "embedding": "MockEmbedding(哈希词袋)",
+    "llm": "MockLLM(回显式)",
+    "elapsed_s": 1.1,
+    "honesty": "Mock 模式下：检索层指标可判别（测试集含干扰/负例/转述）；任务层指标仅度量'上下文构造正确性'（MockLLM 为回显），换真模型后同一脚本即测'LLM 是否善用记忆'——口径不变"
+  }
+}

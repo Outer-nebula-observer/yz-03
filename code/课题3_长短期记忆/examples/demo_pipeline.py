@@ -45,9 +45,13 @@ def main() -> None:
         MemoryType.FACT, "红方 T-90 主战坦克：最大速度 60km/h，主炮 125mm。",
         attrs={"装备": "T-90", "阵营": "红方"}))
     ctl.factual.add(new_entry(
-        MemoryType.EXPERIENCE if False else MemoryType.FACT,
+        MemoryType.FACT,
         "2 号高地海拔 320 米，北坡缓南坡陡，仅东侧可装甲通行。",
         attrs={"地点": "2号高地"}))
+    ctl.factual.add(new_entry(
+        MemoryType.FACT,
+        "3 号高地海拔 210 米，地形开阔，有两条机械化通路。",
+        attrs={"地点": "3号高地"}))
     ctl.experiential.add(new_entry(
         MemoryType.EXPERIENCE, "教训：夜间行军未派先遣侦察，先头在隘口遭伏击。",
         importance=2.0))

@@ -68,6 +68,11 @@ class WorkingMemorySlot:
     constraints: List[str] = field(default_factory=list)   # 作战约束（不可压缩字段）
     query_list: List["QueryItem"] = field(default_factory=list)  # ② 查询列表
     loaded_memory: List[str] = field(default_factory=list)  # ④ 已装载记忆的 id 列表
+    # 【评审修复·关键】已装载记忆的内容摘要（id→简短文本）——render() 据此把
+    # 检索命中的记忆**真正写进注入 LLM 的上下文**。此前 render 只含
+    # goal/constraints/查询列表，检索结果从未进入提示词——"检索增强规划"
+    # 的最后一公里是断的（task_metrics 的引用率恒 0 才暴露出来）。
+    loaded_briefs: Dict[str, str] = field(default_factory=dict)
     intermediate_results: List[Dict[str, Any]] = field(default_factory=list)  # 管线中间结果
     working_context: str = ""         # 高频关键信息（常驻，压缩时最后动它）
     fifo_queue: List[str] = field(default_factory=list)   # 滚动消息队列（最旧先出）
@@ -116,12 +121,15 @@ class MemoryEntry:
     def retention(self, now: Optional[float] = None) -> float:
         """计算当前留存率 R ∈ (0, 1]。
 
-        R = e^(-t/S)：t = 距上次召回（或创建）的秒数；S = 强度。
-        - 新记忆 S=1 → 几小时内衰减明显（艾宾浩斯"先快后慢"）；
-        - 每被召回一次：S += 1 且 t 重置 → 越常用越不容易忘（间隔效应）。
+        R = e^(-t/S)：t = 距上次召回（或创建）的**天数**（秒数/86400）；S = 强度（单位：天）。
+        【Bug 修复·单位失配】原实现 t 用秒而 S 按天标定（MemoryBank/艾宾浩斯
+        口径），导致未保护记忆的实际寿命 ≈ -ln(0.30) ≈ 1.2 秒——下一场
+        forget() 就把"长期记忆"清光（demo 靠 importance≥2 关键词保护线掩盖）。
+        现统一为天：S=1 → 未召回记忆约 1.2 天后衰减到阈值以下，每次召回
+        S+1 → 稳定期多一天（间隔效应）。
         """
         now = now if now is not None else time.time()
-        t = now - (self.last_recalled_at or self.timestamp)
+        t = (now - (self.last_recalled_at or self.timestamp)) / 86400.0
         # 防御：时间倒退/未初始化时视为刚创建
         t = max(t, 0.0)
         import math
@@ -180,6 +188,11 @@ class QueryItem:
     target: str = "fact"              # fact / experience / short_term
     route: str = "vector"             # vector / bm25 / sql
     query_text: str = ""              # 实际查询文本
+    # 【评审修复】属性精确过滤条件（sql 路的真实现）：非空时 sql 路走
+    # FactualStore.search_attrs（参数级精确召回，ChatDB 符号查询），
+    # 而非 LIKE 子串兜底。NL→attrs 意图解析层（"红方 T-90 多快"→
+    # {"装备":"T-90"}）留待真模型接入（接口已就位）。
+    attrs: Optional[Dict[str, str]] = None
     stage: str = ""                   # 产生该查询的规划阶段（stages.py，MDMP）
     answer_memory_ids: List[str] = field(default_factory=list)  # 命中的记忆 id（回填）
 

@@ -130,6 +130,11 @@ class AppState:
             # 命令拟制阶段：条令/协同格式事实（sql 路演示）
             ("条令：营进攻战斗炮火准备不少于 15 分钟，步坦协同按三线配置。",
              {"类别": "条令", "stage": "orders_production"}),
+            # 反坦克武器参数（defense_hill 场景 sql/attrs 精确查询目标）
+            ("红方红箭-9 反坦克导弹射程 5.5 公里，破甲厚度 1200mm。",
+             {"装备": "红箭-9", "stage": "mission_analysis"}),
+            ("蓝方标枪反坦克导弹射程 2.5 公里，攻顶模式破甲 750mm。",
+             {"装备": "标枪", "stage": "mission_analysis"}),
         ]
         exps = [
             ("教训：夜间行军未派先遣侦察，先头连在东侧隘口遭遇伏击。",
@@ -192,7 +197,8 @@ def api_session_start(body: dict) -> dict:
     queries = [
         QueryItem(q_id=f"q{i+1}", intent=q.get("intent", "查询"),
                   target=q.get("target", "fact"), route=q.get("route", "vector"),
-                  query_text=q.get("query_text", ""))
+                  query_text=q.get("query_text", ""),
+                  attrs=(q.get("attrs") or None))
         for i, q in enumerate(queries_raw)
     ]
     if not queries:
@@ -448,13 +454,19 @@ def api_session_stage(body: dict) -> dict:
 
 
 def api_search(body: dict) -> dict:
+    # 【评审修复】支持 attrs 属性精确查询（sql 路真实现）与 mode
+    # （hybrid 三路融合 / single 单路——消融 G5 的网页版对照）
     q = QueryItem(q_id="web", intent=body.get("intent", "web 检索"),
                   target=body.get("target", "fact"),
                   route=body.get("route", "vector"),
-                  query_text=body.get("query", ""))
+                  query_text=body.get("query", ""),
+                  attrs=(body.get("attrs") or None))
+    mode = body.get("mode", "hybrid")
     STATE.add_event("input", "③", "输入：独立检索（记忆库面板）",
-                    f"[{q.route}→{q.target}] {q.query_text}")
-    hits = STATE.ctl.retriever.retrieve(q, top_k=int(body.get("top_k", 5)))
+                    f"[{q.route}→{q.target}·{mode}] {q.query_text}"
+                    + (f" attrs={q.attrs}" if q.attrs else ""))
+    hits = STATE.ctl.retriever.retrieve(q, top_k=int(body.get("top_k", 5)),
+                                        mode=mode)
     STATE.add_event("output", "③", f"产出：检索命中 {len(hits)} 条",
                     "；".join(f"#{h.rank} {h.entry.type.value} {h.score:.3f}"
                               for h in hits[:5]) or "（低于 min_score 全被过滤）")
@@ -586,8 +598,11 @@ SCENARIOS = {
         "goal": "组织仓促防御，迟滞蓝方装甲冲击 6 小时",
         "constraints": ["无空中支援", "反坦克弹药有限"],
         "queries": [
-            {"intent": "查反坦克武器参数（精确）", "target": "fact",
-             "route": "sql", "query_text": "红方 反坦克 破甲厚度"},
+            # 【评审修复】sql 路真实现 = attrs 属性精确过滤
+            # （原多词 LIKE 查询永远查不到——演示失效）
+            {"intent": "查红箭-9 参数（属性精确）", "target": "fact",
+             "route": "sql", "query_text": "红箭-9 反坦克 破甲",
+             "attrs": {"装备": "红箭-9"}},
             {"intent": "召回防御作战经验", "target": "experience",
              "route": "vector", "query_text": "防御 反冲击 装甲 教训"},
         ],

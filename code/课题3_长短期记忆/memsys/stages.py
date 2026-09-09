@@ -73,8 +73,13 @@ STAGE_TEMPLATES = {
     "mission_analysis": [
         ("查目标区域地形与通行", "fact", "vector",
          "{goal} 目标区域 地形 通行 道路"),
-        ("查敌我装备参数（精确）", "fact", "sql",
-         "装备 参数 速度 装甲 火力"),
+        # 【评审修复】原为 sql 路 + 纯文本查询——LIKE 子串永远无法命中
+        # 多词查询（实测恒空）。装备参数的**精确**查询应走 attrs
+        # （sql 路），但 attrs 需要意图解析（"T-90"→{"装备":"T-90"}，
+        # 留待真模型）；模板层先用 vector 做语义召回，精确路由由
+        # orders_production 的 attrs 查询与测试集 sql 用例覆盖。
+        ("查敌我装备参数", "fact", "vector",
+         "{goal} 装备 参数 速度 装甲 火力"),
     ],
     "coa_development": [
         ("召回相似战例与对策", "experience", "vector",
@@ -95,8 +100,10 @@ STAGE_TEMPLATES = {
          "{goal} 决心 决断 犹豫 误机 教训"),
     ],
     "orders_production": [
+        # 【评审修复】sql 路现在支持 attrs 精确过滤——条令类事实按
+        # {"类别": "条令"} 属性精确召回（参数级，ChatDB 符号查询落地）
         ("查条令与协同格式（精确）", "fact", "sql",
-         "条令 协同 命令 格式"),
+         "条令 协同 命令 格式", {"类别": "条令"}),
     ],
 }
 
@@ -107,12 +114,15 @@ def queries_for_stage(stage_id: str, goal: str = "") -> List[QueryItem]:
     查询带 stage 字段——检索层据此做"阶段亲和加分"（hybrid.py）。
     """
     templates = STAGE_TEMPLATES.get(stage_id, [])
-    return [
-        QueryItem(q_id=f"{stage_id}-q{i+1}", intent=intent, target=target,
-                  route=route, query_text=text.format(goal=goal),
-                  stage=stage_id)
-        for i, (intent, target, route, text) in enumerate(templates)
-    ]
+    items: List[QueryItem] = []
+    for i, spec in enumerate(templates):
+        intent, target, route, text = spec[0], spec[1], spec[2], spec[3]
+        attrs = spec[4] if len(spec) > 4 else None  # 5 元组带属性过滤条件
+        items.append(QueryItem(
+            q_id=f"{stage_id}-q{i+1}", intent=intent, target=target,
+            route=route, query_text=text.format(goal=goal),
+            attrs=attrs, stage=stage_id))
+    return items
 
 
 # ---------------------------------------------------------------- 复盘教训阶段归因

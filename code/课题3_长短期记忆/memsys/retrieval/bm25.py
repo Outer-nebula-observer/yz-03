@@ -67,3 +67,24 @@ class BM25:
         scored = [(k, s) for k, s in scored if s > 0]
         scored.sort(key=lambda x: x[1], reverse=True)
         return scored[:top_k]
+
+    def self_score(self, query: str) -> float:
+        """查询对自身的 BM25 得分——归一化上界的稳健估计。
+
+        【评审修复】此前融合层用"池内最大值"归一 bm25 分——单字巧合
+        命中（负例查询与某记忆共享 1 个字）也会被归一到 1.0，噪声被
+        系统性放大（噪声研究实测：min_score=0.35 下负例返回率 58%）。
+        改用"查询自匹配得分"作分母：只有接近全词命中的文档才接近 1.0，
+        单字巧合归一后趋近 0。等价于 RRF 之外另一种免调参的稳健归一。
+        """
+        q_toks = tokenize(query)
+        if not q_toks:
+            return 0.0
+        # 构造"理想文档"= 查询自身（tf=各词 1 次，doc_len=词数）
+        tf = Counter(q_toks)
+        doc_len = len(q_toks)
+        s = 0.0
+        for term, f in tf.items():
+            denom = f + self.k1 * (1 - self.b + self.b * doc_len / self.avg_len)
+            s += self._idf(term) * f * (self.k1 + 1) / denom
+        return s

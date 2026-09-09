@@ -21,6 +21,7 @@ from typing import Any, Dict, List, Optional
 from .schema import QueryItem, RetrievedMemory
 from .llm import LLMClient
 from .controller import MemoryController
+from .stages import queries_for_stage
 from .evolution.memory_evolution import EvolutionReport
 
 
@@ -65,14 +66,14 @@ class MemoryPipeline:
         result = SessionResult(plan_id=plan_id)
 
         # ① 规划：开场（建槽位、设目标约束）
-        # ② 查询列表：无外部提供时，按 goal 生成默认两问（事实+经验各一）
+        # ② 查询列表：无外部提供时，按**阶段模板**生成（P5 落地）——
+        # 【评审修复】原为 goal 字面直查（query_text=goal）。目标陈述
+        # 信息量太薄且与其他场次词面重叠（"夜间进攻 3 号高地"会错召回
+        # "2 号高地"的事实——演示 P002 实测出现的错召回反例）。改为
+        # "受领任务 + 任务分析"两阶段的模板查询：先看历史教训，再备情报。
         if not queries:
-            queries = [
-                QueryItem(q_id=f"{plan_id}-q1", intent="查相关装备/环境事实",
-                          target="fact", route="vector", query_text=goal),
-                QueryItem(q_id=f"{plan_id}-q2", intent="召回相似历史经验教训",
-                          target="experience", route="vector", query_text=goal),
-            ]
+            queries = (queries_for_stage("mission_receipt", goal)
+                       + queries_for_stage("mission_analysis", goal))
         self.controller.start_session(plan_id, goal, constraints, queries)
 
         # ③ 检索 + ④ 装载（controller 内部处理 memory_pressure 压缩）

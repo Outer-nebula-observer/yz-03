@@ -77,10 +77,18 @@ class WorkingMemory:
                                                "at": self.slot.updated_at})
         self.slot.touch()
 
-    def load_memory(self, memory_id: str) -> None:
-        """④ 记录已装载进上下文的长期记忆 id（用于溯源与消融统计）。"""
+    def load_memory(self, memory_id: str, brief: str = "") -> None:
+        """④ 登记已装载进上下文的长期记忆（id + 内容摘要）。
+
+        【评审修复·关键】brief 为该记忆的内容摘要（截断文本）。此前只登记
+        id，render() 从不包含记忆正文——检索结果从未真正进入注入 LLM 的
+        上下文，"检索增强规划"链路在最后一公里是断的。现在 render() 会
+        输出【装载记忆】段（约束之后、查询列表之前——头部关键区）。
+        """
         if memory_id not in self.slot.loaded_memory:
             self.slot.loaded_memory.append(memory_id)
+            if brief:
+                self.slot.loaded_briefs[memory_id] = brief
             self.slot.touch()
 
     # ---------- 容量与阈值（MemGPT 式） ----------
@@ -119,6 +127,12 @@ class WorkingMemory:
             parts.append(f"【目标】{self.slot.goal}")
         if self.slot.constraints:
             parts.append("【约束】" + "；".join(self.slot.constraints))
+        # 【评审修复·关键】装载记忆正文段：检索命中的事实/教训必须真正
+        # 出现在注入规划 LLM 的上下文里（放在约束之后——头部关键区，
+        # LongLLMLingua 位置偏置：关键信息放首尾）。
+        if self.slot.loaded_briefs:
+            lines = [f"· {brief}" for brief in self.slot.loaded_briefs.values()]
+            parts.append("【装载记忆】\n" + "\n".join(lines))
         # 【Bug 修复】原写法 slot._recursive_summary 恒不存在（hasattr 恒 False），
         # 属残留混乱代码；摘要本体就挂在管理器 self 上。
         if self._recursive_summary:

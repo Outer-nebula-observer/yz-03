@@ -131,8 +131,13 @@ r = call("/api/memory?type=experience")
 check("GET /api/memory", r.get("count", 0) >= 4, str(r.get("count")))
 has_new = any("电子压制" in m["content"] for m in r.get("items", []))
 check("复盘新经验已入库", has_new)
+# 【断言更新·评审修复】句子级抽取后：复盘含"教训/经验"两句 → 写入 2 条；
+# 且 ≥2 条新经验触发抽象 → 抽象产物（内容含两句拼接）同样继承 session_id。
+# 故"含电子压制且来自 W001"的条目应为【复盘写入 + 抽象产物】≥1 条。
 wrote_sess = [m["session_id"] for m in r.get("items", []) if "电子压制" in m["content"]]
-check("新经验带来源场次 session_id", wrote_sess == ["W001"], str(wrote_sess))
+check("新经验带来源场次 session_id",
+      len(wrote_sess) >= 1 and all(x == "W001" for x in wrote_sess),
+      str(wrote_sess))
 
 # 8) ★ 跨场次复用：第二场检索应召回 W001 沉淀的记忆（多轮长期性）
 r = call("/api/session/start", {

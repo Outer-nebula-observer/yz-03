@@ -30,6 +30,7 @@ if _ROOT not in _sys.path:          # 支持直接 python integration/zhirong_ad
     _sys.path.insert(0, _ROOT)
 
 from memsys import MemoryController, QueryItem
+from memsys.stages import queries_for_stage
 from memsys.evolution.memory_evolution import EvolutionReport
 
 
@@ -108,13 +109,13 @@ class ZhirongAdapter:
         ok = True
         detail = ""
         try:
-            if queries is None:  # 默认查询计划：事实+经验各一（与 pipeline 一致）
-                queries = [
-                    QueryItem(q_id=f"{plan_id}-q1", intent="查相关事实",
-                              target="fact", route="vector", query_text=goal),
-                    QueryItem(q_id=f"{plan_id}-q2", intent="召回相似教训",
-                              target="experience", route="vector", query_text=goal),
-                ][:self.n_queries]
+            if queries is None:
+                # 【评审修复】默认查询计划改为阶段模板（受领任务→历史教训；
+                # 任务分析→情报事实），不再 goal 字面直查（P5 落地，
+                # 与 pipeline.run_session 口径一致）。n_queries 控制条数。
+                queries = (queries_for_stage("mission_receipt", goal)
+                           + queries_for_stage("mission_analysis", goal)
+                           )[:self.n_queries]
             self.ctl.start_session(plan_id, goal, constraints, queries)
             hits = self.ctl.retrieve_and_load(top_k=3)
             return_val = {

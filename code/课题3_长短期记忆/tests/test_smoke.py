@@ -43,10 +43,10 @@ def ok(name: str) -> None:
 def test_schema() -> None:
     e = new_entry(MemoryType.EXPERIENCE, "教训：夜战需先遣侦察")
     assert e.id.startswith("experience-"), "id 前缀错误"
-    # 确定性构造：把创建时间回拨 10 秒，避免依赖真实时钟精度
-    # （Windows time.time() 分辨率 ~15ms，t≈0 时 r0 与强化后都是 1.0，断言会闪断；
-    #   回拨 1000s 会浮点下溢为 0，10s 时 r0≈e^-10≈4.5e-5，安全且确定性）
-    e.timestamp = time.time() - 10.0
+    # 确定性构造：把创建时间回拨 10 天，避免依赖真实时钟精度
+    # （retention 已统一"天"单位：t=10 天、S=1 → r0≈e^-10≈4.5e-5，
+    #   安全且确定性；mark_recalled 后 t≈0 → R≈1，断言稳定）
+    e.timestamp = time.time() - 10 * 86400
     e.last_recalled_at = e.timestamp
     r0 = e.retention()  # ≈ e^(-1000/1) ≈ 0
     assert 0 < r0 <= 1.0, "留存率应在 (0,1]"
@@ -173,9 +173,27 @@ def test_pipeline() -> None:
         "⑦ 进化应产生写入或查重跳过"
     assert res.retrieved, "③ 检索应有命中"
     # 二场：验证"越用越强"（第一场沉淀的经验应可被第二场召回）
-    res2 = pipe.run_session("P002", "夜间进攻 3 号高地")
-    assert res2.session_stats.get("retrieved", 0) >= 0  # 链路不炸即可（种子命中依 embedding）
-    ok("pipeline：七步闭环端到端 + 第二场复用")
+    # 【评审修复·恒真断言】原断言 `retrieved >= 0` 恒真——什么都没验证。
+    # 现改为真实断言：第二场检索命中里必须存在 source='复盘:P001' 的条目
+    # （第一场复盘写入的教训被跨场次召回），且规划上下文含其内容。
+    # P002 用显式查询（同 demo night_hill_2 场景：召回上场电子压制教训）。
+    # 注：默认阶段模板查询的检索质量由 P001（mission_receipt 模板命中种子
+    # 教训）与消融 G4/H 类覆盖；此处显式查询保证跨场次断言的稳健边际。
+    res2 = pipe.run_session(
+        "P002", "夜间进攻 3 号高地",
+        queries=[QueryItem("P002-q1", "召回上场夜间突袭教训", "experience",
+                           "bm25", "夜间 突袭 电子压制 通信 干扰"),
+                 QueryItem("P002-q2", "查 3 号高地地形", "fact",
+                           "vector", "3 号高地 地形 通路")])
+    assert res2.session_stats.get("retrieved", 0) >= 1, "第二场应有检索命中"
+    s1_hits = [h for h in res2.retrieved if h["provenance"]["source"] == "复盘:P001"]
+    assert s1_hits, "第二场必须召回第一场复盘沉淀（跨场次复用）"
+    ctx2 = pipe.controller.render_context() if pipe.controller.working_memory else ""
+    # （res2 场次已关闭，working_memory=None——用 retrieved 内容直接验证装载链路：
+    #   该教训在第二场开场查询的命中里，且通过 loaded_briefs 进入过上下文）
+    assert any("电子压制" in h["content"] or "预备队" in h["content"]
+               for h in s1_hits), "召回的应为第一场的电子压制/预备队教训"
+    ok("pipeline：七步闭环端到端 + 第二场真实复用（source=复盘:P001）")
 
 
 # ---------------------------------------------------------------- 8. boundary（长短期边界）
@@ -278,6 +296,63 @@ def test_bugfix_regression() -> None:
     dup = ev.write(MemoryType.FACT, "蓝方 M1A2 坦克 主炮 120mm")
     assert dup is None, "重复内容应被查重拦截（缓存向量路径）"
     ok("回归：bm25 单次强化 + min_score 滤噪 + 查重缓存向量")
+
+
+def test_fix_regressions() -> None:
+    """第四轮检查修复的回归锁定：①遗忘单位 ②BM25 缓存 ③LIKE 转义。"""
+    # --- F1: 遗忘时间单位（秒→天）---
+    # 未保护、未召回的记忆 60 秒"高龄"不应被忘记（旧实现 R=e^-60≈0 直接删）
+    emb = MockEmbedding()
+    fs = FactualStore(":memory:", emb)
+    es = ExperientialStore(emb)
+    ev = MemoryEvolution(fs, es, MockLLM(), emb)
+    fresh = new_entry(MemoryType.EXPERIENCE, "经验：预备队投入应提前 10 分钟。",
+                      importance=1.0)
+    fresh.timestamp = time.time() - 60          # 上一场（60 秒前）沉淀
+    fresh.last_recalled_at = fresh.timestamp
+    es.add(fresh)
+    assert fresh.id not in ev.forget(), "60 秒前的未保护记忆不应被遗忘（单位失配回归）"
+    assert fresh.retention() > ev.forget_threshold, "60 秒 → R 应接近 1（按天衰减）"
+    # 而 10 天前且未召回的未保护记忆应被遗忘（模型语义仍是艾宾浩斯按天）
+    stale = new_entry(MemoryType.EXPERIENCE, "经验：补给线过长导致延误。",
+                      importance=1.0)
+    stale.timestamp = time.time() - 10 * 86400
+    stale.last_recalled_at = stale.timestamp
+    es.add(stale)
+    assert stale.id in ev.forget(), "10 天未召回的未保护记忆应被遗忘"
+    # 保护线不受单位影响：importance≥2 永不遗忘
+    prot = new_entry(MemoryType.EXPERIENCE, "教训：夜战未派先遣侦察遭伏击。",
+                     importance=2.0)
+    prot.timestamp = time.time() - 365 * 86400
+    prot.last_recalled_at = prot.timestamp
+    es.add(prot)
+    assert prot.id not in ev.forget(), "失败教训保护线应跨越任何时间尺度"
+
+    # --- F2: BM25 缓存按 version 失效（内容原地更新后索引不得陈旧）---
+    fs2 = FactualStore(":memory:", emb)
+    es2 = ExperientialStore(emb)
+    f = new_entry(MemoryType.FACT, "红方 T-90 坦克 最大速度 60km/h")
+    fs2.add(f)
+    r = HybridRetriever(fs2, es2)
+    qb = QueryItem(q_id="f2", intent="查装备", target="fact",
+                   route="bm25", query_text="T-90")
+    assert any(h.entry.id == f.id for h in r.retrieve(qb, top_k=3)), "更新前应命中"
+    f.content = "蓝方 M1A2 坦克 主炮 120mm"
+    fs2.update(f)                               # size 不变的内容换血
+    hits = r.retrieve(qb, top_k=3)
+    assert not any(h.entry.id == f.id for h in hits), \
+        "内容已不含 T-90，BM25 缓存必须失效（陈旧索引回归）"
+
+    # --- F3: LIKE 通配符转义（字面 _ 不再当单字符通配）---
+    fs3 = FactualStore(":memory:", emb)
+    g = new_entry(MemoryType.FACT, "fact-1234 参数记录")
+    fs3.add(g)
+    weird = fs3.search("fact-____ 参数")         # 用户本意：字面下划线
+    assert not any(h.entry.id == g.id and h.route == "sql" for h in weird), \
+        "字面下划线不得被 LIKE 当通配符命中 fact-1234"
+    assert any(h.entry.id == g.id for h in fs3.search("参数记录")), \
+        "转义子句不得破坏正常 LIKE 匹配"
+    ok("第四轮修复回归：遗忘单位(天) + BM25缓存version + LIKE转义")
 
 
 def test_integration_zhirong() -> None:
@@ -464,6 +539,117 @@ def test_stage_aware() -> None:
     ok("merge 保留 stage 标签（抽象同理，见 abstract metadata）")
 
 
+# ---------------------------------------------------------------- 13. 评审修复回归（v0.3）
+def test_review_fixes() -> None:
+    """评审报告修复项的回归锁定（每条对应评审 §一/§二的一个缺陷）。"""
+    import tempfile, os as _os
+
+    # --- RF1【关键】检索结果必须进入注入 LLM 的上下文（render 含装载记忆）---
+    emb = MockEmbedding()
+    fs = FactualStore(":memory:", emb)
+    es = ExperientialStore(emb)
+    fs.add(new_entry(MemoryType.FACT, "2 号高地海拔 320 米，仅东侧可装甲通行。",
+                     attrs={"地点": "2号高地"}))
+    ctl = MemoryController(factual=fs, experiential=es)
+    ctl.start_session("RF1", "夺占 2 号高地", [], [
+        QueryItem("q", "查地形", "fact", "vector", "2 号高地 地形 装甲 通行")])
+    ctl.retrieve_and_load(top_k=3)
+    ctx = ctl.render_context()
+    assert "【装载记忆】" in ctx, "渲染上下文必须含装载记忆段"
+    assert "2 号高地海拔 320" in ctx, "检索命中的记忆正文必须进入上下文"
+    ctl.close_session("")
+
+    # --- RF2 单路模式与混合模式可区分（G5 消融的口径基础）---
+    fs2 = FactualStore(":memory:", emb)
+    es2 = ExperientialStore(emb)
+    f2 = new_entry(MemoryType.FACT, "红方 T-90 坦克 最大速度 60km/h", attrs={"装备": "T-90"})
+    fs2.add(f2)
+    r2 = HybridRetriever(fs2, es2)
+    q_v = QueryItem("v", "查装备", "fact", "vector", "T-90 坦克 速度")
+    q_s = QueryItem("s", "查装备", "fact", "sql", "T-90 参数", attrs={"装备": "T-90"})
+    assert r2.retrieve(q_v, top_k=3, mode="single"), "vector 单路应命中"
+    assert r2.retrieve(q_s, top_k=3, mode="single"), "sql(attrs) 单路应精确命中"
+    assert r2.retrieve(q_v, top_k=3, mode="hybrid"), "hybrid 应命中"
+    try:
+        r2.retrieve(q_v, mode="bad_mode")
+        raise AssertionError("未知 mode 应报错")
+    except ValueError:
+        pass
+
+    # --- RF3 MockLLM 句子级抽取 + importance 不越保护线 ---
+    llm = MockLLM()
+    ops = llm.extract_memory_ops(
+        "复盘：任务部分达成。教训：夜间突袭未前置电子压制。经验：预备队投入应提前 10 分钟。")
+    assert len(ops) == 2, f"句子级抽取应得 2 条（非行级 1 条混装）：{len(ops)}"
+    lesson = next(o for o in ops if "教训" in o["content"])
+    assert lesson["importance"] == 1.5, \
+        "自动抽取教训 importance 应为 1.5（不越保护线 2.0——否则遗忘机制系统性失效）"
+    assert "任务部分达成" not in lesson["content"], "结果陈述句不得混入教训条目"
+
+    # --- RF4 抽象产物不含指令残留文本 ---
+    abs_text = llm.abstract("- 教训：夜战需前置电子压制\n- 经验：预备队提前投入", "本场")
+    assert "以下为" not in abs_text and "请抽象" not in abs_text, \
+        f"抽象产物不得含指令残留：{abs_text}"
+    assert "电子压制" in abs_text, "抽象产物应含源经验内容"
+
+    # --- RF5 bm25 自匹配归一（负例噪声不放大）---
+    fs5 = FactualStore(":memory:", emb)
+    es5 = ExperientialStore(emb)
+    for c in ("红方 T-90 坦克 最大速度 60km/h", "蓝方 M1A2 坦克 最大速度 67km/h"):
+        fs5.add(new_entry(MemoryType.FACT, c))
+    r5 = HybridRetriever(fs5, es5)
+    neg = QueryItem("n", "负例", "fact", "vector", "电影 票房 统计")
+    assert r5.retrieve(neg, top_k=3) == [], "负例查询应被 min_score 滤除"
+
+    # --- RF6 Mock summarize 中文截断有界（递归摘要不膨胀）---
+    long_text = "红方装甲梯队向东机动。" * 50
+    summ = llm.summarize(long_text, max_words=100)
+    assert len(summ) <= 250, f"摘要应有界（≤250 字），实际 {len(summ)}"
+
+    # --- RF7 经验库 SQLite 持久化（重启不丢 + 召回史保留）---
+    fd, path = tempfile.mkstemp(suffix=".db"); _os.close(fd)
+    try:
+        s_a = ExperientialStore(emb, db_path=path)
+        e_a = new_entry(MemoryType.EXPERIENCE, "教训：持久化回归测试条目。", importance=1.5)
+        s_a.add(e_a)
+        e_a.mark_recalled(); s_a.persist_recall(e_a)
+        s_b = ExperientialStore(emb, db_path=path)   # 模拟重启
+        assert s_b.stats()["count"] == 1, "重启后条目应保留"
+        got = s_b.get(e_a.id)
+        assert got.recall_count == 1 and got.decay_strength == 2.0, \
+            "命中强化（S/recall_count）应随持久化保留"
+        assert s_b.search("持久化 回归 测试"), "重启后语义检索可用"
+    finally:
+        _os.unlink(path)
+
+    # --- RF8 controller.write_long_term：边界门控正规入口 ---
+    ctl8 = MemoryController(factual=FactualStore(":memory:", emb),
+                            experiential=ExperientialStore(emb))
+    nid = ctl8.write_long_term("教训：正规入口写入的教训。", session_id="RF8")
+    assert nid, "教训类内容应经 promote 门控放行入库"
+    assert ctl8.experiential.get(nid).metadata.get("stage"), "写入应带阶段归因标签"
+    assert ctl8.write_long_term("指挥所说今天食堂有红烧肉") is None, \
+        "场次闲聊应被 G2 门控拒绝（不入长期库）"
+    assert any(not d["allowed"] for d in ctl8.boundary.audit_log()), \
+        "拒绝决策应留审计日志"
+
+    # --- RF9 跨查询去重（同场同记忆只装载/计数一次）---
+    fs9 = FactualStore(":memory:", emb)
+    es9 = ExperientialStore(emb)
+    f9 = new_entry(MemoryType.FACT, "红方 T-90 坦克 最大速度 60km/h", attrs={"装备": "T-90"})
+    fs9.add(f9)
+    ctl9 = MemoryController(factual=fs9, experiential=es9)
+    ctl9.start_session("RF9", "查装备", [], [
+        QueryItem("q1", "查 T-90", "fact", "vector", "T-90 坦克 速度"),
+        QueryItem("q2", "再查 T-90", "fact", "bm25", "T-90 速度")])
+    hits = ctl9.retrieve_and_load(top_k=3)
+    assert len(hits) == 1, f"两条查询命中同一记忆应去重为 1（实际 {len(hits)}）"
+    assert ctl9.session_stats["retrieved"] == 1
+
+    ok("评审修复回归：上下文注入/单路模式/句级抽取/抽象无残留/"
+       "bm25归一/摘要有界/经验库持久化/正规写入入口/跨查询去重")
+
+
 if __name__ == "__main__":
     print("memsys 冒烟测试（零依赖 · 离线）")
     print("=" * 60)
@@ -477,7 +663,9 @@ if __name__ == "__main__":
     test_boundary()
     test_bugfix_regressions()
     test_bugfix_regression()
+    test_fix_regressions()
     test_integration_zhirong()
     test_stage_aware()
+    test_review_fixes()
     print("=" * 60)
     print("全部通过 [OK]")

@@ -22,7 +22,8 @@ from typing import Dict, List, Optional
 from .schema import QueryItem, RetrievedMemory
 from .llm import LLMClient, MockLLM
 from .embeddings import MockEmbedding
-from .stages import queries_for_stage, get_stage
+from .stages import queries_for_stage, get_stage, attr_stage
+from .boundary import MemoryBoundary, validate_load
 from .short_term.working_memory import WorkingMemory
 from .short_term.compression import get_strategy
 from .long_term.factual_store import FactualStore
@@ -48,7 +49,8 @@ class MemoryController:
                  llm: Optional[LLMClient] = None,
                  embedding: Optional[MockEmbedding] = None,
                  compression: str = "truncate",
-                 capacity_tokens: int = 4000) -> None:
+                 capacity_tokens: int = 4000,
+                 boundary: Optional[MemoryBoundary] = None) -> None:
         # 依赖注入：全部可替换（测试/消融时注入不同实现）
         # llm 缺省落 MockLLM：保证"零配置离线可跑"，接真模型时注入即可
         self.llm: LLMClient = llm if llm is not None else MockLLM()
@@ -57,7 +59,10 @@ class MemoryController:
         self.experiential = experiential or ExperientialStore(self.embedding)
         self.retriever = HybridRetriever(self.factual, self.experiential)
         self.evolution = MemoryEvolution(self.factual, self.experiential,
-                                         self.llm, self.embedding)
+                                         self.llm, self.embedding,
+                                         boundary=boundary)
+        # 边界管理器与进化器共享同一实例（审计日志集中；可注入测试替身）
+        self.boundary: MemoryBoundary = self.evolution.boundary
         self.compression_name = compression
         self.capacity_tokens = capacity_tokens
         self._wm: Optional[WorkingMemory] = None
@@ -104,10 +109,24 @@ class MemoryController:
                 continue
             hits = self.retriever.retrieve(q, top_k=top_k)
             for h in hits:
-                self._wm.load_memory(h.entry.id)  # 溯源：记录装载了谁
+                # 【评审修复·跨查询去重】多条查询命中同一记忆时只装载/计数
+                # 一次（此前 demo P002 中同一条事实出现两次、retrieved 虚计）
+                if h.entry.id in self._wm.slot.loaded_memory:
+                    continue
+                # 装载登记：id + 内容摘要（摘要供 render() 写进上下文——
+                # 评审修复：检索结果此前从不进入注入 LLM 的提示词）
+                self._wm.load_memory(
+                    h.entry.id,
+                    brief=f"[{h.entry.type.value}] {h.entry.content[:100]}"
+                          f"（来源:{h.entry.source or 'seed'}）")
                 all_hits.append(h)
                 self.session_stats["retrieved"] += 1
                 self.session_stats["loaded"] += 1
+        # 双向禁止②审计：长期记忆只允许以"检索结果"形态进入工作记忆
+        # （validate_load 拦"整段拷进 FIFO"——本路径恒合法，留审计痕迹）
+        if all_hits and not validate_load([h.entry.id for h in all_hits],
+                                          "retrieve"):
+            raise RuntimeError("装载形态非法：长期记忆必须经检索装载")
         # 装载后若触发 memory_pressure → 立即压缩（SCM/MemGPT 阈值驱动）
         if self._wm.memory_pressure:
             get_strategy(self.compression_name).apply(
@@ -153,14 +172,48 @@ class MemoryController:
 
     # ---------------------------------------------------------------- 场次中消息
     def push(self, msg: str) -> None:
-        """规划管线推消息进工作记忆（自动处理超限 flush）。"""
+        """规划管线推消息进工作记忆（自动处理超限 flush）。
+
+        【评审修复】写入前过边界检查（check_write）——场次消息只能进
+        短期；每次决策进 boundary.audit_log()（"场中直写长期被禁止"
+        在此被代码强制，而非仅文档约定）。
+        """
+        d = self.boundary.check_write("message", to="short_term")
+        if not d.allowed:
+            raise ValueError(f"边界拒绝写入：{d.reason}")
         if self._wm:
             self._wm.push_message(msg)
 
     def record(self, step: str, result) -> None:
-        """记录管线某步中间结果（分析/生成/比较…）。"""
+        """记录管线某步中间结果（分析/生成/比较…）。同 push，过边界检查。"""
+        d = self.boundary.check_write("message", to="short_term")
+        if not d.allowed:
+            raise ValueError(f"边界拒绝写入：{d.reason}")
         if self._wm:
             self._wm.record_result(step, result)
+
+    def write_long_term(self, content: str, type_hint: str = "",
+                        importance: float = 1.0,
+                        session_id: str = "") -> str | None:
+        """运行时把内容写入长期库的**唯一正规入口**（评审修复）。
+
+        全流程：boundary.promote() 三道门（复盘驱动/类别/θ 查重由
+        evolution.write 承担）→ 拒绝则返回 None 并留审计；放行则经
+        evolution.write 落库（带阶段归因）。
+        直接调用 ctl.factual.add / ctl.experiential.add 属于**管理员
+        种子路径**（知识导入），运行时应走本方法——Python 无真私有，
+        以 API 形态 + 审计日志双保险。
+        """
+        from .schema import MemoryType
+        gate = self.boundary.promote(content)
+        if not gate.allowed:
+            return None
+        mtype = (MemoryType.FACT if gate.layer == "long_term.fact"
+                 else MemoryType.EXPERIENCE)
+        return self.evolution.write(mtype, content, source="运行时晋升",
+                                    session_id=session_id,
+                                    importance=importance,
+                                    attrs={"stage": attr_stage(content)})
 
     # ---------------------------------------------------------------- ⑦ 收场
     def close_session(self, review_text: str = "") -> EvolutionReport:
