@@ -10,10 +10,10 @@
 ```bash
 cd code/课题3_长短期记忆
 
-# 1) 冒烟测试（10 组用例全过 = 框架健康）
+# 1) 冒烟测试（21 项全过 = 框架健康）
 python tests/test_smoke.py
 
-# 2) G0–G5 消融跑批（检索指标 + 库规模）
+# 2) G0–G6 消融 v2（50 条测试集 + 显著性检验，Mock 离线）
 python -m eval.ablation
 
 # 3) 七步闭环演示（两场次，验证"越用越强"）
@@ -21,10 +21,13 @@ python examples/demo_pipeline.py
 
 # 4) Web 控制台（浏览器操作七步闭环，组会演示首选）
 python webui/server.py            # → http://127.0.0.1:8765
+
+# 5) 真模型验证（GLM，需先配置 .env——见「四」）
+python -m eval.verify_llm         # 23 项检查：抽取/抽象/进化/规划引用/embedding
 ```
 
-**无需安装任何第三方包**：LLM/Embedding 均有 Mock 实现（确定性、离线）。
-接真模型时见「四、接入真实组件」。
+**无需安装任何第三方包**（含真模型路径——HTTP 走 stdlib urllib）：
+LLM/Embedding 默认 Mock（确定性、离线）；GLM 真模型见「四」。
 
 ---
 
@@ -89,25 +92,36 @@ python webui/server.py            # → http://127.0.0.1:8765
 
 ---
 
-## 四、接入真实组件（三步升级）
+## 四、接入真实组件（v0.4：GLM 已验证可用 ✅）
+
+### 4.1 GLM（智谱）——已接入并验证（23/23 项通过）
+
+```bash
+# 一次性配置：仓库根建 .env（已被 .gitignore 挡住，严禁提交）
+cp .env.example .env     # 填入 GLM_API_KEY（开放平台 → API Keys）
+```
 
 ```python
-from memsys import MemoryPipeline, get_llm, OpenAIEmbedding, MemoryController
+from memsys import get_llm, get_embedding
 
-# 1) 真模型 LLM（智戎平台 / DeepSeek / 本地 vLLM，OpenAI 兼容协议）
-llm = get_llm("openai", base_url="http://<网关>/v1",
-              api_key=os.environ["LLM_KEY"],   # 环境变量，勿硬编码
-              model="deepseek-chat")
-
-# 2) 真 embedding（BGE / OpenAI 兼容 /embeddings）
-emb = OpenAIEmbedding(base_url="http://<网关>/v1",
-                      api_key=os.environ["LLM_KEY"], model="bge-m3")
-
-# 3) 组装（依赖注入，业务代码零改动）
+llm = get_llm("glm")                    # 读 .env：GLM_MODEL（默认 glm-4.5-air）
+emb = get_embedding("glm")              # embedding-2（dim=1024）
 ctl = MemoryController(llm=llm, embedding=emb,
                        factual=FactualStore("facts.db", emb),
-                       experiential=ExperientialStore(emb))
-pipe = MemoryPipeline(controller=ctl)
+                       experiential=ExperientialStore(emb, db_path="exps.db"))
+```
+
+**验证**：`python -m eval.verify_llm`（连通/抽取对比/抽象/进化端到端/规划记忆引用率/embedding 语义分离度）。已内置：thinking 禁用（GLM-4.5 系）、```json 围栏容错、SSL 瞬断指数退避重试、embedding 内容缓存。
+**模型选型实测**：glm-4.5-air（默认，~1.3–2.4s）/ glm-4.5（旗舰 5.7s）/ glm-4-flash（1.8s）；glm-4.5-flash 稳态 20s+ 不推荐。
+**⚠️ 接真 embedding 后必做**：min_score/θ 按 `eval/ablation.py` E/S 协议重标定（探针数据与建议值见 `docs/13` §1.2）。
+
+### 4.2 其它 OpenAI 兼容网关（智戎 / DeepSeek / 本地 vLLM）
+
+```python
+llm = get_llm("openai", base_url="http://<网关>/v1",
+              api_key=os.environ["LLM_KEY"], model="deepseek-chat")
+emb = OpenAIEmbedding(base_url="http://<网关>/v1",
+                      api_key=os.environ["LLM_KEY"], model="bge-m3")
 ```
 
 **接智戎规划链路**：`pipeline.py` 内两处 `TODO-INTEGRATION` 标记——
@@ -123,8 +137,8 @@ pipe = MemoryPipeline(controller=ctl)
 
 | # | 不足 | 影响 | 计划 | v0.3 状态 |
 |---|---|---|---|---|
-| 1 | **MockEmbedding 无真语义**（字符词袋） | C 类转述命中与 G5 混合增益**不可外推**（消融 v2 已如实标注） | 接 BGE 后重跑消融（min_score/θ 按协议重标定） | 未变（P0） |
-| 2 | **MockLLM 规则抽取**（关键词 + 句子级） | 抽取覆盖率有限；摘要为截断式 | 接真模型后 extract_memory_ops/abstract 质变 | 部分修复（句级抽取/前缀剥离/摘要有界） |
+| 1 | **MockEmbedding 无真语义**（字符词袋） | C 类转述命中与 G5 混合增益**不可外推**（消融 v2 已如实标注） | ✅ GLM embedding 已接入（语义分离 Δ=0.63）；待：消融重跑 + min_score 重标定（docs/13 §1.1/1.2） | 部分完成 |
+| 2 | **MockLLM 规则抽取**（关键词 + 句子级） | 抽取覆盖率有限；摘要为截断式 | ✅ GLM 已接入（验证 T2：能识别 Mock 漏抽的 fact；T3 抽象无残留；T6 规划真实引用记忆） | 部分完成 |
 | 3 | ~~经验库不持久化~~ | — | — | ✅ **已修复**（SQLite 落盘，120 条重启回归通过） |
 | 4 | NL→attrs 意图解析未做（attrs 需显式传入） | 自然语言问不精确；模板/场景已可用 attrs | 真模型后加"查询意图→属性条件"解析层 | 部分修复（sql 路 + attrs 通道已通） |
 | 5 | 合并/抽象触发是成对启发式 | 漏合并、误合并都会发生 | 换 PREMem 式聚类全量比对 | 未变 |
@@ -149,10 +163,11 @@ pipe = MemoryPipeline(controller=ctl)
 
 ---
 
-## 七、验证状态（v0.3 · 评审修复版）
+## 七、验证状态（v0.4 · 真模型接入版）
 
 - ✅ `tests/test_smoke.py`：**21/21 通过**（含「评审修复回归」9 项：上下文注入/单路模式/句级抽取/抽象无残留/bm25 归一/摘要有界/经验库持久化/正规写入入口/跨查询去重）
 - ✅ `python -m eval.ablation`：**G0–G6 + 4 项专项研究**（50 条测试集、真对照组、随机基线、bootstrap CI、配对置换检验）——关键结论：G3 vs G2 p=0.0001；G4 跨场次复用 0.83 vs 0；负例返回率 0；详见 `docs/12_评审修复与消融v2报告.md`
 - ✅ WebUI 自测 66/66；SDK 契约自检全过；智戎三挂接点全通
 - ✅ v0.3 关键修复：**装载记忆真正进入注入 LLM 的上下文**（render 含【装载记忆】段）；sql 路真实现（attrs 属性精确过滤）；经验库 SQLite 持久化；遗忘保护线交互缺陷修复（教训自动 1.5 不越线）；Mock 抽象无指令残留；BM25 自匹配归一（负例噪声 58%→0%）；Mock 摘要中文截断（递归摘要膨胀 29531→有界）
-- ⏳ 待办：见「五、当前不足」（#1/#2/#4/#8 未变——真模型与真链路）
+- ✅ v0.4 真模型接入：`GLMClient`（bigmodel.cn OpenAI 兼容，stdlib urllib 零依赖 + thinking 控制 + 重试）；`GLMEmbedding`（embedding-2，重试+缓存）；`get_llm("glm")` / `get_embedding("glm")`；`parse_llm_json` 围栏容错；**验证 23/23**（抽取细于 Mock、规划真实引用记忆、embedding 语义分离 Δ=0.63）——报告 `eval/results/llm_verification.json`
+- ⏳ 待办：消融 v2 真模型重跑 + min_score/θ 重标定（探针数据见 docs/13 §1.2）→ 智戎真实链路 → 完整路线图 `docs/13_后续工作路线图.md`

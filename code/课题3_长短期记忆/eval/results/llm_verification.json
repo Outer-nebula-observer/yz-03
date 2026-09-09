@@ -1,0 +1,190 @@
+{
+  "checks": [
+    {
+      "name": "3 次调用全部成功",
+      "ok": true,
+      "detail": "avg=2046.3ms max=3873.6ms"
+    },
+    {
+      "name": "回复内容正常",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "GLM 抽取非空",
+      "ok": true,
+      "detail": "2 条 / 1937.4ms"
+    },
+    {
+      "name": "importance 有区分度（非全部相同）",
+      "ok": true,
+      "detail": "分布 [1.5, 1.0]"
+    },
+    {
+      "name": "无 importance=2.0 滥用（保护线慎用约定）",
+      "ok": true,
+      "detail": "2.0 出现 0 次"
+    },
+    {
+      "name": "无标记前缀残留（复盘：等）",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "能识别场次叙述为 fact 或跳过（Mock 直接跳过）",
+      "ok": true,
+      "detail": "GLM fact 条数=0（Mock 恒 0——关键词覆盖之外的盲区由 LLM 补齐）"
+    },
+    {
+      "name": "非空且是一句话",
+      "ok": true,
+      "detail": "29 字"
+    },
+    {
+      "name": "无指令残留",
+      "ok": true,
+      "detail": "电磁行动必须前置规划并全程管控，确保关键作战阶段频谱优势。"
+    },
+    {
+      "name": "含源内容要点",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "摘要长度受控（≤300 字）",
+      "ok": true,
+      "detail": "26 字"
+    },
+    {
+      "name": "摘要非原文复读",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "复盘写入 ≥1 条",
+      "ok": true,
+      "detail": "{'write': 2, 'merge': 0, 'forget': 0, 'abstract': 1, 'skip_duplicate': 0}"
+    },
+    {
+      "name": "边界门控留有审计记录（拒绝或全放行均可，看 LLM 抽取纪律）",
+      "ok": true,
+      "detail": "拒绝 0 条（GLM 按约定未抽场次叙述）"
+    },
+    {
+      "name": "经验库无指令/JSON 残留",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "写入内容自包含（含'教训：/经验：'或完整语义）",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "规划输出非空",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "装载记忆被规划引用（宽松口径 > 0）",
+      "ok": true,
+      "detail": "1.00"
+    },
+    {
+      "name": "约束满足率 ≥ 0.5",
+      "ok": true,
+      "detail": "1.00"
+    },
+    {
+      "name": "进化闭环（复盘写入）",
+      "ok": true,
+      "detail": "{'write': 1, 'merge': 0, 'forget': 0, 'abstract': 0, 'skip_duplicate': 0}"
+    },
+    {
+      "name": "同义查询相似度 > 0.5",
+      "ok": true,
+      "detail": "0.817"
+    },
+    {
+      "name": "无关查询相似度 < 0.4",
+      "ok": true,
+      "detail": "0.187"
+    },
+    {
+      "name": "语义分离度 > 0.3（Mock 词袋不具备的能力）",
+      "ok": true,
+      "detail": "Δ=0.630"
+    }
+  ],
+  "env": {
+    "model": "glm-4.5-air",
+    "base_url": "https://open.bigmodel.cn/api/paas/v4",
+    "thinking": {
+      "type": "disabled"
+    },
+    "ts": "2026-09-09 23:15:44"
+  },
+  "t1_latency": {
+    "avg_ms": 2046.3,
+    "max_ms": 3873.6,
+    "calls": 3
+  },
+  "t2_extraction": {
+    "mock_n": 2,
+    "glm_n": 2,
+    "glm_ops": [
+      {
+        "op": "write",
+        "type": "experience",
+        "content": "教训：夜间突袭未前置电子压制，接敌后通信被干扰。",
+        "importance": 1.5
+      },
+      {
+        "op": "write",
+        "type": "experience",
+        "content": "经验：突破口形成后预备队投入应提前 10 分钟。",
+        "importance": 1.0
+      }
+    ],
+    "latency_ms": 1937.4,
+    "glm_has_fact": false
+  },
+  "t3_abstract": {
+    "text": "电磁行动必须前置规划并全程管控，确保关键作战阶段频谱优势。",
+    "latency_ms": 1000.1
+  },
+  "t4_summarize": {
+    "len": 26,
+    "latency_ms": 1750.5
+  },
+  "t5_evolution": {
+    "summary": {
+      "write": 2,
+      "merge": 0,
+      "forget": 0,
+      "abstract": 1,
+      "skip_duplicate": 0
+    },
+    "latency_ms": 3198.6,
+    "n_experience": 3
+  },
+  "t6_pipeline": {
+    "plan_output": "# 夜间夺占2号高地作战规划方案\n\n## 一、情报分析\n- 2号高地海拔320米，北坡缓南坡陡，仅东侧可装甲通行\n- 夜间行军必须派出先遣侦察队，避免重蹈覆辙（历史教训：夜间行军未派先遣侦察导致伏击）\n\n## 二、兵力部署\n- 主攻方向：东侧（唯一装甲通行路线）\n- 预备队：3营（已集结于东侧）\n- 侦察力量：组建先遣侦察队，提前30分钟出发探路\n\n## 三、行动阶段\n1. **侦察阶段**（0:00-0:30）\n   - 先遣侦察队摸清高地守军部署\n   - 标记安全通行路线和危险区域\n\n2. **接近阶段**（0:30-1:30）\n   - 主力沿东侧路线缓慢接近\n   - 保持无线电静默，使用夜视设备\n   - 分散行军，避免集中暴露\n\n3. **突击阶段**（1:30-2:30）\n   - 北坡缓坡处发起佯攻，吸引守军注意力\n   - 主力从东侧陡坡实施突袭\n   - 快速占领制高点，建立防御阵地\n\n4. **巩固阶段**（2:30-4:00）\n   - 布置警戒，防止反扑\n   - 构建临时防御工事\n   - 等待后续部队接防\n\n## 四、装备要求\n- 装甲车辆：配备夜视仪，选择适合陡坡行驶的车型\n- 火力支援：准备迫击炮和反坦克武器应对可能的反冲击\n- 通信设备：配备夜视通信设备，确保夜间联络畅通\n\n## 五、注意事项\n- 严格遵守4小时时限，各阶段精确控制时间\n- 避",
+    "citation_strict": 1.0,
+    "citation_loose": 1.0,
+    "constraint_sat": 1.0,
+    "latency_ms": 11353.4,
+    "retrieved": 2
+  },
+  "t7_embedding": {
+    "dim": 1024,
+    "latency_ms": 907.6,
+    "cos_synonym": 0.817,
+    "cos_unrelated": 0.187
+  },
+  "summary": {
+    "pass": 23,
+    "total": 23,
+    "all_pass": true
+  }
+}

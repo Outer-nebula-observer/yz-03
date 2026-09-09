@@ -30,6 +30,12 @@ course_materials/pptx_extracted/
 paper_code/*/*/
 
 
+# ===== 密钥 / 本地凭据（严禁入库）=====
+.env
+.env.*
+*.env
+secrets/
+
 # ===== IDE / 系统文件 =====
 .idea/
 .vscode/

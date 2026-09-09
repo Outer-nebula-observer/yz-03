@@ -16,8 +16,10 @@ MockEmbedding 采用**哈希词袋向量**：
 from __future__ import annotations
 
 import hashlib
+import json
 import math
-from typing import Dict, List, Protocol, Sequence, Tuple
+import os
+from typing import Any, Dict, List, Optional, Protocol, Sequence, Tuple
 
 
 class EmbeddingModel(Protocol):
@@ -75,27 +77,86 @@ class MockEmbedding:
 
 
 class OpenAIEmbedding:
-    """真模型骨架（OpenAI 兼容 /embeddings 接口）。默认不启用。
+    """真模型 embedding（OpenAI 兼容 /embeddings 接口，stdlib 零依赖）。
 
-    接智戎或本地 BGE 网关时实现此类即可，业务代码零改动。
+    【v0.4】HTTP 层从 requests 换 urllib.request——真模型路径同样零依赖；
+    加**指数退避重试**（GLM 端点实测偶发 SSL 握手瞬时失败）与
+    **内容缓存**（同一文本重复 embed 是纯浪费——查询串/种子内容
+    在一次会话内常被重复编码）。
     """
 
-    def __init__(self, base_url: str, api_key: str, model: str, dim: int = 1024) -> None:
+    def __init__(self, base_url: str, api_key: str, model: str, dim: int = 1024,
+                 retries: int = 3, cache_size: int = 4096) -> None:
         self.base_url = base_url.rstrip("/")
         self.api_key = api_key
         self.model = model
         self.dim = dim
+        self.retries = retries
+        self._cache: Dict[str, List[float]] = {}
+        self._cache_size = cache_size
+        self.n_calls = 0          # 实际 API 次数（缓存命中率观测）
+        self.n_cache_hits = 0
 
     def embed(self, text: str) -> List[float]:
-        import requests  # 延迟导入
-        resp = requests.post(
-            f"{self.base_url}/embeddings",
-            headers={"Authorization": f"Bearer {self.api_key}"},
-            json={"model": self.model, "input": text},
-            timeout=30,
-        )
-        resp.raise_for_status()
-        return resp.json()["data"][0]["embedding"]
+        if text in self._cache:
+            self.n_cache_hits += 1
+            return self._cache[text]
+        import time as _time
+        import urllib.request  # stdlib
+        body = json.dumps({"model": self.model, "input": text},
+                          ensure_ascii=False).encode("utf-8")
+        last_exc: Exception | None = None
+        for attempt in range(self.retries):
+            try:
+                req = urllib.request.Request(
+                    f"{self.base_url}/embeddings", data=body, method="POST",
+                    headers={"Content-Type": "application/json",
+                             "Authorization": f"Bearer {self.api_key}"})
+                with urllib.request.urlopen(req, timeout=30) as resp:
+                    data = json.loads(resp.read().decode("utf-8"))
+                vec = data["data"][0]["embedding"]
+                if len(self._cache) >= self._cache_size:  # 简单 FIFO 淘汰
+                    self._cache.pop(next(iter(self._cache)))
+                self._cache[text] = vec
+                self.n_calls += 1
+                return vec
+            except Exception as exc:  # SSL 瞬断/超时/限流——退避重试
+                last_exc = exc
+                if attempt < self.retries - 1:
+                    _time.sleep(0.8 * (2 ** attempt))
+        raise RuntimeError(f"embedding 调用连续 {self.retries} 次失败: {last_exc}")
+
+
+class GLMEmbedding(OpenAIEmbedding):
+    """智谱 GLM embedding（bigmodel.cn /embeddings，实测 embedding-2 dim=1024）。
+
+    配置：GLM_API_KEY / GLM_EMBED_MODEL（.env，load_env 自动加载）。
+    注意：接真 embedding 后 **min_score/θ 必须按消融 v2 的标定协议重扫**
+    （0.16 是 MockEmbedding 词袋分布的标定值，不可迁移——见 eval/ablation.py
+    E 噪声研究 / S 敏感性扫描）。
+    """
+
+    def __init__(self, api_key: Optional[str] = None,
+                 model: Optional[str] = None) -> None:
+        from .llm import load_env
+        load_env()
+        api_key = api_key or os.environ.get("GLM_API_KEY", "")
+        model = model or os.environ.get("GLM_EMBED_MODEL", "embedding-2")
+        if not api_key:
+            raise ValueError("缺少 GLM_API_KEY：请在 .env 或环境变量设置")
+        super().__init__(base_url="https://open.bigmodel.cn/api/paas/v4",
+                         api_key=api_key, model=model, dim=1024)
+
+
+def get_embedding(kind: str = "mock", **kwargs: Any) -> EmbeddingModel:
+    """embedding 工厂：mock（离线默认）/ glm（智谱 embedding-2）/ openai（任意网关）。"""
+    if kind == "mock":
+        return MockEmbedding(**kwargs)
+    if kind == "glm":
+        return GLMEmbedding(**kwargs)
+    if kind == "openai":
+        return OpenAIEmbedding(**kwargs)
+    raise ValueError(f"未知 embedding 类型: {kind}（可选 mock/glm/openai）")
 
 
 def cosine(a: Sequence[float], b: Sequence[float]) -> float:

@@ -14,7 +14,9 @@ memsys.llm — LLM 调用统一抽象
 
 from __future__ import annotations
 
+import io
 import json
+import os
 import re
 from typing import Any, Dict, List, Optional, Protocol
 
@@ -44,6 +46,91 @@ class LLMClient(Protocol):
     def extract_memory_ops(self, dialogue: str) -> List[Dict[str, Any]]:
         """从对话/复盘中抽取记忆操作建议 [{op, type, content, importance}]。"""
         ...
+
+
+# ---------------------------------------------------------------- 本地配置加载
+def load_env(dotenv_path: Optional[str] = None) -> Dict[str, str]:
+    """零依赖 .env 加载器：读 KEY=VALUE 行，不覆盖已存在的环境变量。
+
+    查找顺序（首个命中的 .env）：显式路径 → cwd → memsys 包各级父目录
+    （课题3_长短期记忆/ → code/ → 仓库根）。密钥只放 .env（已 gitignore），
+    严禁硬编码进仓库。
+    """
+    loaded: Dict[str, str] = {}
+    candidates: List[str] = []
+    if dotenv_path:
+        candidates.append(dotenv_path)
+    candidates.append(os.path.join(os.getcwd(), ".env"))
+    here = os.path.dirname(os.path.abspath(__file__))
+    for _ in range(4):  # memsys/ → 课题3/ → code/ → 仓库根
+        here = os.path.dirname(here)
+        candidates.append(os.path.join(here, ".env"))
+    for path in candidates:
+        if not os.path.isfile(path):
+            continue
+        try:
+            for line in io.open(path, encoding="utf-8").read().splitlines():
+                line = line.strip()
+                if not line or line.startswith("#") or "=" not in line:
+                    continue
+                k, v = line.split("=", 1)
+                k, v = k.strip(), v.strip().strip("\"'")
+                if v and k not in os.environ and k not in loaded:
+                    os.environ[k] = v
+                    loaded[k] = v
+        except OSError:
+            continue
+        if loaded:
+            break
+    return loaded
+
+
+# ---------------------------------------------------------------- JSON 容错解析
+def parse_llm_json(raw: str) -> List[Dict[str, Any]]:
+    """解析 LLM 输出的 JSON 数组（真模型验证发现的三类噪声全容忍）：
+
+      1. ```json 围栏（GLM/gpt 系默认习惯）；
+      2. 前后解释文本包裹；
+      3. 单对象（漏写外层 []）。
+    """
+    if not raw or not raw.strip():
+        return []
+    text = raw.strip()
+    m = re.search(r"```(?:json)?\s*(.*?)```", text, re.S)
+    if m:
+        text = m.group(1).strip()
+    # 直接解析
+    try:
+        obj = json.loads(text)
+        return obj if isinstance(obj, list) else ([obj] if isinstance(obj, dict) else [])
+    except json.JSONDecodeError:
+        pass
+    # 括号平衡截取首个 [...]（容忍尾部解释文本）
+    start = text.find("[")
+    if start >= 0:
+        depth = 0
+        for i in range(start, len(text)):
+            if text[i] == "[":
+                depth += 1
+            elif text[i] == "]":
+                depth -= 1
+                if depth == 0:
+                    try:
+                        obj = json.loads(text[start:i + 1])
+                        if isinstance(obj, list):
+                            return obj
+                    except json.JSONDecodeError:
+                        break
+    # 单对象兜底
+    a, b = text.find("{"), text.rfind("}")
+    if a >= 0 and b > a:
+        try:
+            obj = json.loads(text[a:b + 1])
+            if isinstance(obj, dict):
+                return [obj]
+        except json.JSONDecodeError:
+            pass
+    return []
 
 
 # ---------------------------------------------------------------- Mock 实现
@@ -139,38 +226,61 @@ class MockLLM:
         return ops
 
 
-# ---------------------------------------------------------------- 真实客户端骨架
+# ---------------------------------------------------------------- 真实客户端
 class OpenAICompatibleClient:
-    """OpenAI 兼容接口客户端骨架（智戎平台 / DeepSeek / vLLM 均兼容此协议）。
+    """OpenAI 兼容接口客户端（智戎平台 / DeepSeek / vLLM / GLM 均兼容此协议）。
 
-    使用方法（接入真模型时）：
+    【v0.4 改造】HTTP 层从 requests 换成 stdlib urllib.request——
+    真模型路径也保持**零第三方依赖**（与 Mock 路径同一哲学，部署环境
+    无需 pip install）。
+
+    使用方法：
         client = OpenAICompatibleClient(
             base_url="http://<智戎或本地网关>/v1",
-            api_key="<KEY>",           # 从环境变量读，不要硬编码进仓库！
+            api_key=os.environ["LLM_KEY"],   # 从环境变量/.env 读，严禁硬编码
             model="deepseek-chat",
         )
-    注意：
-      - 依赖 requests（未装时 import 报错，属预期——MVP 不需要它）；
-      - 严禁把 api_key 提交进 git（.gitignore 已挡 .env）。
     """
 
     def __init__(self, base_url: str, api_key: str, model: str,
-                 timeout: float = 60.0) -> None:
+                 timeout: float = 60.0,
+                 extra_body: Optional[Dict[str, Any]] = None) -> None:
         self.base_url = base_url.rstrip("/")
         self.api_key = api_key
         self.model = model
         self.timeout = timeout
+        # 附加请求体（如 GLM 的 {"thinking": {"type": "disabled"}}）
+        self.extra_body: Dict[str, Any] = extra_body or {}
 
     def _post(self, payload: Dict[str, Any]) -> str:
-        import requests  # 延迟导入：MVP 不装 requests 也能跑其它部分
-        resp = requests.post(
-            f"{self.base_url}/chat/completions",
-            headers={"Authorization": f"Bearer {self.api_key}"},
-            json={**payload, "model": self.model},
-            timeout=self.timeout,
-        )
-        resp.raise_for_status()
-        return resp.json()["choices"][0]["message"]["content"]
+        """POST /chat/completions（stdlib urllib，指数退避重试 3 次）。
+
+        重试动机：GLM 网关实测偶发 SSL 握手瞬断（embedding 端点同款问题，
+        见 OpenAIEmbedding.embed）——进化/规划在挂接点上被单次瞬断打断
+        不可接受（智戎链路要求"记忆系统故障不阻断规划"）。
+        """
+        import time as _time
+        import urllib.request  # stdlib——零依赖
+        body = json.dumps({**payload, "model": self.model, **self.extra_body},
+                          ensure_ascii=False).encode("utf-8")
+        last_exc: Exception | None = None
+        for attempt in range(3):
+            try:
+                req = urllib.request.Request(
+                    f"{self.base_url}/chat/completions", data=body,
+                    method="POST",
+                    headers={"Content-Type": "application/json",
+                             "Authorization": f"Bearer {self.api_key}"})
+                with urllib.request.urlopen(req, timeout=self.timeout) as resp:
+                    data = json.loads(resp.read().decode("utf-8"))
+                # 思考型模型：reasoning_content 与 content 分离——只取 content
+                msg = (data.get("choices") or [{}])[0].get("message", {})
+                return msg.get("content") or ""
+            except Exception as exc:
+                last_exc = exc
+                if attempt < 2:
+                    _time.sleep(0.8 * (2 ** attempt))
+        raise RuntimeError(f"LLM 调用连续 3 次失败: {last_exc}")
 
     def chat(self, system: str, user: str) -> str:
         return self._post({
@@ -188,33 +298,102 @@ class OpenAICompatibleClient:
     def abstract(self, material: str, theme: str = "") -> str:
         """真模型版抽象：多条经验 → 1 条跨场次可复用的通用教训。"""
         sys_prompt = ("你是作战复盘参谋。把多条经验归纳为 1 条可跨场次复用的"
-                      f"通用教训（主题：{theme or '综合'}），只输出教训本身，"
-                      "不要复述指令。")
+                      f"通用教训（主题：{theme or '综合'}），只输出教训本身（一句话），"
+                      "不要复述指令、不要罗列原文。")
         return self.chat(sys_prompt, material)
 
     def extract_memory_ops(self, dialogue: str) -> List[Dict[str, Any]]:
-        """让 LLM 按 JSON Schema 输出记忆操作建议（真模型版）。"""
+        """真模型版记忆抽取（JSON 数组，容错解析见 parse_llm_json）。
+
+        prompt 约定（v0.4 强化，两处防缺陷设计）：
+          1. importance 语义分级——2.0 在遗忘模型里是"保护线"（永不遗忘），
+             必须显式告知 LLM 慎用，否则它会习惯性给教训打 2.0、
+             重现 v0.2 修复过的"遗忘机制系统性失效"；
+          2. content 保留"教训：/经验："标记前缀——G2 晋升门控与阶段归因
+             （attr_stage）依赖内容关键词判别，裸句会被误拒/漏归因。
+        """
         sys_prompt = (
-            "你是记忆管理器。阅读对话/复盘，输出 JSON 数组，每项形如："
-            '{"op":"write|merge|forget|abstract","type":"fact|experience",'
-            '"content":"...","importance":1.0}。只输出 JSON，不要解释。'
+            "你是作战复盘的记忆管理器。从复盘中抽取值得长期保留的记忆，"
+            "输出 JSON 数组，每项形如："
+            '{"op":"write","type":"fact|experience","content":"...","importance":1.0}。'
+            "约定：type=experience 用于教训/经验/对策（content 以'教训：'或'经验：'"
+            "开头）；type=fact 用于装备参数/条令/地形等跨场次稳定的客观事实；"
+            "importance 分级：1.0=一般经验，1.5=重要教训，2.0=仅限人命关天、"
+            "绝不能忘的保命教训（2.0 永不遗忘，慎用）；"
+            "场次过程叙述（如'某部于某时机动'）不要抽取。"
+            "只输出 JSON 数组，不要解释。"
         )
         raw = self.chat(sys_prompt, dialogue)
-        try:
-            # 容错：截取首个 [ 到末尾 ] 之间的内容再解析
-            m = re.search(r"\[.*\]", raw, re.S)
-            return json.loads(m.group(0)) if m else []
-        except json.JSONDecodeError:
-            return []
+        ops: List[Dict[str, Any]] = []
+        for op in parse_llm_json(raw):
+            if not isinstance(op, dict):
+                continue
+            content = str(op.get("content", "")).strip()
+            if not content:
+                continue
+            mtype = op.get("type", "experience")
+            if mtype not in ("fact", "experience"):
+                mtype = "experience"
+            try:
+                imp = float(op.get("importance", 1.0))
+            except (TypeError, ValueError):
+                imp = 1.0
+            ops.append({"op": str(op.get("op", "write")),
+                        "type": mtype, "content": content,
+                        "importance": min(max(imp, 0.5), 2.0)})
+        return ops
+
+
+class GLMClient(OpenAICompatibleClient):
+    """智谱 GLM 客户端（bigmodel.cn OpenAI 兼容协议，stdlib 零依赖）。
+
+    配置来源（优先级）：显式参数 > 环境变量 > .env（load_env 自动加载）：
+        GLM_API_KEY     密钥（.env，严禁入库）
+        GLM_MODEL       对话模型（默认 glm-4.5-air：实测 2.4s/次、抽取质量优）
+        GLM_EMBED_MODEL 向量模型（默认 embedding-2，见 embeddings.py）
+
+    模型选择实测（2026-09，同一抽取任务）：
+        glm-4.5-air   2.4s  质量优（默认——速度/质量/成本平衡点）
+        glm-4.5       5.7s  质量最优（旗舰，重要消融可用）
+        glm-4-flash   1.8s  质量可用（最省）
+        glm-4.5-flash 20s+  稳态过慢（免费档限速，不推荐）
+    """
+
+    BASE_URL = "https://open.bigmodel.cn/api/paas/v4"
+    # 思考型模型（glm-4.5 系）默认开思考——抽取/摘要类任务要快答案，
+    # 默认禁用；enable_thinking=True 可开（复杂规划生成时建议开）。
+    THINKING_MODELS = ("glm-4.5", "glm-4.6")
+
+    def __init__(self, api_key: Optional[str] = None, model: Optional[str] = None,
+                 timeout: float = 90.0, enable_thinking: bool = False) -> None:
+        load_env()  # 零依赖 .env 加载（幂等，不覆盖已有环境变量）
+        api_key = api_key or os.environ.get("GLM_API_KEY", "")
+        model = model or os.environ.get("GLM_MODEL", "glm-4.5-air")
+        if not api_key:
+            raise ValueError("缺少 GLM_API_KEY：请在 .env 或环境变量设置"
+                             "（.env 模板见仓库根 README）")
+        extra: Dict[str, Any] = {}
+        if not enable_thinking and any(model.startswith(p)
+                                       for p in self.THINKING_MODELS):
+            extra["thinking"] = {"type": "disabled"}
+        super().__init__(base_url=self.BASE_URL, api_key=api_key, model=model,
+                         timeout=timeout, extra_body=extra)
+        self.enable_thinking = enable_thinking
 
 
 def get_llm(kind: str = "mock", **kwargs: Any) -> LLMClient:
-    """LLM 工厂：按配置返回 Mock 或真实客户端。
+    """LLM 工厂：mock（离线默认）/ glm（智谱）/ openai（任意兼容网关）。
 
-    用法：llm = get_llm("mock") / get_llm("openai", base_url=..., api_key=..., model=...)
+    用法：
+        llm = get_llm("mock")                          # 离线
+        llm = get_llm("glm")                           # 读 .env 的 GLM_API_KEY/GLM_MODEL
+        llm = get_llm("glm", model="glm-4.5")          # 旗舰
+        llm = get_llm("openai", base_url=..., api_key=..., model=...)
     """
     if kind == "mock":
         return MockLLM()
+    if kind == "glm":
+        return GLMClient(**kwargs)
     if kind == "openai":
         return OpenAICompatibleClient(**kwargs)
-    raise ValueError(f"未知 LLM 类型: {kind}（可选 mock/openai）")
+    raise ValueError(f"未知 LLM 类型: {kind}（可选 mock/glm/openai）")
