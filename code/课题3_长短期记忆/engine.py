@@ -75,12 +75,23 @@ _SCORE_MAX = 1.0
 
 
 class LongShortTermMemoryEngine(MemoryEnginePlugin):
-    """长短期记忆引擎插件（memsys 包装层）。
+    """长短期记忆引擎插件（memsys 包装层）——老师平台 SDK 的适配器。
 
     检索行为：
       - 一次 query 同时打事实库（参数级精确）与经验库（语义召回）；
       - 自动构造 QueryItem（默认 vector 路由），走 HybridRetriever 融合；
       - 返回 SDK 约定的 dict 列表（content/score/source_file/...）。
+
+    与 memsys 内部的关系：
+      - 本类只做"平台协议 → memsys 方法"的翻译，不含业务逻辑；
+      - 内部持有一个 MemoryController（默认全 Mock，接真模型时注入
+        GLM/智戎网关；多实例部署时每个引擎实例一个独立记忆库）；
+      - 写入（记忆进化）不是通过 ingest_file——走场次复盘的
+        ZhirongAdapter/controller.close_session，因此 supports_ingest=False。
+
+    契约合规要点（SDK §3.2/§9）：score 0~1、source_file 非绝对路径、
+    supported_suffixes=[] 不与内建引擎争后缀、异常上抛由路由器熔断、
+    同步 IO 放线程（asyncio.to_thread）。
     """
 
     name = "long_short_term_memory"
@@ -98,6 +109,18 @@ class LongShortTermMemoryEngine(MemoryEnginePlugin):
 
     @property
     def capabilities(self):  # type: ignore[override]
+        """能力声明（SDK 前端据此决定如何展示/调用本引擎）。
+
+        每一项都对应一个平台契约决策：
+          - supports_ingest=False：记忆写入不通过"上传文件"完成，
+            而是复盘时由进化模块写入（见 ZhirongAdapter.hook_close）；
+          - supports_generate=False：平台负责规划生成，本引擎只做检索
+            （避免与智戎规划管线职责重叠）；
+          - supports_stream=False：检索结果一次性返回即可，无流式；
+          - supported_suffixes=[]：不认领 .txt 等后缀，避免与内建
+            standard_rag 冲突（契约 §3.3）；
+          - storage_backend 描述性字符串，供平台 UI 展示存储类型。
+        """
         return EngineCapabilities(
             supports_ingest=False,   # 写入走进化模块（场次复盘），不做文件级 ingest
             supports_delete=False,
@@ -127,7 +150,14 @@ class LongShortTermMemoryEngine(MemoryEnginePlugin):
         return await asyncio.to_thread(self._search_sync, query, top_k)
 
     def _search_sync(self, query: str, top_k: int) -> List[dict]:
-        """实际检索逻辑（同步实现，被 to_thread 包裹）。"""
+        """实际检索逻辑（同步实现，被 asyncio.to_thread 包裹避免阻塞事件循环）。
+
+        对同一查询分别打事实库与经验库：
+          - target="fact"       → 走 FactualStore 向量/精确路径；
+          - target="experience" → 走 ExperientialStore 语义/重要性路径。
+        SDK 的查询文本没有 target 概念，所以两条路都跑再按融合分合并
+        排序——这样一次平台查询既覆盖"参数事实"也覆盖"历史教训"。
+        """
         q = self._QueryItem(q_id="sdk", intent="平台检索", target="fact",
                             route="vector", query_text=query)
         fact_hits = self._ctl.retriever.retrieve(q, top_k=top_k)
@@ -157,7 +187,9 @@ class LongShortTermMemoryEngine(MemoryEnginePlugin):
         return out[:top_k]
 
     async def ingest_file(self, rel_path: str) -> Dict[str, Any]:
-        # 事实/经验的写入由"场次复盘进化"完成，不接收平台文件 ingest
+        # 【设计说明】事实/经验的写入由"场次复盘进化"完成（ZhirongAdapter
+        # → controller.close_session → evolution），不接收平台文件 ingest。
+        # 返回 0 并附说明，是为了让平台前端明确知道"这个引擎不是文件库"。
         return {"indexed": 0, "note": "memsys 写入走记忆进化模块（复盘驱动）"}
 
     async def remove_file(self, rel_path: str) -> Dict[str, Any]:

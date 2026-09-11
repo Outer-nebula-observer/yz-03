@@ -29,6 +29,11 @@ python -m eval.verify_llm         # 23 项检查：抽取/抽象/进化/规划�
 **无需安装任何第三方包**（含真模型路径——HTTP 走 stdlib urllib）：
 LLM/Embedding 默认 Mock（确定性、离线）；GLM 真模型见「四」。
 
+**代码注释说明**：核心模块已带详细行内注释（论文出处/设计动机/bug 修复
+留痕）；`docs/14` 提供代码地图与逐文件阅读指南（文档版详细注释）；
+偏薄的实验文件（eval/metrics、stats、task_metrics、verify_llm）与
+engine/base/compression 已补函数级注释。
+
 ---
 
 ## 二、目录结构
