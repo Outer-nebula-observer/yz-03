@@ -33,6 +33,7 @@ paper_code/*/*/
 # ===== 密钥 / 本地凭据（严禁入库）=====
 .env
 .env.*
+!.env.example
 *.env
 secrets/
 
