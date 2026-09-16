@@ -262,3 +262,14 @@ button.chain:hover { background: #5a4b82; }
   display: inline-block; margin-right: 4px; vertical-align: -1px; }
 .fc-legend .dot.red { background: #c0392b; }
 .fc-legend .dot.blue { background: #2e86ab; }
+
+
+/* ---------------- 区域页签（左右栏分组排版） ---------------- */
+.zone-tabs { display: flex; gap: 6px; margin: 8px 0; flex-wrap: wrap; }
+.zone-tab { background: #fff; border: 1px solid var(--line); border-radius: 16px;
+  padding: 4px 12px; font-size: 12px; color: var(--ink2); cursor: pointer;
+  transition: all .15s; }
+.zone-tab:hover { border-color: var(--accent); color: var(--accent); }
+.zone-tab.active { background: var(--accent); border-color: var(--accent);
+  color: #fff; font-weight: 600; }
+.card[hidden] { display: none !important; }

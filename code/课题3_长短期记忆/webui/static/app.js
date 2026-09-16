@@ -747,6 +747,17 @@ async function campaignRunAll() {
     "中栏事件流保留完整过程。";
 }
 
+/* ---------------- 区域页签（左右栏分组排版，减少纵向堆叠） ---------------- */
+function switchZone(zone, group) {
+  document.querySelectorAll(`.zone-tab[data-zone="${zone}"]`).forEach(t => {
+    t.classList.toggle("active", t.dataset.group === group);
+  });
+  const sel = zone === "left" ? ".col-left" : ".col-right";
+  document.querySelectorAll(`${sel} .card`).forEach(c => {
+    c.hidden = c.getAttribute("data-group") !== group;
+  });
+}
+
 /* ---------------- 启动 ---------------- */
 window.addEventListener("DOMContentLoaded", async () => {
   addQueryRow();          // 默认一条空查询行（可删；场景填充会重建）
@@ -755,5 +766,7 @@ window.addEventListener("DOMContentLoaded", async () => {
   await seed();          // 首次进入自动预置演示数据（幂等），开箱即可玩
   await loadScenes();    // 场景库加载并默认填充第一场景
   await loadCampaigns(); // 多轮战役案例加载
+  switchZone("left", "scenes");    // 左栏默认：场景·战役
+  switchZone("right", "result");   // 右栏默认：本场结果
   await refreshAll();
 });

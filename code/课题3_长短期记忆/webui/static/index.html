@@ -33,8 +33,14 @@
   <!-- ══════════ 左栏：📥 输入区 ══════════ -->
   <section class="col col-left">
     <div class="zone-label in">📥 输入区 <span>goal / 约束 / 查询 / 消息 / 复盘</span></div>
+    <div class="zone-tabs">
+      <button class="zone-tab active" data-zone="left" data-group="scenes"
+              onclick="switchZone('left','scenes')">🎬 场景·战役</button>
+      <button class="zone-tab" data-zone="left" data-group="console"
+              onclick="switchZone('left','console')">🕹 操作台</button>
+    </div>
 
-    <div class="card scene-card">
+    <div class="card scene-card" data-group="scenes">
       <h2>🎬 演示场景（自动填充样例）</h2>
       <label>选择场景 <select id="scene-select" onchange="fillScenario()"></select></label>
       <div class="scene-desc" id="scene-desc">选择场景后自动填充下方全部表单；「自动演示」将代点 ①→⑦ 全部按钮。</div>
@@ -45,7 +51,7 @@
       </div>
     </div>
 
-    <div class="card campaign-card">
+    <div class="card campaign-card" data-group="scenes">
       <h2>⚔️ 多轮战役案例 <span class="hint">（一键导入 · 逐步进行）</span></h2>
       <label>选择战役 <select id="campaign-select" onchange="campaignDesc()"></select></label>
       <div class="scene-desc" id="campaign-desc">加载中…</div>
@@ -61,7 +67,7 @@
       <div class="scene-desc" id="campaign-status"></div>
     </div>
 
-    <div class="card">
+    <div class="card" data-group="console">
       <h2>① 规划开场</h2>
       <label>场次 ID <input id="plan-id" placeholder="P001（留空自动生成）"></label>
       <label>作战目标 <input id="goal" placeholder="夜间夺占 2 号高地"></label>
@@ -74,7 +80,7 @@
       </div>
     </div>
 
-    <div class="card stage-card">
+    <div class="card stage-card" data-group="console">
       <h2>🎯 规划阶段推进 <span class="hint">（MDMP 七步 · 阶段化记忆供给）</span></h2>
       <div class="scene-desc" id="stage-desc">点击阶段即进入：按该阶段需要自动生成查询并检索（阶段对口记忆亲和加分）——记忆供给由"规划进行到哪一步"驱动，而非任务字面。</div>
       <div class="stagebar" id="stage-bar"></div>
@@ -83,7 +89,7 @@
       </div>
     </div>
 
-    <div class="card">
+    <div class="card" data-group="console">
       <h2>③④ 手动检索装载 <span class="hint">（执行表单/场景查询）</span></h2>
       <label>top_k <input id="topk" type="number" value="3" min="1" max="10" style="width:70px"></label>
       <div class="btnrow">
@@ -92,14 +98,14 @@
       </div>
     </div>
 
-    <div class="card">
+    <div class="card" data-group="console">
       <h2>场次消息流</h2>
       <label>推入工作记忆（自动处理超限 flush） <textarea id="msg" rows="2">指挥所：红方 3 营东侧集结完毕
 侦察：高地南坡发现两处反坦克火力点</textarea></label>
       <button class="ghost" data-need-session onclick="pushMsg()">推入 FIFO</button>
     </div>
 
-    <div class="card">
+    <div class="card" data-group="console">
       <h2>⑥⑦ 复盘进化</h2>
       <label>复盘文本（含"教训/经验"关键词行将被抽取） <textarea id="review" rows="3">复盘：任务部分达成。
 教训：夜间突袭未前置电子压制，接敌后通信被干扰。
@@ -107,7 +113,7 @@
       <button class="danger" data-need-session onclick="closeSession()">复盘并进化 ⑥⑦</button>
     </div>
 
-    <div class="card">
+    <div class="card" data-group="scenes">
       <h2>演示数据</h2>
       <div class="btnrow">
         <button class="ghost" onclick="seed()">预置战例/教训</button>
@@ -133,7 +139,7 @@
       <div id="wm" class="wm"><div class="empty">（无场次——开场后这里实时展示：目标 / 约束 / 装载记忆 / FIFO 消息 / 容量水位）</div></div>
     </div>
 
-    <div class="card grow">
+    <div class="card grow" data-group="result">
       <h2>⑤ 注入规划 LLM 的上下文 <span class="hint">（短期记忆的最终产出形态）</span></h2>
       <div class="metric" id="ctx-metrics">tokens 0 · 0% · 未预警</div>
       <pre id="context" class="ctx">（尚未开场）</pre>
@@ -143,23 +149,31 @@
   <!-- ══════════ 右栏：📦 产出 · 长期记忆（跨场次沉淀） ══════════ -->
   <section class="col col-right">
     <div class="zone-label out">📦 产出 · 长期记忆 <span>检索命中 / 进化沉淀 / 场次历史 / 记忆库</span></div>
+    <div class="zone-tabs">
+      <button class="zone-tab active" data-zone="right" data-group="result"
+              onclick="switchZone('right','result')">🎯 本场结果</button>
+      <button class="zone-tab" data-zone="right" data-group="memory"
+              onclick="switchZone('right','memory')">📚 长期记忆</button>
+      <button class="zone-tab" data-zone="right" data-group="audit"
+              onclick="switchZone('right','audit')">🗂 历史·审计</button>
+    </div>
 
-    <div class="card grow">
+    <div class="card grow" data-group="result">
       <h2>🎯 检索命中 <span class="hint">（带溯源 · 创新点 E）</span><span class="hint" id="hits-stage"></span></h2>
       <div id="hits" class="hits"><div class="empty">（尚未检索）</div></div>
     </div>
 
-    <div class="card">
+    <div class="card" data-group="result">
       <h2>🧬 进化报告 <span class="hint">（本场复盘产出）</span></h2>
       <div id="report" class="report"><div class="empty">（尚未复盘）</div></div>
     </div>
 
-    <div class="card">
+    <div class="card" data-group="audit">
       <h2>🗂 场次历史 <span class="hint">（多轮沉淀主线：每场留下什么、复用什么）</span></h2>
       <div id="sessions" class="sessions"><div class="empty">（暂无场次——开场后本场会出现在这里）</div></div>
     </div>
 
-    <div class="card grow">
+    <div class="card grow" data-group="memory">
       <h2>📚 长期记忆库 <span class="hint">（跨场次持久 · 艾宾浩斯衰减）</span></h2>
       <div class="tabs">
         <button class="tab active" data-type="fact" onclick="switchTab(this)">事实库</button>
@@ -179,11 +193,11 @@
       </div>
       <div id="memory-list" class="memlist"></div>
     </div>
-    <div class="card grow">
+    <div class="card grow" data-group="memory">
       <h2>🧠 遗忘曲线 <span class="hint">（艾宾浩斯 R=e^(-t/S) · 点击记忆查看）</span></h2>
       <div id="forget-curve"><div class="empty">（点击右侧记忆库任意一条，查看其未来衰减曲线与“立即召回强化”对比）</div></div>
     </div>
-    <div class="card">
+    <div class="card" data-group="audit">
       <h2>🛡 边界审计 <span class="hint">（boundary 模块）</span></h2>
       <div id="boundary-stats" class="metric">放行 0 · 拒绝 0</div>
       <div id="audit" class="audit"><div class="empty">（暂无决策）</div></div>
