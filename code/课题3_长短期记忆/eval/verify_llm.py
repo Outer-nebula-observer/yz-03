@@ -1,25 +1,25 @@
 # -*- coding: utf-8 -*-
 """
-eval.verify_llm — 真模型（GLM）接入验证脚本
+eval.verify_llm — 真模型接入验证脚本（DeepSeek 默认 / GLM 可选）
 ==============================================
-用途：接入真 LLM 后的**验收测试**——逐能力对比 Mock 与 GLM，量化"质变"，
+用途：接入真 LLM 后的**验收测试**——逐能力对比 Mock 与真模型，量化"质变"，
 并产出可归档的验证报告（JSON）。
 
 验证项（每项独立，失败不阻断后续）：
   T1 连通与延迟      3 次对话调用（avg/max ms）
-  T2 记忆抽取对比    同一复盘 → Mock vs GLM 的抽取条数/类型/importance 分布
-                    （GLM 应更细粒度、importance 有区分度）
+  T2 记忆抽取对比    同一复盘 → Mock vs 真模型的抽取条数/类型/importance 分布
+                    （真模型应更细粒度、importance 有区分度）
   T3 抽象质量        多条经验 → 通用教训（无指令残留、含源内容、一句话）
   T4 摘要有界        长文本摘要长度受控（Mock 的中文截断 bug 回归）
-  T5 进化端到端      evolve_from_review（GLM 抽取 + MockEmbedding 检索）：
+  T5 进化端到端      evolve_from_review（真模型抽取 + MockEmbedding 检索）：
                     写入条数 / 边界门控拒绝（场次叙述应被 G2 拒）/ 无指令残留
-  T6 规划任务层      pipeline.run_session（GLM 生成规划）：
+  T6 规划任务层      pipeline.run_session（真模型生成规划）：
                     装载记忆被规划引用的比率——**Mock 无法度量的指标**
-                    （MockLLM 是回显；GLM 是真的"用记忆写规划"）
-  T7 GLM embedding   语义判别力（同义 vs 无关的余弦分离度）+ 延迟
+                    （MockLLM 是回显；真模型是真的"用记忆写规划"）
+  T7 embedding（GLM，可选）语义判别力（同义 vs 无关的余弦分离度）+ 延迟
 
 用法：
-    python -m eval.verify_llm                    # 默认 .env 的 GLM_MODEL
+    python -m eval.verify_llm --provider deepseek --no-embed   # DeepSeek（默认）
     python -m eval.verify_llm --model glm-4.5    # 指定模型
     python -m eval.verify_llm --no-embed         # 跳过 embedding 检查
 输出：控制台报告 + eval/results/llm_verification.json
@@ -65,7 +65,7 @@ def timed(fn, *a, **kw):
 def t1_connectivity(llm) -> Dict[str, float]:
     """T1：连通与延迟——3 次真实对话调用，记录 avg/max 毫秒。
 
-    为什么 3 次？单次延迟受网络/模型冷启动影响很大（实测 GLM
+    为什么 3 次？单次延迟受网络/模型冷启动影响很大（实测真模型
     首调 19–22s，稳态 1–2s），用 3 次看稳态；同时验证回复内容
     确实来自模型（而不是空串/错误）。
     """
@@ -90,16 +90,16 @@ def t1_connectivity(llm) -> Dict[str, float]:
 
 # ================================================================ T2 抽取对比
 def t2_extraction(llm) -> Dict[str, Any]:
-    """T2：记忆抽取——同一复盘分别喂 Mock 与 GLM，对比抽取质量。
+    """T2：记忆抽取——同一复盘分别喂 Mock 与真模型，对比抽取质量。
 
     检查点：
-      - 非空；importance 有区分度（GLM 应给出 1.0/1.5 而非全 1.0）；
+      - 非空；importance 有区分度（真模型应给出 1.0/1.5 而非全 1.0）；
       - 无 2.0 滥用（2.0=保护线永不遗忘，prompt 已约定慎用）；
       - 无标记前缀残留（复盘：/总结：不是记忆内容）；
       - 能识别场次叙述为 fact 或跳过（Mock 靠关键词完全看不到
-        '指挥所…机动'这类无关键词句子——GLM 语义理解可补齐）。
+        '指挥所…机动'这类无关键词句子——真模型语义理解可补齐）。
     """
-    print("\n== T2 记忆抽取：Mock vs GLM ==")
+    print("\n== T2 记忆抽取：Mock vs 真模型 ==")
     review = ("复盘：任务部分达成。教训：夜间突袭未前置电子压制，接敌后通信被干扰。"
               "经验：突破口形成后预备队投入应提前 10 分钟。"
               "指挥所于 02:00 下令 3 营向东侧机动。")
@@ -108,11 +108,11 @@ def t2_extraction(llm) -> Dict[str, Any]:
     print(f"  Mock 抽取 {len(mock_ops)} 条：")
     for o in mock_ops:
         print(f"    [{o['type']}/{o['importance']}] {o['content'][:40]}")
-    print(f"  GLM  抽取 {len(glm_ops)} 条（{ms}ms）：")
+    print(f"  真模型抽取 {len(glm_ops)} 条（{ms}ms）：")
     for o in glm_ops:
         print(f"    [{o['type']}/{o['importance']}] {o['content'][:40]}")
 
-    check("GLM 抽取非空", len(glm_ops) >= 1, f"{len(glm_ops)} 条 / {ms}ms")
+    check("真模型抽取非空", len(glm_ops) >= 1, f"{len(glm_ops)} 条 / {ms}ms")
     imps = [o["importance"] for o in glm_ops]
     check("importance 有区分度（非全部相同）",
           len(set(imps)) > 1 if len(imps) > 1 else True, f"分布 {imps}")
@@ -122,7 +122,7 @@ def t2_extraction(llm) -> Dict[str, Any]:
           all(not o["content"].startswith(("复盘", "总结")) for o in glm_ops))
     has_fact = any(o["type"] == "fact" for o in glm_ops)
     check("能识别场次叙述为 fact 或跳过（Mock 直接跳过）",
-          True, f"GLM fact 条数={sum(1 for o in glm_ops if o['type']=='fact')}"
+          True, f"真模型 fact 条数={sum(1 for o in glm_ops if o['type']=='fact')}"
                 f"（Mock 恒 0——关键词覆盖之外的盲区由 LLM 补齐）")
     return {"mock_n": len(mock_ops), "glm_n": len(glm_ops),
             "glm_ops": glm_ops, "latency_ms": ms, "glm_has_fact": has_fact}
@@ -168,16 +168,16 @@ def t4_summarize(llm) -> Dict[str, Any]:
 
 # ================================================================ T5 进化端到端
 def t5_evolution(llm) -> Dict[str, Any]:
-    """T5：进化端到端——GLM 抽取 × MockEmbedding 检索的完整闭环。
+    """T5：进化端到端——真模型抽取 × MockEmbedding 检索的完整闭环。
 
-    用真实 GLM 跑 evolve_from_review：
+    用真实模型跑 evolve_from_review：
       - 复盘写入 ≥1 条；
-      - 边界门控留审计记录（GLM 若按 prompt 约定不抽场次叙述，则
+      - 边界门控留审计记录（真模型若按 prompt 约定不抽场次叙述，则
         拒绝 0 条也合法——取决于是"模型自律"还是"门控拦截"；
         两种情况都符合设计，但审计必须可见）；
       - 经验库无指令/JSON 残留（防止 LLM 把 prompt 或代码块写进去）。
     """
-    print("\n== T5 进化端到端（GLM 抽取 × MockEmbedding 检索）==")
+    print("\n== T5 进化端到端（真模型抽取 × MockEmbedding 检索）==")
     emb = MockEmbedding()
     ctl = MemoryController(factual=FactualStore(":memory:", emb),
                            experiential=ExperientialStore(emb), llm=llm)
@@ -188,11 +188,11 @@ def t5_evolution(llm) -> Dict[str, Any]:
     summary = rep.summary()
     print(f"  进化报告（{ms}ms）：{summary}")
     check("复盘写入 ≥1 条", summary["write"] >= 1, str(summary))
-    # 边界门控：场次叙述（指挥所…机动）应被 G2 拒绝或 GLM 主动不抽
+    # 边界门控：场次叙述（指挥所…机动）应被 G2 拒绝或真模型主动不抽
     audit = [d for d in ctl.evolution.boundary.audit_log() if not d["allowed"]]
     check("边界门控留有审计记录（拒绝或全放行均可，看 LLM 抽取纪律）",
           True, f"拒绝 {len(audit)} 条"
-                + (f"：{audit[0]['reason'][:50]}" if audit else "（GLM 按约定未抽场次叙述）"))
+                + (f"：{audit[0]['reason'][:50]}" if audit else "（真模型按约定未抽场次叙述）"))
     # 库内容检查：无指令残留
     all_contents = [ctl.experiential.get(i).content
                     for i in ctl.experiential.candidates()]
@@ -208,18 +208,18 @@ def t5_evolution(llm) -> Dict[str, Any]:
 
 # ================================================================ T6 规划任务层
 def t6_pipeline(llm) -> Dict[str, Any]:
-    """T6：规划任务层——GLM 生成规划 × 记忆引用率（本项目最关键的证据）。
+    """T6：规划任务层——真模型生成规划 × 记忆引用率（本项目最关键的证据）。
 
     这是 Mock 无法度量的指标：MockLLM 只会回显上下文；
-    GLM 是"真的用记忆写规划"。用 task_metrics 双口径度量：
+    真模型是"真的用记忆写规划"。用 task_metrics 双口径度量：
       - 严格口径：记忆前 6 字探针出现（要求 LLM 逐字引用，偏严）；
       - 宽松口径：任意 2 字 CJK 片段出现（容忍改写/概括）；
     同时记录约束满足率（作战硬约束是否被遵守）。
     预期：宽松引用率 > 0（实测 1.00），规划输出可见'仅东侧可装甲
     通行''避免重蹈覆辙…的教训'等真正引用。
     """
-    print("\n== T6 规划任务层（GLM 生成规划 × 记忆引用率）==")
-    print("  —— 这是 Mock 无法度量的指标：MockLLM 是回显，GLM 是真的用记忆写规划")
+    print("\n== T6 规划任务层（真模型生成规划 × 记忆引用率）==")
+    print("  —— 这是 Mock 无法度量的指标：MockLLM 是回显，真模型是真的用记忆写规划")
     emb = MockEmbedding()
     ctl = MemoryController(factual=FactualStore(":memory:", emb),
                            experiential=ExperientialStore(emb), llm=llm)

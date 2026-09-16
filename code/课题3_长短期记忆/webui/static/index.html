@@ -45,6 +45,18 @@
       </div>
     </div>
 
+    <div class="card campaign-card">
+      <h2>⚔️ 多轮战役案例 <span class="hint">（一键导入 · 逐步进行）</span></h2>
+      <label>选择战役 <select id="campaign-select" onchange="campaignDesc()"></select></label>
+      <div class="scene-desc" id="campaign-desc">加载中…</div>
+      <div class="btnrow">
+        <button class="warn" onclick="importCampaign()">📥 一键导入战役</button>
+        <button class="primary" onclick="campaignNext()">▶ 逐步进行（下一场）</button>
+        <button class="chain" onclick="campaignRunAll()">⏭ 自动跑完全部</button>
+      </div>
+      <div class="scene-desc" id="campaign-status"></div>
+    </div>
+
     <div class="card">
       <h2>① 规划开场</h2>
       <label>场次 ID <input id="plan-id" placeholder="P001（留空自动生成）"></label>

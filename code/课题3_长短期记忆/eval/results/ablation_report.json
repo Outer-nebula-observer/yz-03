@@ -580,7 +580,7 @@
     "testset": "50 cases (A–G 44 + H 6)",
     "embedding": "MockEmbedding(哈希词袋)",
     "llm": "MockLLM(回显式)",
-    "elapsed_s": 1.8,
+    "elapsed_s": 1.5,
     "honesty": "Mock 模式下：检索层指标可判别（测试集含干扰/负例/转述）；任务层指标仅度量'上下文构造正确性'（MockLLM 为回显），换真模型后同一脚本即测'LLM 是否善用记忆'——口径不变"
   }
 }

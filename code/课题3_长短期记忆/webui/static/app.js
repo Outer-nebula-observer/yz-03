@@ -601,6 +601,71 @@ async function demoTwoSessions() {
     : "⚠ 两场演示完成，但第二场未检出往场复用（请检查第一场是否写入了教训）";
 }
 
+/* ---------------- 多轮战役（一键导入 · 逐步进行） ---------------- */
+function campaignDesc() {
+  const sel = $("campaign-select");
+  $("campaign-desc").textContent = sel.options[sel.selectedIndex]?.dataset.desc || "";
+}
+
+async function loadCampaigns() {
+  const r = await api("/api/campaigns");
+  if (!r) return;
+  const sel = $("campaign-select");
+  sel.innerHTML = r.campaigns.map(c =>
+    `<option value="${c.id}" data-desc="${esc(c.desc)}">${esc(c.title)}（${c.rounds} 场）</option>`).join("");
+  campaignDesc();
+}
+
+async function importCampaign() {
+  const id = $("campaign-select").value;
+  if (!id) { showErr("请先选择战役"); return; }
+  const r = await api("/api/campaign", { action: "import", id });
+  if (!r) return;
+  $("campaign-desc").textContent = r.campaign.desc;
+  $("campaign-status").textContent =
+    `✅ 已导入「${r.campaign.title}」——点击"逐步进行"逐场跑，或"自动跑完全部"。`;
+  await refreshAll();
+}
+
+async function campaignNext() {
+  const r = await api("/api/campaign", { action: "next" });
+  if (!r) return;
+  if (r.finished) { $("campaign-status").textContent = "🎉 全部场次已完成"; return; }
+  if (r.round) {
+    await refreshAll();                 // 更新场次历史/事件/记忆库/stepper（含 pastPlanIds）
+    renderHits(r.hits);                 // 本场命中（含往场徽标）
+    renderReport(r.report);             // 本场进化报告
+    const reuseNote = r.reused.length
+      ? `♻️ 本场复用 ${r.reused.length} 条：${r.reused.map(u => u.source).join("、")}`
+      : "（本场无往场复用）";
+    $("campaign-status").textContent =
+      `✅ ${r.round.plan_id}｜${r.round.title} 完成：检索 ${r.hits.length} 条，${reuseNote}。` +
+      (r.done ? " 🎉 战役全部完成" : ` 下一场：${r.next_title}`);
+  } else {
+    showErr(r.message || "战役尚未导入，请先一键导入");
+  }
+}
+
+async function campaignRunAll() {
+  $("campaign-status").textContent = "⏳ 自动跑完全部场次…";
+  while (true) {
+    const r = await api("/api/campaign", { action: "next" });
+    if (!r) return;
+    if (r.finished) break;
+    await sleep(650);
+    if (r.done) {
+      await refreshAll();
+      renderHits(r.hits);
+      renderReport(r.report);
+      break;
+    }
+  }
+  await refreshAll();
+  $("campaign-status").textContent =
+    "🎉 战役已全部跑完——右栏场次历史/记忆库/边界审计可回看每一场沉淀与复用，" +
+    "中栏事件流保留完整过程。";
+}
+
 /* ---------------- 启动 ---------------- */
 window.addEventListener("DOMContentLoaded", async () => {
   addQueryRow();          // 默认一条空查询行（可删；场景填充会重建）
@@ -608,5 +673,6 @@ window.addEventListener("DOMContentLoaded", async () => {
                          // 保证首次渲染记忆列表/命中时 stageName 可用
   await seed();          // 首次进入自动预置演示数据（幂等），开箱即可玩
   await loadScenes();    // 场景库加载并默认填充第一场景
+  await loadCampaigns(); // 多轮战役案例加载
   await refreshAll();
 });

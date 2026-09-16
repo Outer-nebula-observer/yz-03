@@ -55,6 +55,8 @@ from memsys import (  # noqa: E402
 # deepseek-flash 生成规划/进化；GLM embedding 可用则用，否则回退 Mock。
 # 启动日志会打印当前 LLM/embedding 类型，/api/status 也会返回。
 load_env()
+# 多轮作战案例（CLI 与 WebUI 共用同一剧本）
+from campaign.campaign_data import CAMPAIGNS, SEED_FACTS, SEED_EXPS  # noqa: E402
 
 STATIC_DIR = os.path.join(HERE, "static")
 
@@ -84,6 +86,7 @@ class AppState:
                 self.llm_label = "mock"
             try:
                 emb = get_embedding("glm")
+                emb.embed("连通性校验")   # 构造成功≠Key 有效，必须试 embed
                 self.emb_label = getattr(emb, "model", "glm")
             except Exception:
                 emb = MockEmbedding()
@@ -103,6 +106,9 @@ class AppState:
         self.sessions = []           # [{plan_id, goal, started_at, closed_at, report, produced, reused, stats}]
         # —— 当前场次七步进度（stepper） ——
         self.progress = {s: False for s in STEPS}
+        # 多轮战役状态：{id, data, idx, done, history}
+        self.campaign = {"id": None, "data": None, "idx": 0,
+                         "done": False, "history": []}
 
     # ---------- 事件流 ----------
     def add_event(self, kind: str, step: str, title: str, detail: str = "") -> None:
@@ -676,6 +682,8 @@ class Handler(BaseHTTPRequestHandler):
         ("GET", "/api/sessions"): lambda params, body: api_sessions(),
         ("GET", "/api/scenarios"): lambda params, body: api_scenarios(),
         ("POST", "/api/scenario"): lambda params, body: api_scenario(body),
+        ("GET", "/api/campaigns"): lambda params, body: api_campaign({}),
+        ("POST", "/api/campaign"): lambda params, body: api_campaign(body),
     }
 
     def log_message(self, fmt, *args):  # 安静模式：不刷屏
@@ -754,6 +762,129 @@ def _reset() -> dict:
     STATE.add_event("info", "—", "系统已重置",
                     "两个长期库与全部过程数据已清空，等待开场")
     return {"ok": True}
+
+
+# ---------------------------------------------------------------- 多轮战役
+def _campaign_seed() -> None:
+    """向已重置的 controller 注入战役种子（sha1 确定性 id，与 CLI 一致）。"""
+    import hashlib as _h
+    for content, attrs in SEED_FACTS:
+        e = new_entry(MemoryType.FACT, content, source="campaign-seed", attrs=attrs)
+        e.id = "seed-f-" + _h.sha1(content.encode("utf-8")).hexdigest()[:10]
+        STATE.ctl.factual.add(e)
+    for content, imp, stage in SEED_EXPS:
+        e = new_entry(MemoryType.EXPERIENCE, content, source="campaign-seed",
+                      importance=imp, attrs={"stage": stage})
+        e.id = "seed-e-" + _h.sha1(content.encode("utf-8")).hexdigest()[:10]
+        STATE.ctl.experiential.add(e)
+
+
+def _campaign_next() -> dict:
+    """执行一场完整闭环（开场→检索→战报→复盘进化），返回该场结果。"""
+    camp = STATE.campaign
+    if camp["data"] is None:
+        raise ValueError("请先一键导入战役")
+    rounds = camp["data"]["rounds"]
+    idx = camp["idx"]
+    if idx >= len(rounds):
+        return {"done": True, "finished": True,
+                "message": "全部场次已完成"}
+    rd = rounds[idx]
+    ctl = STATE.ctl
+    # 有活动场次先收尾（保证上场沉淀不被覆盖）
+    if ctl.working_memory is not None:
+        try:
+            ctl.close_session("（自动收尾，无新复盘）")
+        except Exception:
+            pass
+    queries = [QueryItem(q["intent"], q["intent"], q["target"], q["route"],
+                         q.get("query_text", ""), attrs=q.get("attrs"))
+               for q in rd["queries"]]
+    ctl.start_session(rd["plan_id"], rd["goal"], rd["constraints"], queries)
+    hits = ctl.retrieve_and_load(top_k=3)
+    context = ctl.render_context()
+    for m in rd.get("messages", []):
+        ctl.push(m)
+    report = ctl.close_session(rd["review"])
+
+    # 事件流（前端过程面板可见）
+    STATE.add_event("divider", "①②", f"{rd['plan_id']}｜{rd['title']}", rd["goal"])
+    STATE.add_event("output", "③④", "产出：检索并装载",
+                    f"命中 {len(hits)} 条" +
+                    (f"（含往场复用 {sum(1 for h in hits if h.entry.source.startswith('复盘:'))} 条）"
+                     if any(h.entry.source.startswith("复盘:") for h in hits) else ""))
+    STATE.add_event("output", "⑦", "产出：复盘进化",
+                    f"写入 {len(report.wrote)} · 抽象 {len(report.abstracted)} · "
+                    f"查重跳过 {len(report.skipped)}")
+
+    # 跨场次复用检测
+    reused = []
+    for h in hits:
+        if h.entry.source.startswith("复盘:") and h.entry.session_id != rd["plan_id"]:
+            reused.append({"source": h.entry.source, "session_id": h.entry.session_id,
+                           "content": h.entry.content[:60]})
+    # 场次历史（右栏多轮沉淀主线）
+    STATE.sessions.append({
+        "plan_id": rd["plan_id"], "goal": rd["goal"],
+        "started_at": time.time() - 1, "closed_at": time.time(),
+        "report": report_dict(report),
+        "produced": list(report.wrote) + list(report.abstracted),
+        "reused": [{"plan_id": u["session_id"], "count": 1} for u in reused],
+        "stats": dict(ctl.session_stats),
+    })
+    # 推进战役状态
+    camp["idx"] = idx + 1
+    camp["done"] = idx + 1 >= len(rounds)
+    camp["history"].append({"plan_id": rd["plan_id"], "title": rd["title"],
+                            "reused": reused, "report": report_dict(report)})
+    ret = {
+        "round": {"plan_id": rd["plan_id"], "title": rd["title"], "goal": rd["goal"]},
+        "hits": [hit_dict(h) for h in hits],
+        "reused": reused,
+        "report": report_dict(report),
+        "context": context,
+        "done": camp["done"],
+    }
+    if not camp["done"]:
+        ret["next_title"] = rounds[idx + 1]["title"]
+    return ret
+
+
+def api_campaign(body: dict) -> dict:
+    """多轮战役：list / import / next / run_all。"""
+    action = body.get("action", "list")
+    if action == "list":
+        return {"campaigns": [
+            {"id": k, "title": v["title"], "rounds": len(v["rounds"]),
+             "desc": v["desc"]} for k, v in CAMPAIGNS.items()]}
+    if action == "import":
+        cid = body.get("id", "")
+        if cid not in CAMPAIGNS:
+            raise ValueError(f"未知战役 id: {cid}")
+        STATE.reset()                     # 清空一切，保证剧本可复现
+        _campaign_seed()
+        STATE.campaign.update({"id": cid, "data": CAMPAIGNS[cid], "idx": 0,
+                               "done": False, "history": []})
+        STATE.add_event("info", "—", f"📥 一键导入战役：{CAMPAIGNS[cid]['title']}",
+                        f"共 {len(CAMPAIGNS[cid]['rounds'])} 场；种子："
+                        f"事实 {len(SEED_FACTS)} / 经验 {len(SEED_EXPS)}")
+        return {"ok": True,
+                "campaign": {"id": cid, "title": CAMPAIGNS[cid]["title"],
+                             "rounds": len(CAMPAIGNS[cid]["rounds"]),
+                             "desc": CAMPAIGNS[cid]["desc"]}}
+    if action == "next":
+        return _campaign_next()
+    if action == "run_all":
+        out = []
+        while True:
+            r = _campaign_next()
+            out.append(r)
+            if r.get("finished") or r.get("done"):
+                break
+        STATE.add_event("info", "—", "战役完成",
+                        f"已自动跑完全部场次（累计 {len(out)} 场）")
+        return {"rounds": out, "count": len(out)}
+    raise ValueError(f"未知 campaign action: {action}（list/import/next/run_all）")
 
 
 def main() -> None:
