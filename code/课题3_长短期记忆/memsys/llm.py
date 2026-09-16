@@ -381,6 +381,33 @@ class GLMClient(OpenAICompatibleClient):
         self.enable_thinking = enable_thinking
 
 
+class DeepSeekClient(OpenAICompatibleClient):
+    """DeepSeek 客户端（OpenAI 兼容协议，stdlib 零依赖）。
+
+    实测（2026-09，本仓库对应账号）可用模型：
+        deepseek-flash   默认（用户指定"运行时使用 flash 模型"）
+        deepseek-v4-pro  更强（可选）
+    配置来源（优先级）：显式参数 > 环境变量 > .env（load_env 自动加载）：
+        DEEPSEEK_API_KEY  密钥（.env，严禁入库）
+        DEEPSEEK_MODEL    模型（默认 deepseek-flash）
+
+    注意：DeepSeek 当前官方无 embedding 接口——向量仍用 GLM embedding-2
+    或 Mock（webui 会按 .env 自动回退）。
+    """
+
+    BASE_URL = "https://api.deepseek.com"
+
+    def __init__(self, api_key: Optional[str] = None, model: Optional[str] = None,
+                 timeout: float = 60.0) -> None:
+        load_env()  # 零依赖 .env 加载（幂等）
+        api_key = api_key or os.environ.get("DEEPSEEK_API_KEY", "")
+        model = model or os.environ.get("DEEPSEEK_MODEL", "deepseek-flash")
+        if not api_key:
+            raise ValueError("缺少 DEEPSEEK_API_KEY：请在 .env 或环境变量设置")
+        super().__init__(base_url=self.BASE_URL, api_key=api_key, model=model,
+                         timeout=timeout)
+
+
 def get_llm(kind: str = "mock", **kwargs: Any) -> LLMClient:
     """LLM 工厂：mock（离线默认）/ glm（智谱）/ openai（任意兼容网关）。
 
@@ -394,6 +421,8 @@ def get_llm(kind: str = "mock", **kwargs: Any) -> LLMClient:
         return MockLLM()
     if kind == "glm":
         return GLMClient(**kwargs)
+    if kind == "deepseek":
+        return DeepSeekClient(**kwargs)
     if kind == "openai":
         return OpenAICompatibleClient(**kwargs)
-    raise ValueError(f"未知 LLM 类型: {kind}（可选 mock/glm/openai）")
+    raise ValueError(f"未知 LLM 类型: {kind}（可选 mock/glm/deepseek/openai）")

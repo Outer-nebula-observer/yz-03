@@ -22,7 +22,7 @@ memsys — 赛题③「长短期记忆系统」核心包
 from .schema import (MemoryType, MemoryOp, WorkingMemorySlot, MemoryEntry,
                      QueryItem, RetrievedMemory, new_entry)
 from .llm import (LLMClient, MockLLM, OpenAICompatibleClient, GLMClient,
-                  get_llm, load_env, parse_llm_json)
+                  DeepSeekClient, get_llm, load_env, parse_llm_json)
 from .embeddings import (EmbeddingModel, MockEmbedding, OpenAIEmbedding,
                          GLMEmbedding, get_embedding,
                          MemoryVectorIndex, cosine, tokenize)
@@ -44,7 +44,7 @@ __all__ = [
     "QueryItem", "RetrievedMemory", "new_entry",
     # llm / embeddings / boundary
     "LLMClient", "MockLLM", "OpenAICompatibleClient", "GLMClient",
-    "get_llm", "load_env", "parse_llm_json",
+    "DeepSeekClient", "get_llm", "load_env", "parse_llm_json",
     "EmbeddingModel", "MockEmbedding", "OpenAIEmbedding", "GLMEmbedding",
     "get_embedding", "MemoryVectorIndex", "cosine", "tokenize",
     "MemoryBoundary", "BoundaryDecision", "CONTENT_RULES", "Scope",

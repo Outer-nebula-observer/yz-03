@@ -47,9 +47,14 @@ sys.path.insert(0, ROOT)
 
 from memsys import (  # noqa: E402
     MemoryController, MemoryType, QueryItem, new_entry, MockLLM, MockEmbedding,
-    FactualStore, ExperientialStore,
+    FactualStore, ExperientialStore, get_llm, get_embedding, load_env,
     MDMP_STAGES, STAGE_NAMES, get_stage, queries_for_stage,
 )
+
+# 【v0.5 优化】WebUI 支持真模型：.env 配置了 DEEPSEEK_API_KEY 则用
+# deepseek-flash 生成规划/进化；GLM embedding 可用则用，否则回退 Mock。
+# 启动日志会打印当前 LLM/embedding 类型，/api/status 也会返回。
+load_env()
 
 STATIC_DIR = os.path.join(HERE, "static")
 
@@ -65,11 +70,29 @@ class AppState:
         self.reset()
 
     def reset(self) -> None:
-        emb = MockEmbedding()
+        # 真模型注入：DeepSeek LLM（有 key 就用，否则回退 Mock）；
+        # GLM embedding（有 key 就用，否则回退 Mock——DeepSeek 无 embedding 接口）
+        # 环境变量 WEBUI_MOCK=1 可强制离线（自动化自测/无网环境用）。
+        if os.environ.get("WEBUI_MOCK") == "1":
+            self.llm_label, self.emb_label = "mock", "mock"
+            emb = MockEmbedding()
+            llm = MockLLM()
+        else:
+            try:
+                self.llm_label = get_llm("deepseek").model
+            except Exception:
+                self.llm_label = "mock"
+            try:
+                emb = get_embedding("glm")
+                self.emb_label = getattr(emb, "model", "glm")
+            except Exception:
+                emb = MockEmbedding()
+                self.emb_label = "mock"
+            llm = get_llm("deepseek") if self.llm_label != "mock" else MockLLM()
         self.ctl = MemoryController(
             factual=FactualStore(":memory:", emb),
             experiential=ExperientialStore(emb),
-            llm=MockLLM(),
+            llm=llm,
             embedding=emb,
         )
         self.last_hits = []          # 最近一次检索结果（含溯源）
@@ -168,6 +191,8 @@ def api_status() -> dict:
     wm = ctl.working_memory
     return {
         "facts": ctl.factual.stats()["count"],
+        "llm_model": STATE.llm_label,
+        "embedding_model": STATE.emb_label,
         "experiences": ctl.experiential.stats()["count"],
         "session": {
             "open": wm is not None and wm.slot.status == "open",

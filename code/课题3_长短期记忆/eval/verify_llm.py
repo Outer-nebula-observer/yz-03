@@ -39,7 +39,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from memsys import (MockLLM, MockEmbedding, MemoryType, new_entry, QueryItem,
                     MemoryController, MemoryPipeline, get_llm, get_embedding,
-                    FactualStore, ExperientialStore)
+                    FactualStore, ExperientialStore, load_env)
 
 RESULTS: Dict[str, Any] = {"checks": [], "env": {}}
 _PASS = 0
@@ -303,18 +303,29 @@ def t7_embedding() -> Dict[str, Any]:
 # ================================================================ 主流程
 def main() -> int:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--model", default="", help="覆盖 GLM_MODEL（如 glm-4.5）")
+    ap.add_argument("--provider", default="deepseek",
+                    help="deepseek（默认）或 glm（通过 .env 密钥）")
+    ap.add_argument("--model", default="", help="覆盖模型名（如 deepseek-flash / glm-4.5）")
     ap.add_argument("--no-embed", action="store_true", help="跳过 T7")
     args = ap.parse_args()
+    load_env()
 
     print("=" * 74)
-    print("真模型（GLM）接入验证 —— memsys v0.4")
+    print(f"真模型接入验证 —— memsys v0.4（provider={args.provider}）")
     print("=" * 74)
-    llm = get_llm("glm", **({"model": args.model} if args.model else {}))
-    RESULTS["env"] = {"model": llm.model, "base_url": llm.base_url,
-                      "thinking": llm.extra_body.get("thinking", "default"),
+    kw = {"model": args.model} if args.model else {}
+    if args.provider == "glm":
+        llm = get_llm("glm", **kw)
+    elif args.provider == "deepseek":
+        llm = get_llm("deepseek", **kw)
+    else:
+        raise ValueError("--provider 仅支持 deepseek/glm")
+    RESULTS["env"] = {"provider": args.provider, "model": llm.model,
+                      "base_url": llm.base_url,
+                      "thinking": getattr(llm, "extra_body", {}).get("thinking", "default"),
                       "ts": time.strftime("%Y-%m-%d %H:%M:%S")}
-    print(f"模型: {llm.model} | 网关: {llm.base_url} | thinking: {llm.extra_body}")
+    print(f"模型: {llm.model} | 网关: {llm.base_url} | thinking: "
+          f"{getattr(llm, 'extra_body', {}).get('thinking', 'default')}")
 
     RESULTS["t1_latency"] = t1_connectivity(llm)
     RESULTS["t2_extraction"] = t2_extraction(llm)

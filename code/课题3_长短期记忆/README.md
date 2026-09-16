@@ -99,26 +99,26 @@ engine/base/compression 已补函数级注释。
 
 ## 四、接入真实组件（v0.4：GLM 已验证可用 ✅）
 
-### 4.1 GLM（智谱）——已接入并验证（23/23 项通过）
+### 4.1 DeepSeek（当前主用，已接入并验证 20/20 项通过）
 
 ```bash
 # 一次性配置：仓库根建 .env（已被 .gitignore 挡住，严禁提交）
-cp .env.example .env     # 填入 GLM_API_KEY（开放平台 → API Keys）
+cp .env.example .env     # 填入 DEEPSEEK_API_KEY
 ```
 
 ```python
 from memsys import get_llm, get_embedding
 
-llm = get_llm("glm")                    # 读 .env：GLM_MODEL（默认 glm-4.5-air）
-emb = get_embedding("glm")              # embedding-2（dim=1024）
+llm = get_llm("deepseek")               # 读 .env：DEEPSEEK_MODEL（默认 deepseek-flash）
+emb = get_embedding("glm")              # embedding-2（dim=1024）；无 GLM key 时回退 Mock
 ctl = MemoryController(llm=llm, embedding=emb,
                        factual=FactualStore("facts.db", emb),
                        experiential=ExperientialStore(emb, db_path="exps.db"))
 ```
 
-**验证**：`python -m eval.verify_llm`（连通/抽取对比/抽象/进化端到端/规划记忆引用率/embedding 语义分离度）。已内置：thinking 禁用（GLM-4.5 系）、```json 围栏容错、SSL 瞬断指数退避重试、embedding 内容缓存。
-**模型选型实测**：glm-4.5-air（默认，~1.3–2.4s）/ glm-4.5（旗舰 5.7s）/ glm-4-flash（1.8s）；glm-4.5-flash 稳态 20s+ 不推荐。
-**⚠️ 接真 embedding 后必做**：min_score/θ 按 `eval/ablation.py` E/S 协议重标定（探针数据与建议值见 `docs/13` §1.2）。
+**验证**：`python -m eval.verify_llm --provider deepseek --no-embed`（连通/抽取/抽象/摘要/进化端到端/规划记忆引用率——20/20）。已内置：```json 围栏容错、HTTP 指数退避重试。
+**实测（2026-09）**：deepseek-flash 延迟约 1.5–3.5s（规划生成约 25s，因输出较长）；可用模型 `deepseek-flash` / `deepseek-v4-pro`（/models 返回）。
+**⚠️ DeepSeek 官方无 embedding 接口**：向量仍用 GLM embedding-2（key 可用时）或 Mock；接真 embedding 后必须按 `eval/ablation.py` E/S 协议重标定 min_score/θ。
 
 ### 4.2 其它 OpenAI 兼容网关（智戎 / DeepSeek / 本地 vLLM）
 
