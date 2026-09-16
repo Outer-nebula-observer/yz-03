@@ -608,6 +608,7 @@ def test_review_fixes() -> None:
 
     # --- RF7 经验库 SQLite 持久化（重启不丢 + 召回史保留）---
     fd, path = tempfile.mkstemp(suffix=".db"); _os.close(fd)
+    s_a = s_b = None
     try:
         s_a = ExperientialStore(emb, db_path=path)
         e_a = new_entry(MemoryType.EXPERIENCE, "教训：持久化回归测试条目。", importance=1.5)
@@ -620,7 +621,14 @@ def test_review_fixes() -> None:
             "命中强化（S/recall_count）应随持久化保留"
         assert s_b.search("持久化 回归 测试"), "重启后语义检索可用"
     finally:
-        _os.unlink(path)
+        # 【Windows 修复】必须先关闭 SQLite 连接，否则删除被占用文件报
+        # PermissionError [WinError 32]（Linux 允许删除已打开文件，掩蔽了此问题）
+        if s_a is not None:
+            s_a.close()
+        if s_b is not None:
+            s_b.close()
+        if _os.path.exists(path):
+            _os.unlink(path)
 
     # --- RF8 controller.write_long_term：边界门控正规入口 ---
     ctl8 = MemoryController(factual=FactualStore(":memory:", emb),

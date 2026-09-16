@@ -165,3 +165,16 @@ class ExperientialStore(BaseLongTermStore):
                  entry.last_recalled_at, entry.id))
             self._db.commit()
         return None
+
+    def close(self) -> None:
+        """关闭底层 SQLite 连接并释放文件句柄。
+
+        【Windows 修复】落盘态持有一个打开的 sqlite 连接；测试/应用
+        删除临时 db 文件前必须先 close()——Windows 不允许删除被占用
+        文件（WinError 32），而 Linux/WSL 允许，导致同一测试在
+        Windows 上才会暴露。
+        """
+        with self._lock:
+            if self._db is not None:
+                self._db.close()
+                self._db = None

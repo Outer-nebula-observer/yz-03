@@ -210,6 +210,14 @@ class FactualStore(BaseLongTermStore):
                                                route="vector"))
         return results[:top_k]
 
+    def close(self) -> None:
+        """关闭 SQLite 连接，释放文件句柄（Windows 删除 db 前必须调用）。"""
+        with self._lock:
+            try:
+                self.conn.close()
+            except Exception:
+                pass
+
     def search_content_like(self, query: str, top_k: int = 5) -> List[RetrievedMemory]:
         """纯词法包含匹配（hybrid 的 sql 路专用）：content LIKE %query%。
 
