@@ -353,8 +353,9 @@ function renderMemoryList() {
   el.innerHTML = items.map(m => {
     const ret = Math.round(m.retention * 100);
     const sid = m.session_id || "";
+    const selCls = selectedMemId === m.id ? " selected" : "";
     return `
-    <div class="mem${sid && pastPlanIds.has(sid) ? " past" : ""}">
+    <div class="mem${sid && pastPlanIds.has(sid) ? " past" : ""}${selCls} clickable" onclick="selectMem('${m.id}')">
       <div class="head">
         <span>${esc(m.id)}</span>
         <span>重要性 ${m.importance} · 召回 ${m.recall_count}</span>
@@ -368,7 +369,73 @@ function renderMemoryList() {
         ${m.merged_from.length ? " · 合并自 " + m.merged_from.length + " 条" : ""}</div>
     </div>`;
   }).join("");
+  if (selectedMemId) renderForgettingCurve();   // 列表刷新后保持曲线面板同步
 }
+
+/* ---------------- 遗忘曲线（艾宾浩斯可视化） ---------------- */
+let selectedMemId = "";
+
+function selectMem(id) {
+  selectedMemId = (selectedMemId === id) ? "" : id;   // 再点取消选中
+  refreshMemory();
+}
+
+function renderForgettingCurve() {
+  const el = $("forget-curve");
+  const m = lastMemItems.find(x => x.id === selectedMemId);
+  if (!m) {
+    el.innerHTML = `<div class="empty">（点击右侧记忆库任意一条，查看其未来衰减曲线与“立即召回强化”对比）</div>`;
+    return;
+  }
+  const S = m.decay_strength || 1.0;
+  const t0 = m.last_recalled_at || m.timestamp || (Date.now() / 1000);
+  const days = Math.max(0, (Date.now() / 1000 - t0) / 86400);
+  const R0 = Math.max(0, Math.exp(-days / S));
+  const N = 60;                       // 未来 60 天
+  const W = 460, H = 150, PAD = 12;
+  const x = d => PAD + d / N * (W - 2 * PAD);
+  const y = r => H - PAD - Math.max(0, Math.min(1, r)) * (H - 2 * PAD);
+  // 当前衰减：从 R0 继续按 S 下降
+  let cur = "";
+  for (let d = 0; d <= N; d++) {
+    const r = Math.exp(-(days + d) / S);
+    cur += (d === 0 ? `M${x(d).toFixed(1)} ${y(r).toFixed(1)}`
+                    : `L${x(d).toFixed(1)} ${y(r).toFixed(1)}`);
+  }
+  // 立即召回后：S+1、t 重置，从 1.0 开始下降
+  let rec = "";
+  for (let d = 0; d <= N; d++) {
+    const r = Math.exp(-d / (S + 1));
+    rec += (d === 0 ? `M${x(d).toFixed(1)} ${y(r).toFixed(1)}`
+                    : `L${x(d).toFixed(1)} ${y(r).toFixed(1)}`);
+  }
+  const nowRed = `${x(0).toFixed(1)} ${y(R0).toFixed(1)}`;
+  const nowBlue = `${x(0).toFixed(1)} ${y(1).toFixed(1)}`;
+  const html = `
+  <div class="fc-head">
+    <span class="idchip">${esc(m.id)}</span>
+    <span>S=${S.toFixed(1)} · 距上次召回 ${days.toFixed(1)} 天 · 当前留存 ${(R0 * 100).toFixed(0)}%</span>
+    ${m.protected ? `<span class="badge">🔒 受保护（importance≥2 永不遗忘）</span>` : ""}
+  </div>
+  <svg viewBox="0 0 ${W} ${H}" width="100%" height="${H}" role="img" aria-label="遗忘曲线">
+    <line x1="${PAD}" y1="${y(1)}" x2="${W - PAD}" y2="${y(1)}" stroke="#666" stroke-dasharray="2 3"/>
+    <line x1="${PAD}" y1="${y(0.5)}" x2="${W - PAD}" y2="${y(0.5)}" stroke="#ccc" stroke-dasharray="2 3"/>
+    <line x1="${PAD}" y1="${y(0)}" x2="${W - PAD}" y2="${y(0)}" stroke="#ccc" stroke-dasharray="2 3"/>
+    <path d="${cur}" fill="none" stroke="#c0392b" stroke-width="2.2"/>
+    <path d="${rec}" fill="none" stroke="#2e86ab" stroke-width="2.2" stroke-dasharray="7 4"/>
+    <circle cx="${x(0)}" cy="${y(R0)}" r="4.5" fill="#c0392b"/>
+    <circle cx="${x(0)}" cy="${y(1)}" r="4.5" fill="#2e86ab"/>
+    <text x="${PAD}" y="${H - 2}" font-size="10" fill="#666">今天</text>
+    <text x="${W - PAD - 34}" y="${H - 2}" font-size="10" fill="#666">60 天后</text>
+  </svg>
+  <div class="fc-legend">
+    <span class="dot red"></span>不再召回（当前衰减，R=e^(-t/S)）
+    <span class="dot blue"></span>立即召回（S+1，t 重置）
+  </div>
+  ${m.op_history && m.op_history.length ? `<div class="dim">历史操作：${esc(m.op_history.join(" → "))}</div>` : ""}`;
+  el.innerHTML = html;
+}
+
 function switchTab(btn) {
   document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
   btn.classList.add("active");
@@ -602,6 +669,17 @@ async function demoTwoSessions() {
 }
 
 /* ---------------- 多轮战役（一键导入 · 逐步进行） ---------------- */
+let campDone = 0, campTotal = 0;
+
+function updateCampProgress() {
+  const wrap = $("camp-progress");
+  if (!campTotal) { wrap.style.display = "none"; return; }
+  wrap.style.display = "";
+  $("camp-progress-fill").style.width = Math.round(campDone / campTotal * 100) + "%";
+  $("camp-progress-text").textContent =
+    `战役进度 ${campDone}/${campTotal} 场${campDone >= campTotal ? "（已完成）" : "（进行中…）"}`;
+}
+
 function campaignDesc() {
   const sel = $("campaign-select");
   $("campaign-desc").textContent = sel.options[sel.selectedIndex]?.dataset.desc || "";
@@ -622,6 +700,7 @@ async function importCampaign() {
   const r = await api("/api/campaign", { action: "import", id });
   if (!r) return;
   $("campaign-desc").textContent = r.campaign.desc;
+  campDone = 0; campTotal = r.campaign.rounds; updateCampProgress();
   $("campaign-status").textContent =
     `✅ 已导入「${r.campaign.title}」——点击"逐步进行"逐场跑，或"自动跑完全部"。`;
   await refreshAll();
@@ -632,6 +711,7 @@ async function campaignNext() {
   if (!r) return;
   if (r.finished) { $("campaign-status").textContent = "🎉 全部场次已完成"; return; }
   if (r.round) {
+    campDone++; updateCampProgress();
     await refreshAll();                 // 更新场次历史/事件/记忆库/stepper（含 pastPlanIds）
     renderHits(r.hits);                 // 本场命中（含往场徽标）
     renderReport(r.report);             // 本场进化报告
@@ -652,6 +732,7 @@ async function campaignRunAll() {
     const r = await api("/api/campaign", { action: "next" });
     if (!r) return;
     if (r.finished) break;
+    if (r.round) { campDone++; updateCampProgress(); }
     await sleep(650);
     if (r.done) {
       await refreshAll();

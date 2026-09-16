@@ -54,6 +54,10 @@
         <button class="primary" onclick="campaignNext()">▶ 逐步进行（下一场）</button>
         <button class="chain" onclick="campaignRunAll()">⏭ 自动跑完全部</button>
       </div>
+      <div class="camp-progress" id="camp-progress" style="display:none">
+        <div class="bar"><i class="fill" id="camp-progress-fill"></i></div>
+        <div class="dim" id="camp-progress-text"></div>
+      </div>
       <div class="scene-desc" id="campaign-status"></div>
     </div>
 
@@ -174,6 +178,10 @@
         <button class="primary sm" onclick="doSearch()">检</button>
       </div>
       <div id="memory-list" class="memlist"></div>
+    </div>
+    <div class="card grow">
+      <h2>🧠 遗忘曲线 <span class="hint">（艾宾浩斯 R=e^(-t/S) · 点击记忆查看）</span></h2>
+      <div id="forget-curve"><div class="empty">（点击右侧记忆库任意一条，查看其未来衰减曲线与“立即召回强化”对比）</div></div>
     </div>
     <div class="card">
       <h2>🛡 边界审计 <span class="hint">（boundary 模块）</span></h2>

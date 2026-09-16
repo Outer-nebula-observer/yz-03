@@ -418,6 +418,9 @@ def api_memory(params: dict) -> dict:
             "id": e.id, "content": e.content, "importance": e.importance,
             "recall_count": e.recall_count,
             "retention": round(e.retention(), 4),
+            "decay_strength": e.decay_strength,      # 遗忘曲线 S（强度）
+            "last_recalled_at": e.last_recalled_at,  # 遗忘曲线 t 起点（上次召回）
+            "protected": e.importance >= 2.0,        # 保护线（永不遗忘）
             "source": e.source, "session_id": e.session_id,
             "timestamp": e.timestamp,
             "metadata": e.metadata, "merged_from": e.merged_from,
