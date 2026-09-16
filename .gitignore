@@ -37,6 +37,9 @@ paper_code/*/*/
 *.env
 secrets/
 
+# ===== Office 临时锁文件（~$ 前缀）=====
+~$*
+
 # ===== IDE / 系统文件 =====
 .idea/
 .vscode/
