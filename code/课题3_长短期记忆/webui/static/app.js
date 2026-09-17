@@ -760,6 +760,13 @@ async function seed() { await api("/api/seed", {}); await refreshAll(); }
 async function resetAll() { await api("/api/reset", {}); location.reload(); }
 
 /* ---------------- 工具 ---------------- */
+/* 轻量加粗渲染：先把文本 HTML 转义，再把“**...**”渲染为 <b>...</b>
+   （WebUI 中 desc/状态文本来自服务端，含 Markdown 加粗标记；
+     用 textContent 会显示字面星号，这里统一渲染） */
+function md(text) {
+  return esc(text || "").replace(/\*\*(.+?)\*\*/g, "<b>$1</b>");
+}
+
 function esc(s) {
   return String(s ?? "").replace(/[&<>"']/g,
     c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
@@ -810,7 +817,7 @@ async function fillScenario(force = false, sceneId = null) {
     row.querySelector(".q-route").value = q.route;
     row.querySelector(".q-text").value = q.query_text;
   });
-  $("scene-desc").textContent = sc.desc;
+  $("scene-desc").innerHTML = md(sc.desc);
 }
 
 /* ---------------- 自动演示 ---------------- */
@@ -892,13 +899,17 @@ function updateCampProgress() {
 }
 
 function campaignDesc() {
-  const sel = $("campaign-select");
-  $("campaign-desc").textContent = sel.options[sel.selectedIndex]?.dataset.desc || "";
+  const id = $("campaign-select").value;
+  const c = campaignOptions.find(x => x.id === id);
+  $("campaign-desc").innerHTML = md(c ? c.desc : "");
 }
+
+let campaignOptions = [];
 
 async function loadCampaigns() {
   const r = await api("/api/campaigns");
   if (!r) return;
+  campaignOptions = r.campaigns || [];
   const sel = $("campaign-select");
   sel.innerHTML = r.campaigns.map(c =>
     `<option value="${c.id}" data-desc="${esc(c.desc)}">${esc(c.title)}（${c.rounds} 场）</option>`).join("");
@@ -910,7 +921,7 @@ async function importCampaign() {
   if (!id) { showErr("请先选择战役"); return; }
   const r = await api("/api/campaign", { action: "import", id });
   if (!r) return;
-  $("campaign-desc").textContent = r.campaign.desc;
+  $("campaign-desc").innerHTML = md(r.campaign.desc);
   campDone = 0; campTotal = r.campaign.rounds; updateCampProgress();
   $("campaign-status").textContent =
     `✅ 已导入「${r.campaign.title}」——点击"逐步进行"逐场跑，或"自动跑完全部"。`;
