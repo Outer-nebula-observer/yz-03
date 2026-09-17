@@ -369,11 +369,32 @@ function renderMemoryList() {
         ${m.merged_from.length ? " · 合并自 " + m.merged_from.length + " 条" : ""}</div>
     </div>`;
   }).join("");
+  renderMemHealth();                            // 库健康度分布条（视觉进度）
   if (selectedMemId) renderForgettingCurve();   // 列表刷新后保持曲线面板同步
 }
 
 /* ---------------- 遗忘曲线（艾宾浩斯可视化） ---------------- */
 let selectedMemId = "";
+
+function renderMemHealth() {
+  const el = $("mem-health");
+  if (!lastMemItems.length) {
+    el.querySelectorAll("i").forEach(i => i.style.width = "0%");
+    $("mem-health-text").textContent = "（空库）";
+    return;
+  }
+  const prot = lastMemItems.filter(m => m.protected).length;
+  const below = lastMemItems.filter(m => !m.protected && m.retention < 0.3).length;
+  const healthy = lastMemItems.length - prot - below;
+  const pct = n => (n / lastMemItems.length * 100).toFixed(1) + "%";
+  $("fh-health").style.width = pct(healthy);
+  $("fh-warn").style.width = pct(prot ? 0 : 0);   // 占位清零（健康条三段：健康/保护/低于线）
+  $("fh-warn").style.width = pct(prot);
+  $("fh-dead").style.width = pct(below);
+  $("mem-health-text").textContent =
+    `当前库（${lastMemItems[0].type === "fact" ? "事实" : "经验"}）：` +
+    `健康 ${healthy} · 受保护 ${prot} · 已低于遗忘线 ${below}`;
+}
 
 function selectMem(id) {
   selectedMemId = id;
@@ -545,7 +566,7 @@ function renderDrawerForgotten() {
       <div>${esc(f.content)}</div>
       <div class="dim">原因：${esc(f.reason)} · 原重要性 ${f.importance} · 当时留存 ${Math.round(f.retention * 100)}%${f.source ? " · 来源 " + esc(f.source) : ""}</div>
     </div>`).join("")
-    : `<div class="empty">（暂无遗忘记录——可点右上“⏩ 模拟时间+遗忘”或导入“记忆生命周期”案例）</div>`;
+    : `<div class="empty">（暂无遗忘记录——可点右上“模拟老化+遗忘”或导入“记忆生命周期”案例）</div>`;
 }
 
 async function apiForgetDemo() {

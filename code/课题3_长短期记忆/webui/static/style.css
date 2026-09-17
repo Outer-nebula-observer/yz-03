@@ -301,3 +301,18 @@ button.chain:hover { background: #5a4b82; }
 .d-forgotten-item { border: 1px solid #e6d9c8; background: #fffaf3; border-radius: 6px;
   padding: 8px 10px; margin-bottom: 8px; font-size: 12px; }
 .d-forgotten-item .f-head { display: flex; justify-content: space-between; font-size: 11px; color: var(--ink2); }
+
+/* ---------------- v0.7 排版美化：按钮/进度/健康条 ---------------- */
+.btnrow { align-items: center; }
+.btnrow button { white-space: nowrap; }
+.btnrow button, .drawer-opener button { min-height: 30px; padding: 5px 12px; }
+.camp-progress .bar { height: 10px; border-radius: 5px; }
+.camp-progress .bar .fill { background: linear-gradient(90deg, #6b5b95, #2e86ab); }
+.mem-health { margin: 6px 0 4px; }
+.mem-health .health-track { display: flex; height: 8px; background: #e9edf2;
+  border-radius: 4px; overflow: hidden; }
+.mem-health .f-health { background: #27ae60; }
+.mem-health .f-warn { background: #f39c12; }
+.mem-health .f-dead { background: #c0392b; }
+.mem-health .dim { font-size: 11px; color: var(--ink2); margin-top: 3px; }
+.zone-tab { white-space: nowrap; }

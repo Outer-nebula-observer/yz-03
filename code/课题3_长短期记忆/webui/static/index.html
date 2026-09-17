@@ -32,33 +32,33 @@
 <main>
   <!-- ══════════ 左栏：📥 输入区 ══════════ -->
   <section class="col col-left">
-    <div class="zone-label in">📥 输入区 <span>goal / 约束 / 查询 / 消息 / 复盘</span></div>
+    <div class="zone-label in">输入区 <span>goal / 约束 / 查询 / 消息 / 复盘</span></div>
     <div class="zone-tabs">
       <button class="zone-tab active" data-zone="left" data-group="scenes"
-              onclick="switchZone('left','scenes')">🎬 场景·战役</button>
+              onclick="switchZone('left','scenes')">场景·战役</button>
       <button class="zone-tab" data-zone="left" data-group="console"
-              onclick="switchZone('left','console')">🕹 操作台</button>
+              onclick="switchZone('left','console')">操作台</button>
     </div>
 
     <div class="card scene-card" data-group="scenes">
-      <h2>🎬 演示场景（自动填充样例）</h2>
+      <h2>演示场景（自动填充样例）</h2>
       <label>选择场景 <select id="scene-select" onchange="fillScenario()"></select></label>
       <div class="scene-desc" id="scene-desc">选择场景后自动填充下方全部表单；「自动演示」将代点 ①→⑦ 全部按钮。</div>
       <div class="btnrow">
-        <button class="ghost" onclick="fillScenario(true)">↺ 重新填充</button>
-        <button class="warn" onclick="autoDemo()">▶ 自动演示全流程</button>
-        <button class="chain" onclick="demoTwoSessions()">⏩ 连续两场（沉淀→复用）</button>
+        <button class="ghost" onclick="fillScenario(true)">重新填充</button>
+        <button class="warn" onclick="autoDemo()">自动演示</button>
+        <button class="chain" onclick="demoTwoSessions()">连续两场</button>
       </div>
     </div>
 
     <div class="card campaign-card" data-group="scenes">
-      <h2>⚔️ 多轮战役案例 <span class="hint">（一键导入 · 逐步进行）</span></h2>
+      <h2>多轮战役案例 <span class="hint">（一键导入 · 逐步进行）</span></h2>
       <label>选择战役 <select id="campaign-select" onchange="campaignDesc()"></select></label>
       <div class="scene-desc" id="campaign-desc">加载中…</div>
       <div class="btnrow">
-        <button class="warn" onclick="importCampaign()">📥 一键导入战役</button>
-        <button class="primary" onclick="campaignNext()">▶ 逐步进行（下一场）</button>
-        <button class="chain" onclick="campaignRunAll()">⏭ 自动跑完全部</button>
+        <button class="warn" onclick="importCampaign()">一键导入</button>
+        <button class="primary" onclick="campaignNext()">下一场</button>
+        <button class="chain" onclick="campaignRunAll()">自动全部</button>
       </div>
       <div class="camp-progress" id="camp-progress" style="display:none">
         <div class="bar"><i class="fill" id="camp-progress-fill"></i></div>
@@ -76,16 +76,16 @@
       <div class="queries" id="query-list"></div>
       <div class="btnrow">
         <button class="ghost" onclick="addQueryRow()">+ 查询</button>
-        <button class="primary" onclick="startSession()">开场 ①②</button>
+        <button class="primary" onclick="startSession()">开场</button>
       </div>
     </div>
 
     <div class="card stage-card" data-group="console">
-      <h2>🎯 规划阶段推进 <span class="hint">（MDMP 七步 · 阶段化记忆供给）</span></h2>
+      <h2>规划阶段推进 <span class="hint">（MDMP 七步 · 阶段化记忆供给）</span></h2>
       <div class="scene-desc" id="stage-desc">点击阶段即进入：按该阶段需要自动生成查询并检索（阶段对口记忆亲和加分）——记忆供给由"规划进行到哪一步"驱动，而非任务字面。</div>
       <div class="stagebar" id="stage-bar"></div>
       <div class="btnrow">
-        <button class="chain" data-need-session onclick="autoStageWalk()">⏩ 自动走完七阶段</button>
+        <button class="chain" data-need-session onclick="autoStageWalk()">自动七阶段</button>
       </div>
     </div>
 
@@ -93,8 +93,8 @@
       <h2>③④ 手动检索装载 <span class="hint">（执行表单/场景查询）</span></h2>
       <label>top_k <input id="topk" type="number" value="3" min="1" max="10" style="width:70px"></label>
       <div class="btnrow">
-        <button class="primary" data-need-session onclick="retrieve()">检索并装载 ③④</button>
-        <button class="ghost" onclick="loadContext()">刷新上下文 ⑤</button>
+        <button class="primary" data-need-session onclick="retrieve()">检索装载</button>
+        <button class="ghost" onclick="loadContext()">刷新上下文</button>
       </div>
     </div>
 
@@ -110,7 +110,7 @@
       <label>复盘文本（含"教训/经验"关键词行将被抽取） <textarea id="review" rows="3">复盘：任务部分达成。
 教训：夜间突袭未前置电子压制，接敌后通信被干扰。
 经验：突破口形成后预备队投入应提前 10 分钟。</textarea></label>
-      <button class="danger" data-need-session onclick="closeSession()">复盘并进化 ⑥⑦</button>
+      <button class="danger" data-need-session onclick="closeSession()">复盘进化</button>
     </div>
 
     <div class="card" data-group="scenes">
@@ -124,18 +124,18 @@
 
   <!-- ══════════ 中栏：⚙️ 运行过程（输入→产出 + 短期记忆构成） ══════════ -->
   <section class="col col-mid">
-    <div class="zone-label run">⚙️ 运行过程 · 短期记忆 <span>输入→产出实时流水 · 本场工作记忆构成</span></div>
+    <div class="zone-label run">运行过程 · 短期记忆 <span>输入→产出实时流水 · 本场工作记忆构成</span></div>
 
     <!-- 跨场次复用横幅：长期记忆多轮生效的直观提示 -->
     <div class="banner reuse" id="reuse-banner" style="display:none"></div>
 
     <div class="card grow">
-      <h2>📟 运行事件流 <span class="hint">（每次输入 → 每次产出，实时记录）</span></h2>
+      <h2>运行事件流 <span class="hint">（每次输入 → 每次产出，实时记录）</span></h2>
       <div id="events" class="events"><div class="empty">（暂无事件——左侧任意操作都会在这里留下输入/产出记录）</div></div>
     </div>
 
     <div class="card grow">
-      <h2>🧠 短期记忆 · 本场工作记忆构成 <span class="hint">（场生场灭 · 约束永不压缩）</span></h2>
+      <h2>短期记忆 · 本场工作记忆构成 <span class="hint">（场生场灭 · 约束永不压缩）</span></h2>
       <div id="wm" class="wm"><div class="empty">（无场次——开场后这里实时展示：目标 / 约束 / 装载记忆 / FIFO 消息 / 容量水位）</div></div>
     </div>
 
@@ -148,38 +148,46 @@
 
   <!-- ══════════ 右栏：📦 产出 · 长期记忆（跨场次沉淀） ══════════ -->
   <section class="col col-right">
-    <div class="zone-label out">📦 产出 · 长期记忆 <span>检索命中 / 进化沉淀 / 场次历史 / 记忆库</span></div>
+    <div class="zone-label out">产出 · 长期记忆 <span>检索命中 / 进化沉淀 / 场次历史 / 记忆库</span></div>
     <div class="zone-tabs">
       <button class="zone-tab active" data-zone="right" data-group="result"
-              onclick="switchZone('right','result')">🎯 本场结果</button>
+              onclick="switchZone('right','result')">本场结果</button>
       <button class="zone-tab" data-zone="right" data-group="memory"
-              onclick="switchZone('right','memory')">📚 长期记忆</button>
+              onclick="switchZone('right','memory')">长期记忆</button>
       <button class="zone-tab" data-zone="right" data-group="audit"
-              onclick="switchZone('right','audit')">🗂 历史·审计</button>
+              onclick="switchZone('right','audit')">历史·审计</button>
     </div>
     <div class="drawer-opener">
-      <button class="ghost" onclick="openMemoryDrawer()">📑 记忆详情（右侧抽屉）</button>
-      <button class="ghost warn" onclick="apiForgetDemo()">⏩ 模拟时间+遗忘（30天）</button>
+      <button class="ghost" onclick="openMemoryDrawer()">记忆详情</button>
+      <button class="ghost warn" onclick="apiForgetDemo()">模拟老化+遗忘</button>
       <span class="dim" id="forget-demo-msg"></span>
     </div>
 
     <div class="card grow" data-group="result">
-      <h2>🎯 检索命中 <span class="hint">（带溯源 · 创新点 E）</span><span class="hint" id="hits-stage"></span></h2>
+      <h2>检索命中 <span class="hint">（带溯源 · 创新点 E）</span><span class="hint" id="hits-stage"></span></h2>
       <div id="hits" class="hits"><div class="empty">（尚未检索）</div></div>
     </div>
 
     <div class="card" data-group="result">
-      <h2>🧬 进化报告 <span class="hint">（本场复盘产出）</span></h2>
+      <h2>进化报告 <span class="hint">（本场复盘产出）</span></h2>
       <div id="report" class="report"><div class="empty">（尚未复盘）</div></div>
     </div>
 
     <div class="card" data-group="audit">
-      <h2>🗂 场次历史 <span class="hint">（多轮沉淀主线：每场留下什么、复用什么）</span></h2>
+      <h2>场次历史 <span class="hint">（多轮沉淀主线：每场留下什么、复用什么）</span></h2>
       <div id="sessions" class="sessions"><div class="empty">（暂无场次——开场后本场会出现在这里）</div></div>
     </div>
 
     <div class="card grow" data-group="memory">
-      <h2>📚 长期记忆库 <span class="hint">（跨场次持久 · 艾宾浩斯衰减）</span></h2>
+      <h2>长期记忆库 <span class="hint">（跨场次持久 · 艾宾浩斯衰减）</span></h2>
+      <div id="mem-health" class="mem-health">
+        <div class="bar health-track">
+          <i class="f-health" id="fh-health"></i>
+          <i class="f-warn" id="fh-warn"></i>
+          <i class="f-dead" id="fh-dead"></i>
+        </div>
+        <div class="dim" id="mem-health-text"></div>
+      </div>
       <div class="tabs">
         <button class="tab active" data-type="fact" onclick="switchTab(this)">事实库</button>
         <button class="tab" data-type="experience" onclick="switchTab(this)">经验库</button>
@@ -199,11 +207,11 @@
       <div id="memory-list" class="memlist"></div>
     </div>
     <div class="card grow" data-group="memory">
-      <h2>🧠 遗忘曲线 <span class="hint">（艾宾浩斯 R=e^(-t/S) · 点击记忆查看）</span></h2>
+      <h2>遗忘曲线 <span class="hint">（艾宾浩斯 R=e^(-t/S) · 点击记忆查看）</span></h2>
       <div id="forget-curve"><div class="empty">（点击右侧记忆库任意一条，查看其未来衰减曲线与“立即召回强化”对比）</div></div>
     </div>
     <div class="card" data-group="audit">
-      <h2>🛡 边界审计 <span class="hint">（boundary 模块）</span></h2>
+      <h2>边界审计 <span class="hint">（boundary 模块）</span></h2>
       <div id="boundary-stats" class="metric">放行 0 · 拒绝 0</div>
       <div id="audit" class="audit"><div class="empty">（暂无决策）</div></div>
     </div>
@@ -214,13 +222,13 @@
 <div id="drawer-mask" class="drawer-mask" style="display:none" onclick="closeMemoryDrawer()"></div>
 <aside id="memory-drawer" class="drawer" aria-label="记忆详情抽屉">
   <div class="drawer-head">
-    <b>📑 记忆详情</b>
+    <b>记忆详情</b>
     <button class="ghost" onclick="closeMemoryDrawer()">✕</button>
   </div>
   <div class="drawer-tabs">
-    <button class="dtab active" data-panel="overview" onclick="drawerTab('overview')">🗂 总览</button>
-    <button class="dtab" data-panel="history" onclick="drawerTab('history')">🧬 单条历史</button>
-    <button class="dtab" data-panel="forgotten" onclick="drawerTab('forgotten')">⚰ 遗忘日志</button>
+    <button class="dtab active" data-panel="overview" onclick="drawerTab('overview')">总览</button>
+    <button class="dtab" data-panel="history" onclick="drawerTab('history')">单条历史</button>
+    <button class="dtab" data-panel="forgotten" onclick="drawerTab('forgotten')">遗忘日志</button>
   </div>
   <div class="drawer-body">
     <div class="dpanel" data-panel="overview">
@@ -231,7 +239,7 @@
       <div id="d-history" class="d-history"><div class="empty">（点击“总览”中的某条记忆查看历史）</div></div>
     </div>
     <div class="dpanel" data-panel="forgotten" hidden>
-      <div id="d-forgotten" class="memlist drawer-list"><div class="empty">（暂无遗忘记录——可点“⏩ 模拟时间+遗忘”或跑记忆生命周期案例）</div></div>
+      <div id="d-forgotten" class="memlist drawer-list"><div class="empty">（暂无遗忘记录——可点“模拟老化+遗忘”或跑记忆生命周期案例）</div></div>
     </div>
   </div>
 </aside>
