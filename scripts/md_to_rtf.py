@@ -237,7 +237,7 @@ def convert(md_text: str) -> str:
         out.append(make_para(" ".join(para_lines), style="body"))
         continue
 
-    body = "\n".join(out)
+    body = make_cover() + "\n" + "\n".join(out)
     # 最后统一把上标占位符替换为 RTF 上标控制字
     body = re.sub(r"@@S([^@]+)@@", r"\\super \1 \\nosupersub ", body)
 
@@ -280,6 +280,45 @@ def main() -> int:
     print(f"[完成] {final} 已生成（{size} 字节），采用《本科毕业论文撰写规范》排版")
     return 0
 
+
+
+
+def make_cover() -> str:
+    """生成封面（参考附件5版式）：编号/密级 + 大标题 + 课题信息 + 落款。
+
+    占位信息（姓名/学号/日期）可在生成后于 Word 中直接填写。
+    """
+    C = []
+    # 顶部编号/密级（小五宋体，左对齐）
+    C.append("{\\pard\\ql\\f0\\fs21 "
+             "编号：\\ul 　　　　　　　　\\ul0 "
+             "密级：\\ul 　　　　　　　　\\ul0\\par}")
+    C.append("\\par\\par\\par")
+    # 大标题（一号黑体居中）
+    C.append("{\\pard\\qc\\f3\\fs44\\b 实  验  报  告\\b0\\par}")
+    C.append("\\par\\par")
+    # 课题名称（三号黑体居中）
+    C.append("{\\pard\\qc\\f3\\fs32\\b "
+             "面向作战规划智能体的可进化外部记忆系统\\b0\\par}")
+    C.append("{\\pard\\qc\\f0\\fs24 设计、实现与验证\\par}")
+    C.append("\\par\\par\\par\\par")
+    # 信息栏（四号宋体居中）
+    C.append("{\\pard\\qc\\f0\\fs28 "
+             "课题名称：面向作战规划智能体的可进化外部记忆系统\\par}")
+    C.append("\\par")
+    C.append("{\\pard\\qc\\f0\\fs28 "
+             "小组组员：\\ul 姓名一　　　　姓名二　　\\ul0\\par}")
+    C.append("{\\pard\\qc\\f0\\fs28 "
+             "学　　号：\\ul 　　　　　　　　　　　　　　\\ul0\\par}")
+    C.append("{\\pard\\qc\\f0\\fs28 "
+             "所属单位：国防科技大学\\par}")
+    C.append("{\\pard\\qc\\f0\\fs28 "
+             "指导教师：\\ul 　　　　　　　　　　　　　　\\ul0\\par}")
+    C.append("\\par\\par\\par\\par")
+    # 落款
+    C.append("{\\pard\\qc\\f3\\fs28 国防科技大学\\par}")
+    C.append("{\\pard\\qc\\f0\\fs24 二〇二五年　月　日\\par}")
+    return "\\par\\par\n".join(C)
 
 if __name__ == "__main__":
     sys.exit(main())
