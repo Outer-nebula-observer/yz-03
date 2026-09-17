@@ -255,7 +255,10 @@ def convert(md_text: str) -> str:
         "\\pard\\f0\\fs24\n"
     )
     footer = "\n}"
-    return header + body + footer
+    rtf = header + body + footer
+    # 兜底转义：封面等手写中文若未转义，统一转为 \uN（否则 Word 按本地代码页读到乱码）
+    rtf = re.sub(r"[^\x00-\x7f]", lambda m: escape(m.group(0)), rtf)
+    return rtf
 
 
 def main() -> int:
