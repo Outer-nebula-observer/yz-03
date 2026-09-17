@@ -14,6 +14,7 @@ md_to_rtf — 零依赖 Markdown → Word 可读 .doc（RTF 内容）转换
 """
 from __future__ import annotations
 
+import os
 import re
 import sys
 from typing import List, Optional
@@ -206,6 +207,10 @@ def convert(md_text: str) -> str:
             i += 1
             continue
 
+        if re.match(r"^\[\d+\]\s+", stripped):
+            out.append(make_para(stripped, style="ref"))
+            i += 1
+            continue
         out.append(make_para(stripped, style="body"))
         i += 1
 
@@ -235,10 +240,19 @@ def main() -> int:
     with open(src, encoding="utf-8") as f:
         md = f.read()
     rtf = convert(md)
-    with open(dst, "w", encoding="utf-8", errors="replace") as f:
-        f.write(rtf)
+    try:
+        with open(dst, "w", encoding="utf-8", errors="replace") as f:
+            f.write(rtf)
+        final = dst
+    except PermissionError:
+        # Windows 下目标可能被 Word 打开，自动写到 _new.doc
+        base, ext = os.path.splitext(dst)
+        final = base + "_new" + ext
+        with open(final, "w", encoding="utf-8", errors="replace") as f:
+            f.write(rtf)
+        print(f"[警告] {dst} 被占用，已生成替代文件：{final}")
     size = len(rtf.encode("utf-8"))
-    print(f"[完成] {dst} 已生成（{size} 字节），采用《本科毕业论文撰写规范》排版")
+    print(f"[完成] {final} 已生成（{size} 字节），采用《本科毕业论文撰写规范》排版")
     return 0
 
 
