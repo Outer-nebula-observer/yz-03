@@ -638,15 +638,26 @@ async function refreshEvents() {
         <b>${esc(e.title)}</b><span class="d-line"></span></div>`;
     }
     const [tag, cls] = kindMeta[e.kind] || ["·", "sys"];
-    return `<div class="evt ${cls}">
+    const hasD = !!e.detail;
+    return `<div class="evt ${cls}${hasD ? " clickable" : ""}">
       <span class="t">${fmtTime(e.t)}</span>
       <span class="tag ${cls}">${tag}</span>
       <span class="stepn">${esc(e.step)}</span>
-      <div class="bd"><b>${esc(e.title)}</b>${e.detail ? `<div class="d">${esc(e.detail)}</div>` : ""}</div>
+      <span class="chev">${hasD ? "+" : ""}</span>
+      <div class="bd"><b>${esc(e.title)}</b>${hasD ? `<div class="d">${esc(e.detail)}</div>` : ""}</div>
     </div>`;
   }).join("");
   const el = $("events");
   el.scrollTop = el.scrollHeight;
+}
+
+/* ---------------- 事件流：点击展开详情 ---------------- */
+function eventsClick(ev) {
+  const row = ev.target.closest(".evt.clickable");
+  if (!row) return;
+  row.classList.toggle("open");
+  const chev = row.querySelector(".chev");
+  if (chev) chev.textContent = row.classList.contains("open") ? "−" : "+";
 }
 
 /* ---------------- 场次历史（多轮沉淀主线） ---------------- */
@@ -911,5 +922,6 @@ window.addEventListener("DOMContentLoaded", async () => {
   await loadCampaigns(); // 多轮战役案例加载
   switchZone("left", "scenes");    // 左栏默认：场景·战役
   switchZone("right", "result");   // 右栏默认：本场结果
+  $("events").addEventListener("click", eventsClick);   // 事件流点击展开
   await refreshAll();
 });

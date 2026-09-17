@@ -316,3 +316,13 @@ button.chain:hover { background: #5a4b82; }
 .mem-health .f-dead { background: #c0392b; }
 .mem-health .dim { font-size: 11px; color: var(--ink2); margin-top: 3px; }
 .zone-tab { white-space: nowrap; }
+
+/* ---------------- v0.7 事件流：折叠/展开详情 ---------------- */
+.evt.clickable { cursor: pointer; }
+.evt .chev { width: 16px; text-align: center; color: var(--accent);
+  font-weight: 700; flex-shrink: 0; margin-top: 1px; }
+.evt .d { display: none; font-size: 11px; color: var(--ink2); margin-top: 6px;
+  white-space: pre-wrap; word-break: break-word; background: #fafbfc;
+  border-left: 2px solid var(--accent); padding: 6px 8px; border-radius: 4px; }
+.evt.open .d { display: block; }
+.evt.open .bd b { color: var(--accent); }
