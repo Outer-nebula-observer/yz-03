@@ -120,23 +120,50 @@ def main() -> int:
     ap.add_argument("--real", action="store_true", help="用 DeepSeek 真模型生成规划/抽取")
     ap.add_argument("--embed-glm", action="store_true",
                     help="尝试用 GLM embedding（Key 失效则自动回退 Mock）")
+    ap.add_argument("--campaign", default="heights_battle",
+                    choices=list(CAMPAIGNS.keys()),
+                    help=f"选择战役（默认 heights_battle；可选 {list(CAMPAIGNS.keys())}）")
+    ap.add_argument("--simulate-days", type=int, default=0,
+                    help="每场结束后模拟时间推进 N 天并触发遗忘（memory_lifecycle 案例默认按数据内 simulate_days 执行）")
     ap.add_argument("--json", default="", help="结果落盘路径（.json）")
     args = ap.parse_args()
 
-    camp = CAMPAIGNS["heights_battle"]
+    camp = CAMPAIGNS[args.campaign]
     print("=" * 76)
     print(f"多轮作战案例：{camp['title']}")
     print("=" * 76)
     ctl = build_controller(args.real, args.embed_glm)
     seed_campaign(ctl)
+    aging_floor = args.simulate_days
     mode = "DeepSeek(real)" if args.real else "Mock"
     print(f"[LLM={mode}] 预置战役种子：事实 {len(SEED_FACTS)} 条 / 经验 {len(SEED_EXPS)} 条\n")
 
     results = []
+    def _aging(days):
+        import math
+        now = time.time()
+        moved = 0
+        for st in (ctl.factual, ctl.experiential):
+            for cid in st.candidates():
+                e = st.get(cid)
+                if e is None:
+                    continue
+                base = e.last_recalled_at or e.timestamp
+                e.last_recalled_at = (base or now) - days * 86400
+                e.timestamp = e.timestamp - days * 86400
+                st.update(e)
+                moved += 1
+        forgot = ctl.evolution.forget(now=now)
+        return {"days": days, "moved": moved, "forgot": len(forgot)}
+
     for i, rd in enumerate(camp["rounds"], start=1):
         t0 = time.time()
         r = run_one_round(ctl, rd)
         r["elapsed_s"] = round(time.time() - t0, 1)
+        # 场间模拟时间推进（优先轮次内 simulate_days，其次 --simulate-days）
+        sim = rd.get("simulate_days") or (aging_floor or 0)
+        if sim:
+            r["aging"] = _aging(sim)
         results.append(r)
         print("-" * 76)
         print(f"① {r['plan_id']}｜{r['title']}")
@@ -153,7 +180,9 @@ def main() -> int:
         else:
             print("   ♻️ 无往场复用（本场" + ("应无" if not rd.get("expect_reuse") else "有预期但未命中——请检查检索阈值/查询") + ")")
         print(f"   ⑤ 规划输出：{r['plan_output']}…")
-        print(f"   ⑦ 进化报告：{r['report']}")
+        print(f"   ⑦ 进化报告：{r['report']}"
+              + (f" ⏩ 模拟 {r['aging']['days']} 天→遗忘 {r['aging']['forgot']} 条"
+                 if r.get("aging") else ""))
         print(f"   库规模：事实 {r['store']['facts']} / 经验 {r['store']['exps']} "
               f"（本轮耗时 {r['elapsed_s']}s）")
 
