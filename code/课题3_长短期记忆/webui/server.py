@@ -274,7 +274,11 @@ def api_session_retrieve(body: dict) -> dict:
     STATE.add_event("input", "③", f"输入：执行查询列表（{n_queries} 条 × top_k={top_k}）",
                     "；".join(f"{q.q_id}[{q.route}→{q.target}] {q.query_text or q.intent}"
                               for q in wm.slot.query_list))
-    hits = STATE.ctl.retrieve_and_load(top_k=top_k)
+    STATE.ctl.retrieve_and_load(top_k=top_k)
+    # 【跨场次复用修复】展示与复用统计基于本次检索的**原始命中**（含已在本场
+    # 由阶段查询先装载的往场记忆），而不是"新装载"列表——否则场景查询再命中
+    # 同一教训时被去重隐藏，界面会错误显示"第二场无命中/无复用"。
+    hits = STATE.ctl.last_query_hits
     STATE.last_hits = hits
     # —— 跨场次复用统计：命中里有多少来自**往场沉淀**（多轮长期性的直观证据） ——
     past = STATE.past_plan_ids()

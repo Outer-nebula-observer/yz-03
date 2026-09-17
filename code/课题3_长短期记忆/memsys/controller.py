@@ -69,6 +69,11 @@ class MemoryController:
         # 会话级检索统计（评估：每场命中多少条、走了哪些路）
         self.session_stats: Dict[str, int] = {"retrieved": 0, "loaded": 0,
                                               "compressed": 0}
+        # 【跨场次复用修复】本次检索调用中所有查询的**原始命中**（按 id 去重，
+        # 不因"本场已装载"而剔除）。WebUI 的复用统计与命中展示基于它——
+        # 否则阶段查询先装载了往场教训，后续场景查询再命中时被去重隐藏，
+        # 界面显示"第二场无命中/无复用"。
+        self.last_query_hits: List[RetrievedMemory] = []
         # 阶段命中缓存：{stage_id: hits}——同阶段重复推进不重复检索
         # （防止 UI 重复点击把 recall_count/艾宾浩斯 S 刷高，B2 同款精神）
         self._stage_hits: Dict[str, List[RetrievedMemory]] = {}
@@ -99,6 +104,7 @@ class MemoryController:
         if self._wm is None:
             raise RuntimeError("先 start_session() 再检索")
         all_hits: List[RetrievedMemory] = []
+        raw_by_id: Dict[str, RetrievedMemory] = {}   # 本次所有查询的原始命中（去重）
         for q in self._wm.slot.query_list:
             if stage is not None and q.stage != stage:
                 continue
@@ -109,6 +115,8 @@ class MemoryController:
                 continue
             hits = self.retriever.retrieve(q, top_k=top_k)
             for h in hits:
+                # 原始命中观测：不管是否已装载都先记起来（供复用统计/展示）
+                raw_by_id.setdefault(h.entry.id, h)
                 # 【评审修复·跨查询去重】多条查询命中同一记忆时只装载/计数
                 # 一次（此前 demo P002 中同一条事实出现两次、retrieved 虚计）
                 if h.entry.id in self._wm.slot.loaded_memory:
@@ -122,6 +130,8 @@ class MemoryController:
                 all_hits.append(h)
                 self.session_stats["retrieved"] += 1
                 self.session_stats["loaded"] += 1
+        # 记录本次所有查询的原始命中（供 WebUI 展示"命中了什么"，包括已装载的往场记忆）
+        self.last_query_hits = list(raw_by_id.values())
         # 双向禁止②审计：长期记忆只允许以"检索结果"形态进入工作记忆
         # （validate_load 拦"整段拷进 FIFO"——本路径恒合法，留审计痕迹）
         if all_hits and not validate_load([h.entry.id for h in all_hits],
