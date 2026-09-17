@@ -701,6 +701,7 @@ class Handler(BaseHTTPRequestHandler):
         ("GET", "/api/forgotten"): lambda params, body: api_forgotten(),
         ("POST", "/api/forget"): lambda params, body: api_forget(body),
         ("GET", "/api/export"): lambda params, body: api_export(),
+        ("POST", "/api/boundary/reject-demo"): lambda params, body: api_boundary_reject_demo(),
     }
 
     def log_message(self, fmt, *args):  # 安静模式：不刷屏
@@ -910,6 +911,18 @@ def _simulate_aging(days: int) -> dict:
 def api_forgotten() -> dict:
     """遗忘墓碑日志（展示"何时/为何遗忘"）。"""
     return {"items": STATE.ctl.evolution.forgotten_log[-200:]}
+
+
+def api_boundary_reject_demo() -> dict:
+    """边界拒绝演示：调用控制器正规写入入口，写入一条“闲聊/流水账”，
+    G2 门控会拒绝并写入审计日志——让 WebUI 能直接展示“拒绝”记录。"""
+    nid = STATE.ctl.write_long_term("指挥所说今天食堂有红烧肉，哨兵换岗正常。")
+    log = STATE.ctl.boundary.audit_log()
+    last = log[-1] if log else {}
+    STATE.add_event("info", "—", "边界拒绝演示",
+                    f"写入闲聊被 G2 门控拒绝（{last.get('reason', '')[:50]}）")
+    return {"ok": False, "rejected": nid is None,
+            "last_reason": last.get("reason", "")}
 
 
 def api_export() -> dict:

@@ -788,6 +788,14 @@ function toggleSessionDetailFromEvents(el) {
 
 /* ---------------- 演示数据 ---------------- */
 async function seed() { await api("/api/seed", {}); await refreshAll(); }
+async function boundaryRejectDemo() {
+  const r = await api("/api/boundary/reject-demo", {});
+  if (!r) return;
+  showToast(r.rejected ? "已触发边界拒绝（G2 门控）" : "未触发拒绝", r.rejected ? "warn" : "ok");
+  await refreshAll();
+  refreshAudit();
+}
+
 async function exportSnapshot() {
   const btn = busy("btn-export", "导出中…");
   try {

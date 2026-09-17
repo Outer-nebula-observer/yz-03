@@ -214,6 +214,9 @@
     <div class="card" data-group="audit">
       <h2>边界审计 <span class="hint">（boundary 模块）</span></h2>
       <div id="boundary-stats" class="metric">放行 0 · 拒绝 0</div>
+      <div class="btnrow" style="margin:6px 0">
+        <button class="ghost" onclick="boundaryRejectDemo()">写入闲聊 · 触发边界拒绝</button>
+      </div>
       <div id="audit" class="audit"><div class="empty">（暂无决策）</div></div>
     </div>
   </section>
