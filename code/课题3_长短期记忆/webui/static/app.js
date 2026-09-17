@@ -3,10 +3,17 @@
 "use strict";
 
 const $ = (id) => document.getElementById(id);
-let curTab = "fact";
-let lastMemItems = [];      // 记忆库客户端排序缓存
-let pastPlanIds = new Set(); // 已复盘场次 id（"往场沉淀"徽标判定）
-let lastSessions = [];      // 场次历史缓存
+/* P0：统一 UI 状态对象——所有跨函数状态集中在这里，渲染从 UI 读、刷新写 UI */
+const UI = {
+  tab: "fact",                         // 记忆库当前页签 fact/experience
+  memories: { fact: [], experience: [] },   // 各库排序缓存
+  pastPlanIds: new Set(),              // 已复盘场次 id（"往场沉淀"徽标判定）
+  sessions: [],                        // 场次历史缓存
+  selectedMemId: "",                   // 抽屉/曲线选中的记忆 id
+  campaignOptions: [],                 // 战役选项（原始 desc）
+  camp: { done: 0, total: 0 },         // 多轮战役进度
+  drawer: { memories: [], forgotten: [] },  // 右侧抽屉缓存
+};
 
 /* ---------------- 基础请求 ---------------- */
 async function api(path, body = null) {
@@ -23,6 +30,26 @@ async function api(path, body = null) {
   } catch (e) { showErr("网络错误: " + e.message); return null; }
 }
 function showErr(msg) { $("err").textContent = msg || ""; }
+function showToast(msg, type = "info") {
+  const el = $("toast");
+  if (!el) return;
+  el.textContent = msg;
+  el.className = "toast show " + type;
+  clearTimeout(showToast._t);
+  showToast._t = setTimeout(() => el.classList.remove("show"), 3600);
+}
+function busy(id, text) {
+  const el = $(id);
+  if (!el) return null;
+  el.disabled = true;
+  el.dataset.old = el.textContent;
+  if (text) el.textContent = text;
+  return el;
+}
+function unbusy(id) {
+  const el = $(id);
+  if (el && el.disabled) { el.disabled = false; el.textContent = el.dataset.old || el.textContent; }
+}
 const sleep = (ms) => new Promise(r => setTimeout(r, ms));
 const fmtTime = (t) => new Date(t * 1000).toTimeString().slice(0, 8);
 const fmtDur = (s) => s < 60 ? `${Math.round(s)} 秒` : `${Math.floor(s / 60)} 分 ${Math.round(s % 60)} 秒`;
@@ -245,7 +272,7 @@ function renderWM(wm) {
         <div class="loaded-item">
           <span class="badge ${m.type}">${m.type === "fact" ? "事实" : "经验"}</span>
           <span class="li-c">${esc(m.content)}</span>
-          ${m.session_id && pastPlanIds.has(m.session_id)
+          ${m.session_id && UI.pastPlanIds.has(m.session_id)
             ? `<span class="badge past">⏪ 往场 ${esc(m.session_id)}</span>` : ""}
         </div>`).join("")}</div></div>`;
   }
@@ -314,7 +341,7 @@ function renderHits(hits) {
   }
   $("hits").innerHTML = hits.map(h => {
     const sid = h.provenance?.session_id || "";
-    const past = sid && pastPlanIds.has(sid);
+    const past = sid && UI.pastPlanIds.has(sid);
     const stageMatch = h.stage && h.stage === curStage;
     return `
     <div class="hit${past ? " past" : ""}">
@@ -336,26 +363,26 @@ function renderHits(hits) {
 
 /* ---------------- 记忆库浏览（客户端排序 + 来源场次徽标） ---------------- */
 async function refreshMemory() {
-  const r = await api(`/api/memory?type=${curTab}`);
+  const r = await api(`/api/memory?type=${UI.tab}`);
   if (!r) return;
-  lastMemItems = r.items;
+  UI.memories[UI.tab] = r.items;
   renderMemoryList();
 }
 function renderMemoryList() {
   const el = $("memory-list");
-  if (!lastMemItems.length) {
+  if (!UI.memories[UI.tab].length) {
     el.innerHTML = `<div class="empty">（空——可先"预置战例/教训"）</div>`;
     return;
   }
   const key = $("mem-sort").value;
-  const items = [...lastMemItems].sort((a, b) =>
+  const items = [...UI.memories[UI.tab]].sort((a, b) =>
     key === "timestamp" ? b.timestamp - a.timestamp : (b[key] || 0) - (a[key] || 0));
   el.innerHTML = items.map(m => {
     const ret = Math.round(m.retention * 100);
     const sid = m.session_id || "";
-    const selCls = selectedMemId === m.id ? " selected" : "";
+    const selCls = UI.selectedMemId === m.id ? " selected" : "";
     return `
-    <div class="mem${sid && pastPlanIds.has(sid) ? " past" : ""}${selCls} clickable" onclick="selectMem('${m.id}')">
+    <div class="mem${sid && UI.pastPlanIds.has(sid) ? " past" : ""}${selCls} clickable" onclick="selectMem('${m.id}')">
       <div class="head">
         <span>${esc(m.id)}</span>
         <span>重要性 ${m.importance} · 召回 ${m.recall_count}</span>
@@ -370,41 +397,40 @@ function renderMemoryList() {
     </div>`;
   }).join("");
   renderMemHealth();                            // 库健康度分布条（视觉进度）
-  if (selectedMemId) renderForgettingCurve();   // 列表刷新后保持曲线面板同步
+  if (UI.selectedMemId) renderForgettingCurve();   // 列表刷新后保持曲线面板同步
 }
 
 /* ---------------- 遗忘曲线（艾宾浩斯可视化） ---------------- */
-let selectedMemId = "";
 
 function renderMemHealth() {
   const el = $("mem-health");
-  if (!lastMemItems.length) {
+  if (!UI.memories[UI.tab].length) {
     el.querySelectorAll("i").forEach(i => i.style.width = "0%");
     $("mem-health-text").textContent = "（空库）";
     return;
   }
-  const prot = lastMemItems.filter(m => m.protected).length;
-  const below = lastMemItems.filter(m => !m.protected && m.retention < 0.3).length;
-  const healthy = lastMemItems.length - prot - below;
-  const pct = n => (n / lastMemItems.length * 100).toFixed(1) + "%";
+  const prot = UI.memories[UI.tab].filter(m => m.protected).length;
+  const below = UI.memories[UI.tab].filter(m => !m.protected && m.retention < 0.3).length;
+  const healthy = UI.memories[UI.tab].length - prot - below;
+  const pct = n => (n / UI.memories[UI.tab].length * 100).toFixed(1) + "%";
   $("fh-health").style.width = pct(healthy);
   $("fh-warn").style.width = pct(prot ? 0 : 0);   // 占位清零（健康条三段：健康/保护/低于线）
   $("fh-warn").style.width = pct(prot);
   $("fh-dead").style.width = pct(below);
   $("mem-health-text").textContent =
-    `当前库（${lastMemItems[0].type === "fact" ? "事实" : "经验"}）：` +
+    `当前库（${UI.memories[UI.tab][0].type === "fact" ? "事实" : "经验"}）：` +
     `健康 ${healthy} · 受保护 ${prot} · 已低于遗忘线 ${below}`;
 }
 
 function selectMem(id) {
-  selectedMemId = id;
+  UI.selectedMemId = id;
   refreshMemory();          // 下方遗忘曲线面板同步
   openMemoryDrawer();       // 右侧抽屉：总览/历史/遗忘日志
 }
 
 function renderForgettingCurve() {
   const el = $("forget-curve");
-  const m = lastMemItems.find(x => x.id === selectedMemId);
+  const m = UI.memories[UI.tab].find(x => x.id === UI.selectedMemId);
   if (!m) {
     el.innerHTML = `<div class="empty">（点击右侧记忆库任意一条，查看其未来衰减曲线与“立即召回强化”对比）</div>`;
     return;
@@ -459,7 +485,6 @@ function renderForgettingCurve() {
 }
 
 /* ---------------- 右侧记忆详情抽屉 ---------------- */
-let drawerMemItems = [], drawerForgotten = [];
 
 async function openMemoryDrawer() {
   $("drawer-mask").style.display = "block";
@@ -476,15 +501,15 @@ async function refreshDrawerMemory() {
   const rf = await api("/api/memory?type=fact");
   const re = await api("/api/memory?type=experience");
   const ro = await api("/api/forgotten");
-  drawerMemItems = [
+  UI.drawer.memories = [
     ...(rf && rf.items ? rf.items.map(x => ({ ...x, type: "fact" })) : []),
     ...(re && re.items ? re.items.map(x => ({ ...x, type: "experience" })) : []),
   ];
-  drawerForgotten = (ro && ro.items) || [];
+  UI.drawer.forgotten = (ro && ro.items) || [];
   renderDrawerOverview();
   renderDrawerForgotten();
-  if (selectedMemId && drawerMemItems.some(x => x.id === selectedMemId))
-    renderDrawerHistory(selectedMemId);
+  if (UI.selectedMemId && UI.drawer.memories.some(x => x.id === UI.selectedMemId))
+    renderDrawerHistory(UI.selectedMemId);
 }
 
 function drawerTab(name) {
@@ -495,15 +520,15 @@ function drawerTab(name) {
 }
 
 function renderDrawerOverview() {
-  const protCount = drawerMemItems.filter(m => m.protected).length;
-  const below = drawerMemItems.filter(m => !m.protected && m.retention < 0.3).length;
+  const protCount = UI.drawer.memories.filter(m => m.protected).length;
+  const below = UI.drawer.memories.filter(m => !m.protected && m.retention < 0.3).length;
   $("d-stats").innerHTML =
-    `记忆 ${drawerMemItems.length} · 受保护 ${protCount} · ` +
-    `已低于遗忘线 ${below} · 已遗忘 ${drawerForgotten.length}`;
+    `记忆 ${UI.drawer.memories.length} · 受保护 ${protCount} · ` +
+    `已低于遗忘线 ${below} · 已遗忘 ${UI.drawer.forgotten.length}`;
   const el = $("d-overview-list");
-  el.innerHTML = drawerMemItems.length ? drawerMemItems.map(m => {
+  el.innerHTML = UI.drawer.memories.length ? UI.drawer.memories.map(m => {
     const ret = Math.round(m.retention * 100);
-    const sel = selectedMemId === m.id ? " selected" : "";
+    const sel = UI.selectedMemId === m.id ? " selected" : "";
     return `<div class="mem${sel} clickable" onclick="selectDrawerMem('${m.id}')">
       <div class="head"><span><span class="badge ${m.type}">${m.type === "fact" ? "事实" : "经验"}</span> ${esc(m.id)}</span>
         <span>重要性 ${m.importance} · 召回 ${m.recall_count}</span></div>
@@ -515,14 +540,14 @@ function renderDrawerOverview() {
 }
 
 function selectDrawerMem(id) {
-  selectedMemId = id;
+  UI.selectedMemId = id;
   drawerTab("history");
   renderDrawerHistory(id);
   refreshMemory();
 }
 
 function renderDrawerHistory(id) {
-  const m = drawerMemItems.find(x => x.id === id);
+  const m = UI.drawer.memories.find(x => x.id === id);
   const el = $("d-history");
   if (!m) { el.innerHTML = `<div class="empty">（未找到该记忆）</div>`; return; }
   const S = m.decay_strength || 1;
@@ -560,7 +585,7 @@ function renderDrawerHistory(id) {
 
 function renderDrawerForgotten() {
   const el = $("d-forgotten");
-  el.innerHTML = drawerForgotten.length ? drawerForgotten.map(f => `
+  el.innerHTML = UI.drawer.forgotten.length ? UI.drawer.forgotten.map(f => `
     <div class="d-forgotten-item">
       <div class="f-head"><span>${esc(f.id)}</span><span>${new Date(f.forgotten_at * 1000).toLocaleString()}</span></div>
       <div>${esc(f.content)}</div>
@@ -570,19 +595,24 @@ function renderDrawerForgotten() {
 }
 
 async function apiForgetDemo() {
-  const r = await api("/api/forget", { days: 30 });
-  if (!r) return;
-  $("forget-demo-msg").textContent =
-    `已模拟推进 ${r.days} 天：老化 ${r.moved} 条，遗忘 ${r.forgot} 条`;
-  await refreshAll();
-  await refreshDrawerMemory();
-  drawerTab("forgotten");
+  if (!confirm("确定模拟老化 30 天并触发遗忘？未保护且留存低于 30% 的记忆将被删除，不可恢复。")) return;
+  const btn = busy("btn-forget-demo", "处理中…");
+  try {
+    const r = await api("/api/forget", { days: 30 });
+    if (!r) return;
+    $("forget-demo-msg").textContent =
+      `已模拟推进 ${r.days} 天：老化 ${r.moved} 条，遗忘 ${r.forgot} 条`;
+    showToast(`已推进 ${r.days} 天，遗忘 ${r.forgot} 条`, "warn");
+    await refreshAll();
+    await refreshDrawerMemory();
+    drawerTab("forgotten");
+  } finally { unbusy("btn-forget-demo"); }
 }
 
 function switchTab(btn) {
   document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
   btn.classList.add("active");
-  curTab = btn.dataset.type;
+  UI.tab = btn.dataset.type;
   refreshMemory();
 }
 async function doSearch() {
@@ -599,7 +629,7 @@ async function doSearch() {
   const want = $("search-target").value;
   document.querySelectorAll(".tab").forEach(t =>
     t.classList.toggle("active", t.dataset.type === want));
-  curTab = want;
+  UI.tab = want;
   refreshMemory();
 }
 
@@ -668,8 +698,8 @@ function eventsClick(ev) {
 async function refreshSessions() {
   const r = await api("/api/sessions");
   if (!r) return;
-  lastSessions = r.sessions;
-  pastPlanIds = new Set(r.sessions.filter(s => s.closed_at).map(s => s.plan_id));
+  UI.sessions = r.sessions;
+  UI.pastPlanIds = new Set(r.sessions.filter(s => s.closed_at).map(s => s.plan_id));
   const el = $("sessions");
   if (!r.sessions.length) {
     el.innerHTML = `<div class="empty">（暂无场次——开场后本场会出现在这里）</div>`;
@@ -745,7 +775,7 @@ function toggleSession(el) {
 
 function toggleSessionDetailFromEvents(el) {
   const pid = el.dataset.pid;
-  const s = lastSessions.find(x => x.plan_id === pid);
+  const s = UI.sessions.find(x => x.plan_id === pid);
   if (!s) return;
   let row = el.nextElementSibling;
   if (row && row.classList && row.classList.contains("evt-detail-row")) {
@@ -757,7 +787,30 @@ function toggleSessionDetailFromEvents(el) {
 
 /* ---------------- 演示数据 ---------------- */
 async function seed() { await api("/api/seed", {}); await refreshAll(); }
-async function resetAll() { await api("/api/reset", {}); location.reload(); }
+async function exportSnapshot() {
+  const btn = busy("btn-export", "导出中…");
+  try {
+    const r = await api("/api/export");
+    if (!r) return;
+    const blob = new Blob([JSON.stringify(r, null, 2)], { type: "application/json" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = `webui_snapshot_${new Date().toISOString().replace(/[:.]/g, "-")}.json`;
+    a.click();
+    URL.revokeObjectURL(a.href);
+    showToast(`已导出快照：${r.counts.sessions} 场 / ${r.counts.events} 事件 / ${r.counts.forgotten} 遗忘`,
+              "ok");
+  } finally { unbusy("btn-export"); }
+}
+async function resetAll() {
+  if (!confirm("确定清空重置？将删除全部记忆与过程数据，不可恢复。")) return;
+  const btn = busy("btn-reset", "重置中…");
+  try {
+    await api("/api/reset", {});
+    showToast("已清空重置", "warn");
+    location.reload();
+  } finally { unbusy("btn-reset"); }
+}
 
 /* ---------------- 工具 ---------------- */
 /* 轻量加粗渲染：先把文本 HTML 转义，再把“**...**”渲染为 <b>...</b>
@@ -860,9 +913,12 @@ async function runScenario(sceneId, opt = {}) {
 
 async function autoDemo() {
   /* 自动演示（阶段驱动）：当前场景跑完整闭环，全程按 MDMP 阶段供给记忆。 */
-  await runScenario($("scene-select").value, { reset: true });
-  $("scene-desc").textContent =
-    "✅ 自动演示完成（阶段驱动）：受领任务→任务分析→方案拟制→方案推演 逐阶段供给 → 场景查询 → 消息流 → 复盘进化（见中栏事件流）";
+  const btn = busy("btn-auto-demo", "演示中…");
+  try {
+    await runScenario($("scene-select").value, { reset: true });
+    $("scene-desc").textContent =
+      "自动演示完成（阶段驱动）：受领任务→任务分析→方案拟制→方案推演 逐阶段供给 → 场景查询 → 消息流 → 复盘进化（见中栏事件流）";
+  } finally { unbusy("btn-auto-demo"); }
 }
 
 async function demoTwoSessions() {
@@ -879,7 +935,7 @@ async function demoTwoSessions() {
   await runScenario("night_hill_2", { reset: false, planId: "W2-再战" });
   // 最终把检索面板恢复为第二场的命中，便于讲解复用
   btn.disabled = false;
-  const s2 = lastSessions.find(s => s.plan_id === "W2-再战");
+  const s2 = UI.sessions.find(s => s.plan_id === "W2-再战");
   const nReuse = s2?.reused?.reduce((a, b) => a + b.count, 0) || 0;
   $("scene-desc").textContent = nReuse
     ? `✅ 两场演示完成：第二场召回了第一场沉淀的记忆 ×${nReuse}（见场次历史/复用横幅）—— 长期记忆跨场次生效`
@@ -887,29 +943,27 @@ async function demoTwoSessions() {
 }
 
 /* ---------------- 多轮战役（一键导入 · 逐步进行） ---------------- */
-let campDone = 0, campTotal = 0;
 
 function updateCampProgress() {
   const wrap = $("camp-progress");
-  if (!campTotal) { wrap.style.display = "none"; return; }
+  if (!UI.camp.total) { wrap.style.display = "none"; return; }
   wrap.style.display = "";
-  $("camp-progress-fill").style.width = Math.round(campDone / campTotal * 100) + "%";
+  $("camp-progress-fill").style.width = Math.round(UI.camp.done / UI.camp.total * 100) + "%";
   $("camp-progress-text").textContent =
-    `战役进度 ${campDone}/${campTotal} 场${campDone >= campTotal ? "（已完成）" : "（进行中…）"}`;
+    `战役进度 ${UI.camp.done}/${UI.camp.total} 场${UI.camp.done >= UI.camp.total ? "（已完成）" : "（进行中…）"}`;
 }
 
 function campaignDesc() {
   const id = $("campaign-select").value;
-  const c = campaignOptions.find(x => x.id === id);
+  const c = UI.campaignOptions.find(x => x.id === id);
   $("campaign-desc").innerHTML = md(c ? c.desc : "");
 }
 
-let campaignOptions = [];
 
 async function loadCampaigns() {
   const r = await api("/api/campaigns");
   if (!r) return;
-  campaignOptions = r.campaigns || [];
+  UI.campaignOptions = r.campaigns || [];
   const sel = $("campaign-select");
   sel.innerHTML = r.campaigns.map(c =>
     `<option value="${c.id}" data-desc="${esc(c.desc)}">${esc(c.title)}（${c.rounds} 场）</option>`).join("");
@@ -918,55 +972,67 @@ async function loadCampaigns() {
 
 async function importCampaign() {
   const id = $("campaign-select").value;
-  if (!id) { showErr("请先选择战役"); return; }
-  const r = await api("/api/campaign", { action: "import", id });
-  if (!r) return;
-  $("campaign-desc").innerHTML = md(r.campaign.desc);
-  campDone = 0; campTotal = r.campaign.rounds; updateCampProgress();
-  $("campaign-status").textContent =
-    `✅ 已导入「${r.campaign.title}」——点击"逐步进行"逐场跑，或"自动跑完全部"。`;
-  await refreshAll();
+  if (!id) { showToast("请先选择战役", "warn"); return; }
+  if (!confirm("导入战役会重置当前记忆库并注入战役种子，确认继续？")) return;
+  const btn = busy("btn-import-campaign", "导入中…");
+  try {
+    const r = await api("/api/campaign", { action: "import", id });
+    if (!r) return;
+    $("campaign-desc").innerHTML = md(r.campaign.desc);
+    UI.camp.done = 0; UI.camp.total = r.campaign.rounds; updateCampProgress();
+    $("campaign-status").textContent =
+      `已导入「${r.campaign.title}」——点击"下一场"逐场跑，或"自动全部"。`;
+    showToast(`已导入「${r.campaign.title}」(${r.campaign.rounds} 场)`, "ok");
+    await refreshAll();
+  } finally { unbusy("btn-import-campaign"); }
 }
 
 async function campaignNext() {
-  const r = await api("/api/campaign", { action: "next" });
-  if (!r) return;
-  if (r.finished) { $("campaign-status").textContent = "🎉 全部场次已完成"; return; }
-  if (r.round) {
-    campDone++; updateCampProgress();
-    await refreshAll();                 // 更新场次历史/事件/记忆库/stepper（含 pastPlanIds）
-    renderHits(r.hits);                 // 本场命中（含往场徽标）
-    renderReport(r.report);             // 本场进化报告
-    const reuseNote = r.reused.length
-      ? `♻️ 本场复用 ${r.reused.length} 条：${r.reused.map(u => u.source).join("、")}`
-      : "（本场无往场复用）";
-    $("campaign-status").textContent =
-      `✅ ${r.round.plan_id}｜${r.round.title} 完成：检索 ${r.hits.length} 条，${reuseNote}。` +
-      (r.done ? " 🎉 战役全部完成" : ` 下一场：${r.next_title}`);
-  } else {
-    showErr(r.message || "战役尚未导入，请先一键导入");
-  }
+  const btn = busy("btn-campaign-next", "运行中…");
+  try {
+    const r = await api("/api/campaign", { action: "next" });
+    if (!r) return;
+    if (r.finished) { $("campaign-status").textContent = "全部场次已完成"; return; }
+    if (r.round) {
+      UI.camp.done++; updateCampProgress();
+      await refreshAll();                 // 更新场次历史/事件/记忆库/stepper（含 UI.pastPlanIds）
+      renderHits(r.hits);                 // 本场命中（含往场徽标）
+      renderReport(r.report);             // 本场进化报告
+      const reuseNote = r.reused.length
+        ? `本场复用 ${r.reused.length} 条：${r.reused.map(u => u.source).join("、")}`
+        : "（本场无往场复用）";
+      $("campaign-status").textContent =
+        `${r.round.plan_id}｜${r.round.title} 完成：检索 ${r.hits.length} 条，${reuseNote}。` +
+        (r.done ? " 战役全部完成" : ` 下一场：${r.next_title}`);
+    } else {
+      showToast(r.message || "战役尚未导入，请先一键导入", "warn");
+    }
+  } finally { unbusy("btn-campaign-next"); }
 }
 
 async function campaignRunAll() {
-  $("campaign-status").textContent = "⏳ 自动跑完全部场次…";
-  while (true) {
-    const r = await api("/api/campaign", { action: "next" });
-    if (!r) return;
-    if (r.finished) break;
-    if (r.round) { campDone++; updateCampProgress(); }
-    await sleep(650);
-    if (r.done) {
-      await refreshAll();
-      renderHits(r.hits);
-      renderReport(r.report);
-      break;
+  const btn = busy("btn-campaign-run", "自动运行中…");
+  try {
+    $("campaign-status").textContent = "自动跑完全部场次…";
+    while (true) {
+      const r = await api("/api/campaign", { action: "next" });
+      if (!r) return;
+      if (r.finished) break;
+      if (r.round) { UI.camp.done++; updateCampProgress(); }
+      await sleep(650);
+      if (r.done) {
+        await refreshAll();
+        renderHits(r.hits);
+        renderReport(r.report);
+        break;
+      }
     }
-  }
-  await refreshAll();
-  $("campaign-status").textContent =
-    "🎉 战役已全部跑完——右栏场次历史/记忆库/边界审计可回看每一场沉淀与复用，" +
-    "中栏事件流保留完整过程。";
+    await refreshAll();
+    $("campaign-status").textContent =
+      "战役已全部跑完——右栏场次历史/记忆库/边界审计可回看每一场沉淀与复用，" +
+      "中栏事件流保留完整过程。";
+    showToast(`战役已全部跑完（${UI.camp.total} 场）`, "ok");
+  } finally { unbusy("btn-campaign-run"); }
 }
 
 /* ---------------- 区域页签（左右栏分组排版，减少纵向堆叠） ---------------- */

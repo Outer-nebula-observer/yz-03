@@ -342,3 +342,13 @@ button.chain:hover { background: #5a4b82; }
   padding: 6px 8px; margin: 4px 0; }
 .evt.divider.clickable { cursor: pointer; }
 .evt-detail-row { padding: 8px 14px; background: #fbfcfd; border-bottom: 1px solid var(--line); }
+
+/* ---------------- P0：Toast 与按钮禁用态 ---------------- */
+.toast { position: fixed; top: 14px; left: 50%; transform: translateX(-50%) translateY(-140%);
+  background: #2c3e50; color: #fff; padding: 9px 16px; border-radius: 6px; font-size: 13px;
+  box-shadow: 0 4px 14px rgba(0,0,0,.25); z-index: 1200; opacity: 0;
+  transition: transform .25s, opacity .25s; pointer-events: none; max-width: 80vw; }
+.toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+.toast.ok { background: #27ae60; }
+.toast.warn { background: #c0392b; }
+button:disabled { opacity: .6; cursor: not-allowed; }

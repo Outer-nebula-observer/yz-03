@@ -46,7 +46,7 @@
       <div class="scene-desc" id="scene-desc">选择场景后自动填充下方全部表单；「自动演示」将代点 ①→⑦ 全部按钮。</div>
       <div class="btnrow">
         <button class="ghost" onclick="fillScenario(true)">重新填充</button>
-        <button class="warn" onclick="autoDemo()">自动演示</button>
+        <button class="warn" id="btn-auto-demo" onclick="autoDemo()">自动演示</button>
         <button class="chain" onclick="demoTwoSessions()">连续两场</button>
       </div>
     </div>
@@ -56,9 +56,9 @@
       <label>选择战役 <select id="campaign-select" onchange="campaignDesc()"></select></label>
       <div class="scene-desc" id="campaign-desc">加载中…</div>
       <div class="btnrow">
-        <button class="warn" onclick="importCampaign()">一键导入</button>
-        <button class="primary" onclick="campaignNext()">下一场</button>
-        <button class="chain" onclick="campaignRunAll()">自动全部</button>
+        <button class="warn" id="btn-import-campaign" onclick="importCampaign()">一键导入</button>
+        <button class="primary" id="btn-campaign-next" onclick="campaignNext()">下一场</button>
+        <button class="chain" id="btn-campaign-run" onclick="campaignRunAll()">自动全部</button>
       </div>
       <div class="camp-progress" id="camp-progress" style="display:none">
         <div class="bar"><i class="fill" id="camp-progress-fill"></i></div>
@@ -117,7 +117,8 @@
       <h2>演示数据</h2>
       <div class="btnrow">
         <button class="ghost" onclick="seed()">预置战例/教训</button>
-        <button class="ghost" onclick="resetAll()">清空重置</button>
+        <button class="ghost" id="btn-reset" onclick="resetAll()">清空重置</button>
+        <button class="ghost" id="btn-export" onclick="exportSnapshot()">导出快照</button>
       </div>
     </div>
   </section>
@@ -159,7 +160,7 @@
     </div>
     <div class="drawer-opener">
       <button class="ghost" onclick="openMemoryDrawer()">记忆详情</button>
-      <button class="ghost warn" onclick="apiForgetDemo()">模拟老化+遗忘</button>
+      <button class="ghost warn" id="btn-forget-demo" onclick="apiForgetDemo()">模拟老化+遗忘</button>
       <span class="dim" id="forget-demo-msg"></span>
     </div>
 
@@ -248,6 +249,7 @@
   <span>七步闭环：①规划 → ②查询列表 → ③检索 → ④装载 → ⑤上下文 → ⑥反馈 → ⑦进化</span>
   <span id="err" class="err"></span>
 </footer>
+<div id="toast" class="toast" role="status"></div>
 
 <script src="/app.js"></script>
 </body>

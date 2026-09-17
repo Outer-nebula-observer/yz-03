@@ -696,6 +696,7 @@ class Handler(BaseHTTPRequestHandler):
         ("POST", "/api/campaign"): lambda params, body: api_campaign(body),
         ("GET", "/api/forgotten"): lambda params, body: api_forgotten(),
         ("POST", "/api/forget"): lambda params, body: api_forget(body),
+        ("GET", "/api/export"): lambda params, body: api_export(),
     }
 
     def log_message(self, fmt, *args):  # 安静模式：不刷屏
@@ -905,6 +906,32 @@ def _simulate_aging(days: int) -> dict:
 def api_forgotten() -> dict:
     """遗忘墓碑日志（展示"何时/为何遗忘"）。"""
     return {"items": STATE.ctl.evolution.forgotten_log[-200:]}
+
+
+def api_export() -> dict:
+    """导出完整快照（sessions/events/forgotten/memories）——WebUI 一键回放/答辩备份。"""
+    def _mem(mtype):
+        store = STATE.ctl.factual if mtype == "fact" else STATE.ctl.experiential
+        items = []
+        for mid in store.candidates():
+            e = store.get(mid)
+            if e is not None:
+                items.append(e.to_dict())
+        return items
+    return {
+        "ts": time.time(),
+        "sessions": STATE.sessions,
+        "events": STATE.events,
+        "forgotten": STATE.ctl.evolution.forgotten_log,
+        "memories": {"fact": _mem("fact"), "experience": _mem("experience")},
+        "counts": {
+            "facts": STATE.ctl.factual.stats()["count"],
+            "experiences": STATE.ctl.experiential.stats()["count"],
+            "sessions": len(STATE.sessions),
+            "events": len(STATE.events),
+            "forgotten": len(STATE.ctl.evolution.forgotten_log),
+        },
+    }
 
 
 def api_forget(body: dict) -> dict:
