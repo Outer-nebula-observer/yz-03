@@ -129,7 +129,11 @@ emb = OpenAIEmbedding(base_url="http://<网关>/v1",
                       api_key=os.environ["LLM_KEY"], model="bge-m3")
 ```
 
-**接智戎规划链路**：`pipeline.py` 内两处 `TODO-INTEGRATION` 标记——
+**接智戎规划链路（推荐入口）**：`integration/zhirong_kit/` —— 一键式对接套装，
+内含 `adapter.py`（统一适配器工厂）、`bridge_server.py`（HTTP 桥，智戎跨机也可调）、
+`selfcheck.py`（对接前自检）、`README.md`（完整对接手册）。先读那个 README。
+
+**原链路说明**：`pipeline.py` 内两处 `TODO-INTEGRATION` 标记——
 ⑤ 规划输出换成智戎管线调用；⑥ 反馈换成 AFSIM 推演结果 + 评估。
 
 **挂老师平台**：把本目录放进 SDK 服务的 engines 目录，`engine.py` 的

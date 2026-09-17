@@ -1,0 +1,66 @@
+{
+  "ts": "2026-09-17 08:05:05",
+  "checks": [
+    {
+      "name": "create_adapter（Mock）",
+      "ok": true,
+      "detail": "LLM=mock embed=mock"
+    },
+    {
+      "name": "三挂接点全链路",
+      "ok": true,
+      "detail": "retrieved=2 write=2 总耗时≈1.2ms"
+    },
+    {
+      "name": "时延日志齐全",
+      "ok": true,
+      "detail": "{'plan': {'calls': 1, 'avg_ms': 0.45, 'max_ms': 0.45}, 'feedback': {'calls': 1, 'avg_ms': 0.0, 'max_ms': 0.0}, 'close': {'calls': 1, 'avg_ms': 0.73, 'max_ms': 0.73}}"
+    }
+  ],
+  "integration": {
+    "plan": {
+      "context": "【目标】夜间夺占 2 号高地\n【约束】禁止越境\n【装载记忆】\n· [experience] 教训：夜间行军未派先遣侦察。（来源:selfcheck）\n· [fact] 2 号高地海拔 320 米，仅东侧可装甲通行。（来源:selfcheck）\n【查询列表】夜间夺占 2 号高地 同型任务 历史教训；夜间夺占 2 号高地 目标区域 地形 通行 道路",
+      "retrieved": 2,
+      "elapsed_ms": 0.45
+    },
+    "feedback": {
+      "ok": true,
+      "elapsed_ms": 0.0
+    },
+    "close": {
+      "write": 2,
+      "merge": 0,
+      "forget": 0,
+      "abstract": 1,
+      "skip_duplicate": 0,
+      "elapsed_ms": 0.73,
+      "boundary": {
+        "allowed": 2,
+        "rejected": 0,
+        "total": 2
+      }
+    },
+    "log": {
+      "total_calls": 3,
+      "all_ok": true,
+      "per_hook": {
+        "plan": {
+          "calls": 1,
+          "avg_ms": 0.45,
+          "max_ms": 0.45
+        },
+        "feedback": {
+          "calls": 1,
+          "avg_ms": 0.0,
+          "max_ms": 0.0
+        },
+        "close": {
+          "calls": 1,
+          "avg_ms": 0.73,
+          "max_ms": 0.73
+        }
+      }
+    }
+  },
+  "ok": true
+}

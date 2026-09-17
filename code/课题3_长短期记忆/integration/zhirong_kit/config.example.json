@@ -1,0 +1,21 @@
+{
+  "说明": "复制为 config.json 按需修改；环境变量优先（ZR_REAL/ZR_EMBED_GLM/ZR_FACT_DB/ZR_EXP_DB）",
+  "bridge": {
+    "host": "0.0.0.0",
+    "port": 8390,
+    "real_llm": false,
+    "embed_glm": false,
+    "top_k": 3
+  },
+  "sdk_engine": {
+    "engine_name": "long_short_term_memory",
+    "weight": 0.6,
+    "timeout_s": 10.0,
+    "note": "老师在记忆检索引擎 SDK config.json 中配置的引擎权重/超时"
+  },
+  "zhirong_hooks": [
+    {"hook": "plan",     "时机": "规划启动前", "说明": "返回 context 拼进 LLM prompt"},
+    {"hook": "feedback", "时机": "AFSIM 推演后", "说明": "把推演结果文本喂入记忆系统"},
+    {"hook": "close",    "时机": "场次结束",   "说明": "触发复盘进化（write/merge/forget/abstract）"}
+  ]
+}
