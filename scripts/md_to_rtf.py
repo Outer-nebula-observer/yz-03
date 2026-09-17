@@ -5,11 +5,13 @@ md_to_rtf — 零依赖 Markdown → Word 可读 .doc（RTF 内容）转换
 参考《本科毕业论文撰写规范》（附件4）排版：
   - 页面：A4，边距上下左右 3cm；
   - 正文：小四(12pt) 宋体，约 1.5 倍行距，首行缩进 2 字符；
-  - 一级/文档标题：三号(16pt) 黑体居中，段前段后 1 行；
-  - 二级标题：三号黑体居中（同第一层次）；三级标题：四号(14pt) 黑体顶格；
-  - 四级标题：小四黑体顶格；
+  - 文档/一级标题：三号(16pt) 黑体加粗居中，段前段后 1 行；
+  - 二级标题（大章）：三号黑体加粗居中，另起一页；
+  - 参考文献标题：四号黑体加粗居中，另起一页；
+  - 三级标题：四号黑体加粗顶格；四级标题：小四黑体加粗顶格；
   - 表格：三线表（顶线粗、表头下细线、底线粗，无竖线）；
   - 代码：Courier New；引用：缩进灰体。
+行内支持 `**加粗**`、`代码`、`[[序号]]` 上标引用（最后统一替换为上标）。
 用法：python scripts/md_to_rtf.py <输入.md> <输出.doc>
 """
 from __future__ import annotations
@@ -17,10 +19,9 @@ from __future__ import annotations
 import os
 import re
 import sys
-from typing import List, Optional
+from typing import List
 
 
-# ================================================================ 工具
 def escape(text: str) -> str:
     """转义 RTF 特殊字符，并把非 ASCII 转为 \\uN?（含 emoji 代理对）。"""
     out: List[str] = []
@@ -45,7 +46,9 @@ def escape(text: str) -> str:
 
 
 def inline(text: str) -> str:
-    """把行内 **加粗** 与 `代码` 转成 RTF 片段。"""
+    """行内格式化：把 [[n]] 替成 ASCII 占位符，**加粗** 与 `代码` 保留。"""
+    # 先保护上标占位符（纯 ASCII，不会被 escape 破坏）
+    text = re.sub(r"\[\[([^\[\]]+)\]\]", r"@@S\1@@", text)
     parts: List[str] = []
     buf: List[str] = []
     i, n = 0, len(text)
@@ -76,21 +79,26 @@ def inline(text: str) -> str:
     return "".join(parts)
 
 
-# ================================================================ 段落
 def make_para(text: str, style: str = "body") -> str:
     # 字号（half-point）：三号=32，四号=28，小四=24，五号=21
-    if style == "h1" or style == "h2":
-        # 一级/文档标题：三号黑体居中，段前段后约 1 行
-        return (f"{{\\pard\\qc\\f3\\fs32\\sb240\\sa240 "
-                f"{escape(text)}\\par}}")
+    if style == "h1":
+        return (f"{{\\pard\\qc\\f3\\fs32\\sb240\\sa240\\b "
+                f"{escape(text)}\\b0\\par}}")
+    if style == "h2":
+        return (f"{{\\pard\\page\\qc\\f3\\fs32\\sb240\\sa240\\b "
+                f"{escape(text)}\\b0\\par}}")
+    if style == "h_ref":
+        return (f"{{\\pard\\page\\qc\\f3\\fs28\\sb240\\sa240\\b "
+                f"{escape(text)}\\b0\\par}}")
     if style == "h3":
-        # 第二层次：四号黑体顶格
-        return (f"{{\\pard\\ql\\f3\\fs28\\sb240\\sa240 "
-                f"{escape(text)}\\par}}")
+        return (f"{{\\pard\\ql\\f3\\fs28\\sb240\\sa240\\b "
+                f"{escape(text)}\\b0\\par}}")
     if style == "h4":
-        # 其余层次：小四黑体顶格
-        return (f"{{\\pard\\ql\\f3\\fs24\\sb120\\sa120 "
-                f"{escape(text)}\\par}}")
+        return (f"{{\\pard\\ql\\f3\\fs24\\sb120\\sa120\\b "
+                f"{escape(text)}\\b0\\par}}")
+    if style == "ref":
+        return (f"{{\\pard\\ql\\fi-480\\li480\\f0\\fs21\\sl300\\slmult1 "
+                f"{inline(text)}\\par}}")
     if style == "quote":
         return f"{{\\pard\\ql\\li480\\fi-480\\f0\\fs24\\cf2 {inline(text)}\\par}}"
     if style == "code":
@@ -102,7 +110,6 @@ def make_para(text: str, style: str = "body") -> str:
         return f"{{\\pard\\intbl\\b {inline(text)}\\b0 \\par}}"
     if style == "table_b":
         return f"{{\\pard\\intbl {inline(text)}\\par}}"
-    # 正文：小四宋体、1.5 倍行距、首行缩进 2 字符
     return (f"{{\\pard\\ql\\fi480\\f0\\fs24\\sl360\\slmult1 "
             f"{inline(text)}\\par}}")
 
@@ -112,7 +119,7 @@ def make_table(rows: List[List[str]]) -> str:
     if not rows:
         return ""
     n_cols = max(len(r) for r in rows)
-    total = 9360          # A4 - 3cm*2 边距 ≈ 9360 twips
+    total = 9360
     widths = [total // n_cols] * n_cols
     widths[-1] += total - sum(widths)
     cellx = []
@@ -120,7 +127,6 @@ def make_table(rows: List[List[str]]) -> str:
     for w in widths:
         acc += w
         cellx.append(acc)
-
     out = []
     for ri, row in enumerate(rows):
         cells = [c if c else "" for c in row] + [""] * (n_cols - len(row))
@@ -129,15 +135,13 @@ def make_table(rows: List[List[str]]) -> str:
         style = "table_h" if is_head else "table_b"
         cell_rtf = []
         for ci, c in enumerate(cells):
-            # 边框：顶线（表头粗），底线（表头细/末行粗），左右无
             brdr = ""
             if is_head:
                 brdr = "\\clbrdrt\\brdrs\\brdrw20\\clbrdrb\\brdrs\\brdrw5"
             elif is_last:
                 brdr = "\\clbrdrb\\brdrs\\brdrw20"
             cell_rtf.append(
-                f"{brdr}\\cellx{cellx[ci]} "
-                f"\\intbl {make_para_cell(c, style)} \\cell")
+                f"{brdr}\\cellx{cellx[ci]} \\intbl {make_para_cell(c, style)} \\cell")
         out.append(f"\\trowd\\trgaph108\\trleft0 " + "".join(cell_rtf) + "\\row")
     return "".join(out)
 
@@ -148,7 +152,6 @@ def make_para_cell(text: str, style: str) -> str:
     return f"\\pard\\intbl {inline(text)} "
 
 
-# ================================================================ 主转换
 def convert(md_text: str) -> str:
     lines = md_text.splitlines()
     out: List[str] = []
@@ -182,8 +185,11 @@ def convert(md_text: str) -> str:
 
         m = re.match(r"^(#{1,4})\s+(.*)$", stripped)
         if m:
-            out.append(make_para(m.group(2).strip(),
-                                 style="h" + str(len(m.group(1)))))
+            title = m.group(2).strip()
+            if len(m.group(1)) == 2 and title == "参考文献":
+                out.append(make_para(title, style="h_ref"))
+            else:
+                out.append(make_para(title, style="h" + str(len(m.group(1)))))
             i += 1
             continue
 
@@ -198,8 +204,7 @@ def convert(md_text: str) -> str:
             continue
 
         if re.match(r"^[-*]\s+", stripped):
-            out.append(make_para(re.sub(r"^[-*]\s+", "", stripped),
-                                 style="bullet"))
+            out.append(make_para(re.sub(r"^[-*]\s+", "", stripped), style="bullet"))
             i += 1
             continue
 
@@ -211,25 +216,29 @@ def convert(md_text: str) -> str:
             out.append(make_para(stripped, style="ref"))
             i += 1
             continue
+
         out.append(make_para(stripped, style="body"))
         i += 1
+
+    body = "\n".join(out)
+    # 最后统一把上标占位符替换为 RTF 上标控制字
+    body = re.sub(r"@@S([^@]+)@@", r"\\super \1 \\nosupersub ", body)
 
     header = (
         "{\\rtf1\\ansi\\ansicpg936"
         "{\\fonttbl"
-        "{\\f0\\fnil\\fcharset134 SimSun;}"          # 宋体（中文正文）
-        "{\\f1\\fmodern\\fcharset0 Courier New;}"     # 代码
-        "{\\f2\\fswiss\\fcharset0 Times New Roman;}"  # 西文（规范要求）
-        "{\\f3\\fnil\\fcharset134 SimHei;}}"          # 黑体（标题）
+        "{\\f0\\fnil\\fcharset134 SimSun;}"
+        "{\\f1\\fmodern\\fcharset0 Courier New;}"
+        "{\\f2\\fswiss\\fcharset0 Times New Roman;}"
+        "{\\f3\\fnil\\fcharset134 SimHei;}}"
         "{\\colortbl ;\\red0\\green0\\blue0;\\red80\\green80\\blue80;}"
-        # A4：宽 11906 / 高 16838 twips；边距上下左右 3cm≈1701 twips
         "\\paperw11906\\paperh16838"
         "\\margl1701\\margr1701\\margt1701\\margb1701"
         "\\deflang2052"
         "\\pard\\f0\\fs24\n"
     )
     footer = "\n}"
-    return header + "\n".join(out) + footer
+    return header + body + footer
 
 
 def main() -> int:
@@ -245,7 +254,6 @@ def main() -> int:
             f.write(rtf)
         final = dst
     except PermissionError:
-        # Windows 下目标可能被 Word 打开，自动写到 _new.doc
         base, ext = os.path.splitext(dst)
         final = base + "_new" + ext
         with open(final, "w", encoding="utf-8", errors="replace") as f:
