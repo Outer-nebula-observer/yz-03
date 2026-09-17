@@ -85,6 +85,47 @@ curl -X POST http://<mem-host>:8390/hook/close \
 
 ---
 
+## 二·五、事件驱动模式（P0 适配，v0.8 已落地）
+
+当智戎不是严格的“一次任务→结束→复盘”流水线时，使用事件驱动能力避免“记忆不进化”。
+
+### 新增能力（adapter.py `ZhirongEventAdapter`）
+
+| 方法 | 说明 |
+|---|---|
+| `hook_feedback(text="", structured=None)` | 结构化反馈（result/metrics/events）会被转写成复盘文本再累积 |
+| `hook_append_feedback(fragment_text="", structured=None)` | 多次反馈累积缓冲，不立即消费 |
+| `hook_evolve(reason="manual|periodic|...", extra_review="")` | **事件驱动进化**：即使没有 open session 也能沉淀经验 |
+| `normalize_task(task_json)` | 智戎结构化任务 → `{plan_id, goal, constraints, queries}`；支持中文/英文别名 |
+| `structured_to_review(payload)` | AFSIM 数值/事件 → 带“教训/经验”线索的复盘文本（保底转写） |
+
+### HTTP 桥新增端点
+
+```
+POST /hook/plan        body 可传 {"task": {...}} 自动规范化（也可传原 plan_id/goal）
+POST /hook/feedback    body {"text": "", "structured": {...}}
+POST /hook/append_feedback  body {"text": "", "structured": {...}}
+POST /hook/evolve      body {"reason": "manual|periodic|...", "extra_review": ""}
+POST /hook/normalize   body {"task": {...}} → 规范化结果
+```
+
+### 领域巡检与阈值标定
+
+```bash
+# 有真实知识库样本时：
+python integration/zhirong_kit/domain_check.py \
+    --samples samples.json --fact-db ../data/facts.db --exp-db ../data/exps.db
+
+# 没有真实库，先用内置战役种子演示：
+python integration/zhirong_kit/domain_check.py --seed-campaign heights_battle
+```
+输出：每条查询 top-5 命中/hit@5/词表覆盖 + 负例 top1 → **min_score 建议**，报告落盘 `reports/domain_check.json`。
+
+### 自检扩项
+
+`python integration/zhirong_kit/selfcheck.py` 现在 5 项全过：
+normalize_task、结构化反馈→事件驱动进化 均已加入自检。
+
 ## 三、配置与真模型
 
 ### 3.1 环境变量（HTTP 桥/自检读取）

@@ -8,9 +8,15 @@ zhirong_kit.bridge_server — 智戎 HTTP 桥服务（REST 三挂接点）
 端点：
   GET  /healthz            → 服务/模型/库状态
   POST /hook/plan          body: {"plan_id","goal","constraints":[],"queries":[]?}
+                           或 {"task": {...}} 结构化任务（自动 normalize）
                            → {"context","retrieved","elapsed_ms"}
-  POST /hook/feedback      body: {"text"}
-                           → {"ok","elapsed_ms"}
+  POST /hook/feedback      body: {"text":""?, "structured":{...}?}
+                           → {"ok","elapsed_ms"}（结构化会转写成复盘文本）
+  POST /hook/append_feedback body: {"text":""?, "structured":{...}?}  → 累积缓冲
+  POST /hook/evolve        body: {"reason":"manual|periodic|...", "extra_review":""?}
+                           → 事件驱动进化（不要求有 open session）
+  POST /hook/normalize     body: {"task": {...}}
+                           → 规范化后的 goal/constraints/queries
   POST /hook/close         body: {"extra_review":""?}
                            → {"write","merge","forget","abstract","boundary","elapsed_ms"}
 
@@ -33,7 +39,7 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import urlparse
 
 # 让本文件可直接运行：先加载 adapter（自动装配 sys.path）
-from adapter import create_adapter, adapter_info
+from adapter import create_adapter, adapter_info, normalize_task
 
 
 # ---------------------------------------------------------------- 全局配置
@@ -98,14 +104,36 @@ class Handler(BaseHTTPRequestHandler):
         body = _read_json(self)
         try:
             if path == "/hook/plan":
-                r = ADAPTER.hook_plan(
-                    plan_id=body.get("plan_id", "ZR-" + str(hash(json.dumps(body)) % 100000)),
-                    goal=body.get("goal", ""),
-                    constraints=body.get("constraints", []),
-                    queries=body.get("queries"))
+                # 支持直接传结构化 task（智戎侧一条请求就规范化）
+                if "task" in body:
+                    nt = normalize_task(body["task"])
+                    plan_id = nt["plan_id"]
+                    goal = nt["goal"]
+                    constraints = nt["constraints"]
+                    queries = [q.to_dict() for q in nt["queries"]]
+                else:
+                    plan_id = body.get("plan_id", "ZR-" + str(hash(json.dumps(body)) % 100000))
+                    goal = body.get("goal", "")
+                    constraints = body.get("constraints", [])
+                    queries = body.get("queries")
+                r = ADAPTER.hook_plan(plan_id=plan_id, goal=goal,
+                                      constraints=constraints, queries=queries)
                 self._json(200, r)
             elif path == "/hook/feedback":
-                self._json(200, ADAPTER.hook_feedback(body.get("text", "")))
+                self._json(200, ADAPTER.hook_feedback(
+                    body.get("text", ""), structured=body.get("structured")))
+            elif path == "/hook/append_feedback":
+                self._json(200, ADAPTER.hook_append_feedback(
+                    body.get("text", ""), structured=body.get("structured")))
+            elif path == "/hook/evolve":
+                self._json(200, ADAPTER.hook_evolve(
+                    reason=body.get("reason", "manual"),
+                    extra_review=body.get("extra_review", "")))
+            elif path == "/hook/normalize":
+                nt = normalize_task(body.get("task", {}))
+                self._json(200, {"plan_id": nt["plan_id"], "goal": nt["goal"],
+                                 "constraints": nt["constraints"],
+                                 "queries": [q.to_dict() for q in nt["queries"]]})
             elif path == "/hook/close":
                 self._json(200, ADAPTER.hook_close(body.get("extra_review", "")))
             else:

@@ -1,0 +1,72 @@
+{
+  "n_facts": 6,
+  "n_exps": 5,
+  "checks": [
+    {
+      "kind": "query",
+      "query": "2 号高地 地形 装甲 通行",
+      "target": "fact",
+      "hit@5": 1.0,
+      "word_coverage": 1.0,
+      "top": [
+        {
+          "id": "seed-f-84730818",
+          "type": "fact",
+          "content": "2 号高地海拔 320 米，北坡缓南坡陡，仅东侧可装甲通行。",
+          "score": 0.4753,
+          "source": "domain-seed"
+        },
+        {
+          "id": "seed-f-76834621",
+          "type": "fact",
+          "content": "3 号高地海拔 210 米，地形开阔，有两条机械化通路。",
+          "score": 0.4164,
+          "source": "domain-seed"
+        },
+        {
+          "id": "seed-f-19332042",
+          "type": "fact",
+          "content": "5 号高地海拔 450 米，坡度大，仅步兵小道可通行。",
+          "score": 0.3494,
+          "source": "domain-seed"
+        }
+      ]
+    },
+    {
+      "kind": "query",
+      "query": "夜战 侦察 伏击 教训",
+      "target": "experience",
+      "hit@5": 1.0,
+      "word_coverage": 1.0,
+      "top": [
+        {
+          "id": "seed-e-61279715",
+          "type": "experience",
+          "content": "教训：夜间行军未派先遣侦察，先头分队在隘口遭敌伏击。",
+          "score": 0.4586,
+          "source": "domain-seed"
+        },
+        {
+          "id": "seed-e-6321294",
+          "type": "experience",
+          "content": "教训：渡河架桥耗时超出预估四成，主攻梯队因此迟到。",
+          "score": 0.1917,
+          "source": "domain-seed"
+        }
+      ]
+    },
+    {
+      "kind": "query",
+      "query": "量子纠缠 纠错",
+      "target": "fact",
+      "hit@5": null,
+      "word_coverage": 0.0,
+      "top": []
+    }
+  ],
+  "min_score_suggestion": {
+    "negative_top1_max": 0.0,
+    "suggestion": 0.12,
+    "note": "建议 min_score ≈ 负例top1最大值 + 0.02（并留正例余量）；真 embedding 后按 E 噪声研究协议正式扫描"
+  }
+}

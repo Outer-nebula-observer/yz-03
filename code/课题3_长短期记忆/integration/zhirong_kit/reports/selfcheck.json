@@ -1,5 +1,5 @@
 {
-  "ts": "2026-09-17 08:05:05",
+  "ts": "2026-09-17 08:56:13",
   "checks": [
     {
       "name": "create_adapter（Mock）",
@@ -14,7 +14,17 @@
     {
       "name": "时延日志齐全",
       "ok": true,
-      "detail": "{'plan': {'calls': 1, 'avg_ms': 0.45, 'max_ms': 0.45}, 'feedback': {'calls': 1, 'avg_ms': 0.0, 'max_ms': 0.0}, 'close': {'calls': 1, 'avg_ms': 0.73, 'max_ms': 0.73}}"
+      "detail": "{'plan': {'calls': 1, 'avg_ms': 0.45, 'max_ms': 0.45}, 'feedback': {'calls': 1, 'avg_ms': 0.0, 'max_ms': 0.0}, 'close': {'calls': 1, 'avg_ms': 0.68, 'max_ms': 0.68}}"
+    },
+    {
+      "name": "normalize_task（结构化任务→内部输入）",
+      "ok": true,
+      "detail": "goal=夜间夺占 2 号高地 queries=3"
+    },
+    {
+      "name": "结构化反馈→事件驱动进化",
+      "ok": true,
+      "detail": "reason=selfcheck summary={'write': 2, 'merge': 0, 'forget': 0, 'abstract': 1, 'skip_duplicate': 0}"
     }
   ],
   "integration": {
@@ -33,7 +43,7 @@
       "forget": 0,
       "abstract": 1,
       "skip_duplicate": 0,
-      "elapsed_ms": 0.73,
+      "elapsed_ms": 0.68,
       "boundary": {
         "allowed": 2,
         "rejected": 0,
@@ -56,8 +66,8 @@
         },
         "close": {
           "calls": 1,
-          "avg_ms": 0.73,
-          "max_ms": 0.73
+          "avg_ms": 0.68,
+          "max_ms": 0.68
         }
       }
     }

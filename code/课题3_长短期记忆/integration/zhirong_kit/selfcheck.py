@@ -24,7 +24,7 @@ if _ROOT not in sys.path:
     sys.path.insert(0, _ROOT)
 
 from memsys import MemoryType, new_entry
-from adapter import create_adapter, adapter_info
+from adapter import create_adapter, adapter_info, normalize_task, structured_to_review
 from bridge_server import ADAPTER  # noqa: F401  (验证桥模块可加载)
 
 
@@ -80,7 +80,30 @@ def main() -> int:
     except Exception as e:
         check("三挂接点全链路", False, str(e))
 
-    # 3) 真模型探测（可选）
+    # 3) P0：任务规范化
+    try:
+        nt = normalize_task({"task_id": "NT-1", "目标": "夜间夺占 2 号高地",
+                             "约束": ["禁止越境"]})
+        check("normalize_task（结构化任务→内部输入）",
+              nt["goal"] != "" and len(nt["queries"]) >= 1,
+              f"goal={nt['goal']} queries={len(nt['queries'])}")
+    except Exception as e:
+        check("normalize_task（结构化任务→内部输入）", False, str(e))
+
+    # 4) P0：结构化反馈 + 事件驱动进化（不依赖 open session）
+    try:
+        adapter.hook_feedback("", structured={
+            "result": "fail", "metrics": {"伤亡": 3},
+            "events": [{"desc": "伏击点暴露"}]})
+        rep = adapter.hook_evolve(reason="selfcheck",
+                                  extra_review="复盘：教训：通信静默过久。")
+        check("结构化反馈→事件驱动进化",
+              rep.get("ok") and rep.get("summary", {}).get("write", 0) >= 1,
+              f"reason={rep.get('reason')} summary={rep.get('summary')}")
+    except Exception as e:
+        check("结构化反馈→事件驱动进化", False, str(e))
+
+    # 5) 真模型探测（可选）
     if args.real:
         try:
             r_adapter = create_adapter(real=True)
