@@ -1,0 +1,144 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1480" height="900" viewBox="0 0 1480 900" role="img" aria-label="五场战役的记忆轨迹：经验库规模由 5 条增至 18 条，跨场次复用累计 5 次">
+  <defs>
+    <style>
+      /* 字号沿用 fig1 的档位：标题 28pt / 面板标题 20pt / 正文与标签 16pt / 小注 15pt（px = pt ÷ 0.75） */
+      .t-title { font: 600 37.33px system-ui,"Segoe UI","Microsoft YaHei",sans-serif; fill:#0b0b0b; }
+      .t-sub   { font: 400 24px system-ui,"Segoe UI","Microsoft YaHei",sans-serif; fill:#52514e; }
+      .t-panel { font: 600 26.67px system-ui,"Segoe UI","Microsoft YaHei",sans-serif; fill:#0b0b0b; }
+      .t-tick  { font: 400 20px system-ui,"Segoe UI","Microsoft YaHei",sans-serif; fill:#898781; }
+      .t-axis  { font: 500 21.33px system-ui,"Segoe UI","Microsoft YaHei",sans-serif; fill:#52514e; }
+      .t-val   { font: 600 21.33px system-ui,"Segoe UI","Microsoft YaHei",sans-serif; fill:#0b0b0b; }
+      .t-leg   { font: 400 21.33px system-ui,"Segoe UI","Microsoft YaHei",sans-serif; fill:#52514e; }
+      .t-head  { font: 600 21.33px system-ui,"Segoe UI","Microsoft YaHei",sans-serif; fill:#0b0b0b; }
+      .t-cell  { font: 400 20px system-ui,"Segoe UI","Microsoft YaHei",sans-serif; fill:#52514e; }
+      .t-note  { font: 400 20px system-ui,"Segoe UI","Microsoft YaHei",sans-serif; fill:#898781; }
+      .card    { fill:#ffffff; stroke:#e1e0d9; stroke-width:1.5; }
+      .band    { fill:#f9f9f7; stroke:#e1e0d9; stroke-width:1.5; }
+      .grid    { stroke:#e1e0d9; stroke-width:1; }
+      .axis    { stroke:#c3c2b7; stroke-width:1; }
+      .ref     { stroke:#c3c2b7; stroke-width:1; }
+      .hair    { stroke:#e1e0d9; stroke-width:1; }
+      .line    { stroke:#1baf7a; stroke-width:3; fill:none; stroke-linejoin:round; stroke-linecap:round; }
+      .dot     { fill:#1baf7a; stroke:#ffffff; stroke-width:2.5; }
+      .bar-ctx { fill:#d5d4cd; }
+      .bar-acc { fill:#1baf7a; }
+    </style>
+  </defs>
+
+  <rect width="1480" height="900" fill="#fcfcfb"/>
+
+  <text class="t-title" x="90" y="52">五场战役的记忆轨迹</text>
+  <text class="t-sub"   x="90" y="92">《高地群攻防战役》五场连续推演，Mock 环境确定性复现；经验库为每场进化后的累计值，种子 5 条</text>
+
+  <!-- ==================== 面板 A：经验库规模 ==================== -->
+  <rect class="card" x="90" y="120" width="1300" height="240" rx="12"/>
+  <text class="t-panel" x="114" y="162">A　经验库规模（条）</text>
+
+  <g class="grid">
+    <line x1="210" y1="190.0"  x2="1330" y2="190.0"/>
+    <line x1="210" y1="226.25" x2="1330" y2="226.25"/>
+    <line x1="210" y1="262.5"  x2="1330" y2="262.5"/>
+    <line x1="210" y1="298.75" x2="1330" y2="298.75"/>
+  </g>
+  <line class="axis" x1="210" y1="335" x2="1330" y2="335"/>
+  <g class="t-tick" text-anchor="end">
+    <text x="195" y="197">20</text>
+    <text x="195" y="233">15</text>
+    <text x="195" y="270">10</text>
+    <text x="195" y="306">5</text>
+    <text x="195" y="342">0</text>
+  </g>
+
+  <line class="ref" x1="210" y1="298.75" x2="1330" y2="298.75"/>
+  <text class="t-note" x="1300" y="322" text-anchor="end">种子基线 5 条</text>
+
+  <path class="line" d="M240,277 L505,255.25 L770,248 L1035,226.25 L1300,204.5"/>
+  <g class="dot">
+    <circle cx="240"    cy="277"    r="6"/>
+    <circle cx="505"  cy="255.25" r="6"/>
+    <circle cx="770"    cy="248"    r="6"/>
+    <circle cx="1035" cy="226.25" r="6"/>
+    <circle cx="1300"   cy="204.5"  r="6"/>
+  </g>
+  <text class="t-val" x="1312" y="198" text-anchor="start">18</text>
+  <text class="t-tick" x="240" y="264" text-anchor="middle">8</text>
+
+  <!-- ==================== 面板 B：检索命中与跨场次复用 ==================== -->
+  <rect class="card" x="90" y="380" width="1300" height="260" rx="12"/>
+  <text class="t-panel" x="114" y="422">B　每场检索命中与跨场次复用（条）</text>
+  <g>
+    <rect x="980" y="408" width="16" height="16" rx="4" class="bar-ctx"/>
+    <text class="t-leg" x="1004" y="421">检索命中</text>
+    <rect x="1150" y="408" width="16" height="16" rx="4" class="bar-acc"/>
+    <text class="t-leg" x="1174" y="421">跨场次复用</text>
+  </g>
+
+  <g class="grid">
+    <line x1="210" y1="445.0" x2="1330" y2="445.0"/>
+    <line x1="210" y1="476.0" x2="1330" y2="476.0"/>
+    <line x1="210" y1="507.0" x2="1330" y2="507.0"/>
+    <line x1="210" y1="538.0" x2="1330" y2="538.0"/>
+    <line x1="210" y1="569.0" x2="1330" y2="569.0"/>
+  </g>
+  <line class="axis" x1="210" y1="600" x2="1330" y2="600"/>
+  <g class="t-tick" text-anchor="end">
+    <text x="195" y="452">10</text>
+    <text x="195" y="483">8</text>
+    <text x="195" y="514">6</text>
+    <text x="195" y="545">4</text>
+    <text x="195" y="576">2</text>
+    <text x="195" y="607">0</text>
+  </g>
+
+  <!-- 检索命中（语境，不承载结论） -->
+  <path class="bar-ctx" d="M210,600 L210,528 Q210,522.5 215.5,522.5 L230.5,522.5 Q236,522.5 236,528 L236,600 Z"/>
+  <path class="bar-ctx" d="M475,600 L475,528 Q475,522.5 480.5,522.5 L495.5,522.5 Q501,522.5 501,528 L501,600 Z"/>
+  <path class="bar-ctx" d="M740,600 L740,543.5 Q740,538 745.5,538 L760.5,538 Q766,538 766,543.5 L766,600 Z"/>
+  <path class="bar-ctx" d="M1005,600 L1005,512.5 Q1005,507 1010.5,507 L1025.5,507 Q1031,507 1031,512.5 L1031,600 Z"/>
+  <path class="bar-ctx" d="M1270,600 L1270,466 Q1270,460.5 1275.5,460.5 L1290.5,460.5 Q1296,460.5 1296,466 L1296,600 Z"/>
+
+  <!-- 跨场次复用（本图重点） -->
+  <path class="bar-acc" d="M509,600 L509,590 Q509,584.5 514.5,584.5 L529.5,584.5 Q535,584.5 535,590 L535,600 Z"/>
+  <path class="bar-acc" d="M1039,600 L1039,590 Q1039,584.5 1044.5,584.5 L1059.5,584.5 Q1065,584.5 1065,590 L1065,600 Z"/>
+  <path class="bar-acc" d="M1304,600 L1304,559 Q1304,553.5 1309.5,553.5 L1324.5,553.5 Q1330,553.5 1330,559 L1330,600 Z"/>
+
+  <g class="t-val" text-anchor="middle">
+    <text x="522"  y="576">1</text>
+    <text x="1052" y="576">1</text>
+    <text x="1317"   y="545">3</text>
+  </g>
+
+  <g class="t-axis" text-anchor="middle">
+    <text x="240"   y="630">P1</text>
+    <text x="505"   y="630">P2</text>
+    <text x="770"   y="630">P3</text>
+    <text x="1035"  y="630">P4</text>
+    <text x="1300"  y="630">P5</text>
+  </g>
+
+  <!-- ==================== 每场进化计数 ==================== -->
+  <rect class="band" x="90" y="660" width="1300" height="180" rx="12"/>
+  <text class="t-head" x="114" y="696">每场进化计数</text>
+  <g class="hair">
+    <line x1="114" y1="710" x2="1366" y2="710"/>
+    <line x1="114" y1="758" x2="1366" y2="758"/>
+    <line x1="114" y1="806" x2="1366" y2="806"/>
+  </g>
+  <text class="t-cell" x="114" y="744">写入</text>
+  <g class="t-cell" text-anchor="middle">
+    <text x="240" y="744">2</text><text x="505" y="744">2</text><text x="770" y="744">1</text>
+    <text x="1035" y="744">2</text><text x="1300" y="744">2</text>
+  </g>
+  <text class="t-cell" x="114" y="792">抽象</text>
+  <g class="t-cell" text-anchor="middle">
+    <text x="240" y="792">1</text><text x="505" y="792">1</text><text x="770" y="792">0</text>
+    <text x="1035" y="792">1</text><text x="1300" y="792">1</text>
+  </g>
+  <text class="t-cell" x="114" y="830">去重跳过</text>
+  <g class="t-cell" text-anchor="middle">
+    <text x="240" y="830">0</text><text x="505" y="830">0</text><text x="770" y="830">1</text>
+    <text x="1035" y="830">0</text><text x="1300" y="830">0</text>
+  </g>
+
+  <text class="t-note" x="90" y="878">合并与遗忘五场均为 0。P2 首次出现往场复用，P5 三条同时命中；P3 复盘的“假渡口佯动”与种子条目重复，被查重跳过。</text>
+</svg>
