@@ -155,15 +155,17 @@ class WorkingMemory:
         """
         n = len(self.slot.fifo_queue)
         if n <= 2:
-            return
-        cut = max(1, int(n * keep_ratio))
-        evicted = self.slot.fifo_queue[:cut]
-        self.slot.fifo_queue = self.slot.fifo_queue[cut:]
-        # 递归摘要：旧摘要 + 新驱逐消息 → 新摘要（真模型时由 LLM 完成）
+            return                              # 队列太短没必要清
+        cut = max(1, int(n * keep_ratio))       # 驱逐前 ~50% 的天花板
+        evicted = self.slot.fifo_queue[:cut]    # 取出最旧一批（待归档）
+        self.slot.fifo_queue = self.slot.fifo_queue[cut:]   # 队列保留后半
+        # 递归摘要：旧摘要 + 本次驱逐内容 → 新摘要（旧摘要不会丢）
         material = (self._recursive_summary + "\n" + "\n".join(evicted)).strip()
         if self.llm is not None:
+            # 有 LLM：让模型“浓缩”旧摘要+新消息（有界，≤120 词）
             self._recursive_summary = self.llm.summarize(material, max_words=120)
         else:
+            # 无 LLM：粗暴截断保底（Mock 场景的确定性回退）
             self._recursive_summary = material[:300]  # 无 LLM 时粗暴截断（保底）
         self.archived.append({"evicted": evicted, "summary": self._recursive_summary})
         self.slot.touch()

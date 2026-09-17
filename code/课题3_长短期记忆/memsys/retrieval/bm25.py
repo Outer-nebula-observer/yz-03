@@ -49,15 +49,17 @@ class BM25:
 
     def score(self, key: str, query: str) -> float:
         """单文档打分：Σ IDF(q) * tf*(k1+1) / (tf + k1*(1-b+b*len/avg))。"""
-        tf = self.doc_tf.get(key)
+        tf = self.doc_tf.get(key)         # 该文档的词频表（Counter）
         if not tf:
             return 0.0
         s = 0.0
-        for q in tokenize(query):
-            f = tf.get(q, 0)
+        for q in tokenize(query):         # 查询分词；中文按单字/词处理
+            f = tf.get(q, 0)              # 术语在本文档的出现次数
             if f == 0:
-                continue
+                continue                  # 文档没有这个词 → 该词贡献 0
+            # Okapi BM25 长度归一化分母：文档越长，单一词频的贡献被稀释
             denom = f + self.k1 * (1 - self.b + self.b * self.doc_len[key] / self.avg_len)
+            # 累加：idf(q)（词稀有度） × 词频饱和项
             s += self._idf(q) * f * (self.k1 + 1) / denom
         return s
 

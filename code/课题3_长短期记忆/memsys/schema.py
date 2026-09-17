@@ -128,17 +128,23 @@ class MemoryEntry:
         现统一为天：S=1 → 未召回记忆约 1.2 天后衰减到阈值以下，每次召回
         S+1 → 稳定期多一天（间隔效应）。
         """
-        now = now if now is not None else time.time()
+        now = now if now is not None else time.time()          # 基准时刻（可注入，测试用）
+        # 距离上次召回（若从未召回则用创建时间）经过的**天数**
         t = (now - (self.last_recalled_at or self.timestamp)) / 86400.0
-        # 防御：时间倒退/未初始化时视为刚创建
+        # 时间倒退/未初始化时视为刚创建：t 取 0 → R≈1
         t = max(t, 0.0)
         import math
+        # 艾宾浩斯公式 R=e^(-t/S)：S 越大分母越大，曲线越平缓（越“难忘”）
+        # 1e-6 防除零；S≤0 时按极小值处理，避免崩溃
         return math.exp(-t / max(self.decay_strength, 1e-6))
 
     def mark_recalled(self) -> None:
         """检索命中后调用——实现'命中强化'（S+1，重置 t）。"""
+        # 命中强化模型：被用过一次 → 强度 +1（更难被遗忘）
         self.recall_count += 1
         self.decay_strength += 1.0
+        # t 起点重置为“现在”：下一次遗忘计时从这次使用开始重新算
+        # （这就是“间隔效应/刚复习完最难忘”的实现）
         self.last_recalled_at = time.time()
 
     # ---------- 溯源（创新点 E） ----------

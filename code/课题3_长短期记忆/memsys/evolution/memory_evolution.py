@@ -91,25 +91,25 @@ class MemoryEvolution:
         # 【性能修复】旧实现对每个候选重复 embed(existing.content)——
         # 而该向量在 store.add() 时已算过并存在 vindex 里。改为直接读
         # 缓存向量，查重从 O(n×embed) 降到 O(n×cosine)，n 大时快 100×。
-        new_vec = self.vindex.model.embed(content)
+        new_vec = self.vindex.model.embed(content)   # 新内容的向量（只算一次）
         dup = None
-        best_sim = -1.0
-        for cid in store.candidates():
+        best_sim = -1.0                               # 记录“最像的现有条目”
+        for cid in store.candidates():                # 遍历同库全部现有条目
             existing = store.get(cid)
             if existing is None:
                 continue
             # 优先读库里已缓存的向量（factual/experiential 的 vindex
             # 在 add() 时已登记）；Miss 时才现算并回填
             if cid in store.vindex:
-                cand_vec = store.vindex._vectors[cid]
+                cand_vec = store.vindex._vectors[cid]      # 直接读缓存，避免重复 embed
             else:
                 cand_vec = store.vindex.model.embed(existing.content)
-                store.vindex.add(cid, existing.content)
-            sim = cosine(new_vec, cand_vec)
-            if sim > best_sim:
+                store.vindex.add(cid, existing.content)    # 补登记进缓存
+            sim = cosine(new_vec, cand_vec)                # 语义相似度（余弦）
+            if sim > best_sim:                             # 保留最相似的那个
                 best_sim, dup = sim, existing
         if dup is not None and best_sim > self.merge_theta:
-            return None  # 重复：跳过写入
+            return None  # 重复：相似度超过阈值 θ，跳过写入（调用方计 skip）
 
         entry = new_entry(type_, content, source=source, session_id=session_id,
                           importance=importance,
