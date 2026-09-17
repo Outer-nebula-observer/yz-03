@@ -129,6 +129,8 @@ emb = OpenAIEmbedding(base_url="http://<网关>/v1",
                       api_key=os.environ["LLM_KEY"], model="bge-m3")
 ```
 
+**WebUI 可视化**：右栏「📑 记忆详情」抽屉（总览/单条历史/遗忘日志）+ 遗忘曲线 + 战役进度条；案例库含「高地攻防」与「记忆生命周期（模拟时间+遗忘）」两类。
+
 **接智戎规划链路（推荐入口）**：`integration/zhirong_kit/` —— 一键式对接套装，
 内含 `adapter.py`（统一适配器工厂）、`bridge_server.py`（HTTP 桥，智戎跨机也可调）、
 `selfcheck.py`（对接前自检）、`README.md`（完整对接手册）。先读那个 README。

@@ -72,6 +72,10 @@ class MemoryEvolution:
         # 长短期边界管理器：短期→长期晋升的唯一门控（docs/04 避坑点2/6）
         # 缺省自建；controller 注入同一实例以便审计日志集中
         self.boundary = boundary or MemoryBoundary()
+        # 【v0.6】遗忘墓碑日志：记录每条被遗忘记忆的元信息/原因/时间，
+        # 供 WebUI 抽屉面板与 CLI 展示"何时遗忘/为什么遗忘"。
+        # 注意：遗忘仍为硬删除（存储不保留），墓碑是审计/可视化依据。
+        self.forgotten_log: list = []
 
     # ---------------------------------------------------------------- ① 写入
     def write(self, type_: MemoryType, content: str, source: str = "",
@@ -164,8 +168,21 @@ class MemoryEvolution:
                 if e.importance >= self.protected_importance:
                     continue  # 失败教训等重要条目保护
                 if e.retention(now) < self.forget_threshold:
+                    self.forgotten_log.append({
+                        "id": e.id, "type": e.type.value, "content": e.content,
+                        "source": e.source, "session_id": e.session_id,
+                        "importance": e.importance,
+                        "decay_strength": e.decay_strength,
+                        "retention": round(e.retention(now), 4),
+                        "forgotten_at": now,
+                        "reason": (f"R={e.retention(now):.3f} < "
+                                   f"threshold={self.forget_threshold}"),
+                        "op_history": list(e.op_history),
+                    })
                     store.remove(cid)
                     forgot.append(cid)
+        if len(self.forgotten_log) > 1000:      # 防无限增长（保留最近 1000 条墓碑）
+            self.forgotten_log = self.forgotten_log[-1000:]
         return forgot
 
     # ---------------------------------------------------------------- ④ 抽象

@@ -157,6 +157,11 @@
       <button class="zone-tab" data-zone="right" data-group="audit"
               onclick="switchZone('right','audit')">🗂 历史·审计</button>
     </div>
+    <div class="drawer-opener">
+      <button class="ghost" onclick="openMemoryDrawer()">📑 记忆详情（右侧抽屉）</button>
+      <button class="ghost warn" onclick="apiForgetDemo()">⏩ 模拟时间+遗忘（30天）</button>
+      <span class="dim" id="forget-demo-msg"></span>
+    </div>
 
     <div class="card grow" data-group="result">
       <h2>🎯 检索命中 <span class="hint">（带溯源 · 创新点 E）</span><span class="hint" id="hits-stage"></span></h2>
@@ -204,6 +209,32 @@
     </div>
   </section>
 </main>
+
+<!-- ══════════ 右侧抽屉：记忆详情 / 历史 / 遗忘日志 ══════════ -->
+<div id="drawer-mask" class="drawer-mask" style="display:none" onclick="closeMemoryDrawer()"></div>
+<aside id="memory-drawer" class="drawer" aria-label="记忆详情抽屉">
+  <div class="drawer-head">
+    <b>📑 记忆详情</b>
+    <button class="ghost" onclick="closeMemoryDrawer()">✕</button>
+  </div>
+  <div class="drawer-tabs">
+    <button class="dtab active" data-panel="overview" onclick="drawerTab('overview')">🗂 总览</button>
+    <button class="dtab" data-panel="history" onclick="drawerTab('history')">🧬 单条历史</button>
+    <button class="dtab" data-panel="forgotten" onclick="drawerTab('forgotten')">⚰ 遗忘日志</button>
+  </div>
+  <div class="drawer-body">
+    <div class="dpanel" data-panel="overview">
+      <div class="metric" id="d-stats">加载中…</div>
+      <div id="d-overview-list" class="memlist drawer-list"></div>
+    </div>
+    <div class="dpanel" data-panel="history" hidden>
+      <div id="d-history" class="d-history"><div class="empty">（点击“总览”中的某条记忆查看历史）</div></div>
+    </div>
+    <div class="dpanel" data-panel="forgotten" hidden>
+      <div id="d-forgotten" class="memlist drawer-list"><div class="empty">（暂无遗忘记录——可点“⏩ 模拟时间+遗忘”或跑记忆生命周期案例）</div></div>
+    </div>
+  </div>
+</aside>
 
 <footer>
   <span>七步闭环：①规划 → ②查询列表 → ③检索 → ④装载 → ⑤上下文 → ⑥反馈 → ⑦进化</span>

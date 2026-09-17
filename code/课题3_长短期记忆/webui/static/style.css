@@ -273,3 +273,31 @@ button.chain:hover { background: #5a4b82; }
 .zone-tab.active { background: var(--accent); border-color: var(--accent);
   color: #fff; font-weight: 600; }
 .card[hidden] { display: none !important; }
+
+/* ---------------- 右侧记忆详情抽屉 ---------------- */
+.drawer-opener { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; margin-bottom: 8px; }
+.drawer-opener .dim { font-size: 11px; color: var(--ink2); }
+.drawer-mask { position: fixed; inset: 0; background: rgba(20,30,40,.35); z-index: 900; }
+.drawer { position: fixed; top: 0; right: 0; bottom: 0; width: 540px; max-width: 92vw;
+  background: #fff; box-shadow: -6px 0 20px rgba(0,0,0,.15); z-index: 1000;
+  transform: translateX(105%); transition: transform .22s ease; display: flex;
+  flex-direction: column; border-left: 3px solid var(--accent); }
+.drawer.open { transform: none; }
+.drawer-head { display: flex; justify-content: space-between; align-items: center;
+  padding: 12px 14px; border-bottom: 1px solid var(--line); }
+.drawer-head b { font-size: 15px; color: var(--accent); }
+.drawer-tabs { display: flex; gap: 6px; padding: 8px 14px 0; border-bottom: 1px solid var(--line); }
+.dtab { background: none; border: none; padding: 6px 12px; font-size: 13px; cursor: pointer;
+  color: var(--ink2); border-bottom: 2px solid transparent; }
+.dtab.active { color: var(--accent); border-bottom-color: var(--accent); font-weight: 600; }
+.drawer-body { flex: 1; overflow-y: auto; padding: 12px 14px; }
+.dpanel .metric { margin-bottom: 10px; }
+.drawer-list { max-height: none; }
+.drawer-list .mem { cursor: pointer; }
+.d-history .fc-head { flex-wrap: wrap; }
+.d-history .timeline { font-size: 12px; line-height: 1.7; color: var(--ink); }
+.d-history .timeline .tl-step { display: flex; gap: 8px; }
+.d-history .timeline .tl-dot { color: var(--accent); }
+.d-forgotten-item { border: 1px solid #e6d9c8; background: #fffaf3; border-radius: 6px;
+  padding: 8px 10px; margin-bottom: 8px; font-size: 12px; }
+.d-forgotten-item .f-head { display: flex; justify-content: space-between; font-size: 11px; color: var(--ink2); }

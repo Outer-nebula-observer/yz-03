@@ -376,8 +376,9 @@ function renderMemoryList() {
 let selectedMemId = "";
 
 function selectMem(id) {
-  selectedMemId = (selectedMemId === id) ? "" : id;   // 再点取消选中
-  refreshMemory();
+  selectedMemId = id;
+  refreshMemory();          // 下方遗忘曲线面板同步
+  openMemoryDrawer();       // 右侧抽屉：总览/历史/遗忘日志
 }
 
 function renderForgettingCurve() {
@@ -434,6 +435,127 @@ function renderForgettingCurve() {
   </div>
   ${m.op_history && m.op_history.length ? `<div class="dim">历史操作：${esc(m.op_history.join(" → "))}</div>` : ""}`;
   el.innerHTML = html;
+}
+
+/* ---------------- 右侧记忆详情抽屉 ---------------- */
+let drawerMemItems = [], drawerForgotten = [];
+
+async function openMemoryDrawer() {
+  $("drawer-mask").style.display = "block";
+  $("memory-drawer").classList.add("open");
+  await refreshDrawerMemory();
+}
+
+function closeMemoryDrawer() {
+  $("memory-drawer").classList.remove("open");
+  $("drawer-mask").style.display = "none";
+}
+
+async function refreshDrawerMemory() {
+  const rf = await api("/api/memory?type=fact");
+  const re = await api("/api/memory?type=experience");
+  const ro = await api("/api/forgotten");
+  drawerMemItems = [
+    ...(rf && rf.items ? rf.items.map(x => ({ ...x, type: "fact" })) : []),
+    ...(re && re.items ? re.items.map(x => ({ ...x, type: "experience" })) : []),
+  ];
+  drawerForgotten = (ro && ro.items) || [];
+  renderDrawerOverview();
+  renderDrawerForgotten();
+  if (selectedMemId && drawerMemItems.some(x => x.id === selectedMemId))
+    renderDrawerHistory(selectedMemId);
+}
+
+function drawerTab(name) {
+  document.querySelectorAll(".dtab").forEach(t =>
+    t.classList.toggle("active", t.dataset.panel === name));
+  document.querySelectorAll(".dpanel").forEach(p =>
+    p.hidden = p.dataset.panel !== name);
+}
+
+function renderDrawerOverview() {
+  const protCount = drawerMemItems.filter(m => m.protected).length;
+  const below = drawerMemItems.filter(m => !m.protected && m.retention < 0.3).length;
+  $("d-stats").innerHTML =
+    `记忆 ${drawerMemItems.length} · 受保护 ${protCount} · ` +
+    `已低于遗忘线 ${below} · 已遗忘 ${drawerForgotten.length}`;
+  const el = $("d-overview-list");
+  el.innerHTML = drawerMemItems.length ? drawerMemItems.map(m => {
+    const ret = Math.round(m.retention * 100);
+    const sel = selectedMemId === m.id ? " selected" : "";
+    return `<div class="mem${sel} clickable" onclick="selectDrawerMem('${m.id}')">
+      <div class="head"><span><span class="badge ${m.type}">${m.type === "fact" ? "事实" : "经验"}</span> ${esc(m.id)}</span>
+        <span>重要性 ${m.importance} · 召回 ${m.recall_count}</span></div>
+      <div class="content">${esc(m.content)}</div>
+      <div class="bar"><i style="width:${ret}%"></i></div>
+      <div class="ops">留存 ${ret}% · 来源 ${esc(m.source || "—")}${m.protected ? " · 🔒" : ""}</div>
+    </div>`;
+  }).join("") : `<div class="empty">（空库——可先预置/导入案例）</div>`;
+}
+
+function selectDrawerMem(id) {
+  selectedMemId = id;
+  drawerTab("history");
+  renderDrawerHistory(id);
+  refreshMemory();
+}
+
+function renderDrawerHistory(id) {
+  const m = drawerMemItems.find(x => x.id === id);
+  const el = $("d-history");
+  if (!m) { el.innerHTML = `<div class="empty">（未找到该记忆）</div>`; return; }
+  const S = m.decay_strength || 1;
+  const t0 = m.last_recalled_at || m.timestamp;
+  const now = Date.now() / 1000;
+  const days = t0 ? Math.max(0, (now - t0) / 86400) : 0;
+  const daysTo = S * Math.log(1 / 0.3) - days;      // R<0.3 即遗忘阈值
+  const forgetLine = m.protected
+    ? `<span class="badge">🔒 受保护（永不遗忘）</span>`
+    : (daysTo <= 0
+      ? `<span class="badge" style="background:#c0392b;color:#fff">已低于遗忘线</span>`
+      : `<span class="dim">预计约 ${Math.ceil(daysTo)} 天后（${new Date((now + daysTo * 86400) * 1000).toLocaleDateString()}）低于遗忘线——若不再被召回</span>`);
+  const history = m.op_history && m.op_history.length
+    ? m.op_history.join(" → ") : "（尚无进化操作）";
+  const merged = m.merged_from && m.merged_from.length
+    ? m.merged_from.join(", ") : "—";
+  const created = m.timestamp ? new Date(m.timestamp * 1000).toLocaleString() : "—";
+  el.innerHTML = `
+    <div class="fc-head">
+      <span class="idchip">${esc(m.id)}</span>
+      <span class="badge ${m.type}">${m.type === "fact" ? "事实" : "经验"}</span>
+      ${m.protected ? '<span class="badge">🔒 保护</span>' : ""}
+    </div>
+    <div class="mem"><div class="content">${esc(m.content)}</div></div>
+    <div class="timeline">
+      <div class="tl-step"><span class="tl-dot">•</span>创建：${created}</div>
+      <div class="tl-step"><span class="tl-dot">•</span>来源：${esc(m.source || "—")}（场次 ${esc(m.session_id || "—")}）</div>
+      <div class="tl-step"><span class="tl-dot">•</span>强度 S=${S.toFixed(1)} · 召回 ${m.recall_count} 次 · 距上次召回 ${days.toFixed(1)} 天</div>
+      <div class="tl-step"><span class="tl-dot">•</span>当前留存：${Math.round(m.retention * 100)}% · ${forgetLine}</div>
+      <div class="tl-step"><span class="tl-dot">•</span>进化轨迹：${history}</div>
+      <div class="tl-step"><span class="tl-dot">•</span>合并自：${merged}</div>
+      ${m.metadata && m.metadata.stage ? `<div class="tl-step"><span class="tl-dot">•</span>阶段标签：🎯 ${esc(stageName(m.metadata.stage))}</div>` : ""}
+    </div>`;
+}
+
+function renderDrawerForgotten() {
+  const el = $("d-forgotten");
+  el.innerHTML = drawerForgotten.length ? drawerForgotten.map(f => `
+    <div class="d-forgotten-item">
+      <div class="f-head"><span>${esc(f.id)}</span><span>${new Date(f.forgotten_at * 1000).toLocaleString()}</span></div>
+      <div>${esc(f.content)}</div>
+      <div class="dim">原因：${esc(f.reason)} · 原重要性 ${f.importance} · 当时留存 ${Math.round(f.retention * 100)}%${f.source ? " · 来源 " + esc(f.source) : ""}</div>
+    </div>`).join("")
+    : `<div class="empty">（暂无遗忘记录——可点右上“⏩ 模拟时间+遗忘”或导入“记忆生命周期”案例）</div>`;
+}
+
+async function apiForgetDemo() {
+  const r = await api("/api/forget", { days: 30 });
+  if (!r) return;
+  $("forget-demo-msg").textContent =
+    `已模拟推进 ${r.days} 天：老化 ${r.moved} 条，遗忘 ${r.forgot} 条`;
+  await refreshAll();
+  await refreshDrawerMemory();
+  drawerTab("forgotten");
 }
 
 function switchTab(btn) {

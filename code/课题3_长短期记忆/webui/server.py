@@ -687,6 +687,8 @@ class Handler(BaseHTTPRequestHandler):
         ("POST", "/api/scenario"): lambda params, body: api_scenario(body),
         ("GET", "/api/campaigns"): lambda params, body: api_campaign({}),
         ("POST", "/api/campaign"): lambda params, body: api_campaign(body),
+        ("GET", "/api/forgotten"): lambda params, body: api_forgotten(),
+        ("POST", "/api/forget"): lambda params, body: api_forget(body),
     }
 
     def log_message(self, fmt, *args):  # 安静模式：不刷屏
@@ -848,9 +850,58 @@ def _campaign_next() -> dict:
         "context": context,
         "done": camp["done"],
     }
+    # 【v0.6】场间模拟时间推进 + 遗忘（记忆生命周期案例用）
+    sim_days = rd.get("simulate_days", 0)
+    if sim_days:
+        ret["aging"] = _simulate_aging(sim_days)
     if not camp["done"]:
         ret["next_title"] = rounds[idx + 1]["title"]
     return ret
+
+
+def _simulate_aging(days: int) -> dict:
+    """模拟时间流逝 + 触发遗忘（演示"记忆生命周期"用）。
+
+    做法：把库内所有记忆的 last_recalled_at / timestamp 前移 days 天，
+    再运行 evolution.forget()——低留存且未保护的记忆会被删除，并写入
+    forgotten_log 墓碑（WebUI 抽屉可看"何时/为何遗忘"）。
+    注意：这是演示级操作，会真实删除低价值记忆；高价值(importance>=2)不受影响。
+    """
+    ctl = STATE.ctl
+    now = time.time()
+    moved = 0
+    for store in (ctl.factual, ctl.experiential):
+        for cid in store.candidates():
+            e = store.get(cid)
+            if e is None:
+                continue
+            base = e.last_recalled_at or e.timestamp
+            e.last_recalled_at = (base or now) - days * 86400
+            e.timestamp = e.timestamp - days * 86400
+            store.update(e)          # 写穿（SQLite/内存同步）
+            moved += 1
+    forgot = ctl.evolution.forget(now=now)
+    info = {"days": days, "moved": moved, "forgot": len(forgot),
+            "forgotten_at": now}
+    STATE.add_event("info", "—", f"⏩ 模拟时间推进 {days} 天",
+                    f"老化 {moved} 条记忆；遗忘 {len(forgot)} 条"
+                    f"（低价值未召回，见右侧抽屉·遗忘日志）")
+    return info
+
+
+def api_forgotten() -> dict:
+    """遗忘墓碑日志（展示"何时/为何遗忘"）。"""
+    return {"items": STATE.ctl.evolution.forgotten_log[-200:]}
+
+
+def api_forget(body: dict) -> dict:
+    """手动模拟时间推进并触发遗忘（WebUI 演示按钮）。"""
+    days = int(body.get("days", 30))
+    if not (1 <= days <= 3650):
+        raise ValueError("days 需在 1~3650 之间")
+    info = _simulate_aging(days)
+    info["log_tail"] = STATE.ctl.evolution.forgotten_log[-10:]
+    return info
 
 
 def api_campaign(body: dict) -> dict:
