@@ -1,0 +1,83 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1480" height="1340" viewBox="0 0 1480 1340">
+  <defs>
+    <marker id="arw-2A78D6" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#2A78D6"/>
+    </marker>
+    <marker id="arw-52514E" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#52514E"/>
+    </marker>
+  </defs>
+  <rect x="90.00" y="146.40" width="1260.00" height="124.00" rx="12.00" fill="#F9F9F7" stroke="#E1E0D9" stroke-width="1.49"/>
+  <rect x="112.00" y="202.40" width="160.00" height="54.00" rx="9.00" fill="#FFFFFF" stroke="#DCDBD4" stroke-width="1.49"/>
+  <rect x="288.00" y="202.40" width="160.00" height="54.00" rx="9.00" fill="#FFFFFF" stroke="#DCDBD4" stroke-width="1.49"/>
+  <rect x="464.00" y="202.40" width="160.00" height="54.00" rx="9.00" fill="#FFFFFF" stroke="#DCDBD4" stroke-width="1.49"/>
+  <rect x="640.00" y="202.40" width="160.00" height="54.00" rx="9.00" fill="#FFFFFF" stroke="#DCDBD4" stroke-width="1.49"/>
+  <rect x="816.00" y="202.40" width="160.00" height="54.00" rx="9.00" fill="#FFFFFF" stroke="#DCDBD4" stroke-width="1.49"/>
+  <rect x="992.00" y="202.40" width="160.00" height="54.00" rx="9.00" fill="#FFFFFF" stroke="#DCDBD4" stroke-width="1.49"/>
+  <rect x="1168.00" y="202.40" width="160.00" height="54.00" rx="9.00" fill="#FFFFFF" stroke="#DCDBD4" stroke-width="1.49"/>
+  <rect x="90.00" y="292.27" width="1260.00" height="146.00" rx="12.00" fill="#EAF2FD" stroke="#2A78D6" stroke-width="2.49"/>
+  <rect x="90.00" y="470.00" width="1260.00" height="152.00" rx="12.00" fill="#FDEEE7" stroke="#EB6834" stroke-width="3.00"/>
+  <rect x="114.00" y="538.00" width="228.00" height="56.00" rx="9.00" fill="#FFFFFF" stroke="#EB6834" stroke-width="2.00"/>
+  <rect x="366.00" y="538.00" width="228.00" height="56.00" rx="9.00" fill="#FFFFFF" stroke="#EB6834" stroke-width="2.00"/>
+  <rect x="618.00" y="538.00" width="228.00" height="56.00" rx="9.00" fill="#FFFFFF" stroke="#EB6834" stroke-width="2.00"/>
+  <rect x="90.00" y="654.67" width="1260.00" height="224.00" rx="14.00" fill="#E6F7F1" stroke="#1BAF7A" stroke-width="2.49"/>
+  <rect x="114.00" y="714.47" width="590.00" height="148.00" rx="10.00" fill="#FFFFFF" stroke="#1BAF7A" stroke-width="1.49"/>
+  <rect x="736.00" y="714.47" width="590.00" height="148.00" rx="10.00" fill="#FFFFFF" stroke="#1BAF7A" stroke-width="1.49"/>
+  <rect x="90.00" y="912.40" width="1040.00" height="120.00" rx="12.00" fill="#EDEBF7" stroke="#4A3AA7" stroke-width="2.49"/>
+  <rect x="90.00" y="1054.87" width="1260.00" height="160.00" rx="12.00" fill="#FDF3E1" stroke="#EDA100" stroke-width="2.49"/>
+  <rect x="114.00" y="1110.87" width="232.00" height="50.00" rx="9.00" fill="#FFFFFF" stroke="#EDA100" stroke-width="2.00"/>
+  <rect x="372.00" y="1110.87" width="232.00" height="50.00" rx="9.00" fill="#FFFFFF" stroke="#EDA100" stroke-width="2.00"/>
+  <rect x="630.00" y="1110.87" width="232.00" height="50.00" rx="9.00" fill="#FFFFFF" stroke="#EDA100" stroke-width="2.00"/>
+  <rect x="90.00" y="1232.80" width="1260.00" height="66.00" rx="12.00" fill="#F9F9F7" stroke="#E1E0D9" stroke-width="1.49"/>
+  <path d="M720.0,428.0 L720.0,468.0" fill="none" stroke="#52514E" stroke-width="2.00" marker-end="url(#arw-52514E)"/>
+  <path d="M720.0,612.7 L720.0,652.7" fill="none" stroke="#52514E" stroke-width="2.00" marker-end="url(#arw-52514E)"/>
+  <path d="M650.0,881.3 L650.0,909.3" fill="none" stroke="#52514E" stroke-width="2.00" marker-end="url(#arw-52514E)"/>
+  <path d="M790.0,912.4 L790.0,884.4" fill="none" stroke="#52514E" stroke-width="2.00" marker-end="url(#arw-52514E)"/>
+  <path d="M1240.0,864.8 L1240.0,1054.9" fill="none" stroke="#52514E" stroke-width="2.00" marker-end="url(#arw-52514E)"/>
+  <path d="M1344.0,1155.3 L1400.0,1155.3 L1400.0,360.0 L1348.5,360.0" fill="none" stroke="#2A78D6" stroke-width="2.49" marker-end="url(#arw-2A78D6)"/>
+  <text x="90.00" y="92.73" font-size="37.33px" font-weight="600" fill="#0B0B0B">系统总体架构</text>
+  <text x="90.00" y="129.60" font-size="24.00px" font-weight="400" fill="#52514E">七步闭环 · 短期工作记忆 · 复盘晋升门控 · 事实/经验双库 · 三路混合检索 · 进化四操作</text>
+  <text x="114.00" y="180.40" font-size="21.33px" font-weight="600" fill="#52514E">编排层 · 七步闭环</text>
+  <text x="192.00" y="237.40" font-size="21.33px" font-weight="400" fill="#0B0B0B" text-anchor="middle">① 建槽</text>
+  <text x="368.00" y="237.40" font-size="21.33px" font-weight="400" fill="#0B0B0B" text-anchor="middle">② 查询列表</text>
+  <text x="544.00" y="237.40" font-size="21.33px" font-weight="400" fill="#0B0B0B" text-anchor="middle">③ 检索</text>
+  <text x="720.00" y="237.40" font-size="21.33px" font-weight="400" fill="#0B0B0B" text-anchor="middle">④ 装载</text>
+  <text x="896.00" y="237.40" font-size="21.33px" font-weight="400" fill="#0B0B0B" text-anchor="middle">⑤ 规划输出</text>
+  <text x="1072.00" y="237.40" font-size="21.33px" font-weight="400" fill="#0B0B0B" text-anchor="middle">⑥ AFSIM 反馈</text>
+  <text x="1248.00" y="237.40" font-size="21.33px" font-weight="400" fill="#0B0B0B" text-anchor="middle">⑦ 复盘进化</text>
+  <text x="280.00" y="237.40" font-size="21.33px" font-weight="400" fill="#898781" text-anchor="middle">→</text>
+  <text x="456.00" y="237.40" font-size="21.33px" font-weight="400" fill="#898781" text-anchor="middle">→</text>
+  <text x="632.00" y="237.40" font-size="21.33px" font-weight="400" fill="#898781" text-anchor="middle">→</text>
+  <text x="808.00" y="237.40" font-size="21.33px" font-weight="400" fill="#898781" text-anchor="middle">→</text>
+  <text x="984.00" y="237.40" font-size="21.33px" font-weight="400" fill="#898781" text-anchor="middle">→</text>
+  <text x="1160.00" y="237.40" font-size="21.33px" font-weight="400" fill="#898781" text-anchor="middle">→</text>
+  <text x="118.00" y="336.27" font-size="26.67px" font-weight="600" fill="#0B0B0B">短期工作记忆</text>
+  <text x="118.00" y="378.27" font-size="21.33px" font-weight="400" fill="#52514E">槽位：目标 · 约束 · 查询列表 · 滚动消息</text>
+  <text x="118.00" y="414.27" font-size="21.33px" font-weight="400" fill="#898781">容量受限，达阈值时压缩历史消息；约束字段永不压缩</text>
+  <text x="118.00" y="514.00" font-size="26.67px" font-weight="600" fill="#0B0B0B">复盘晋升 · 短期进入长期记忆的唯一通道</text>
+  <text x="228.00" y="576.00" font-size="21.33px" font-weight="600" fill="#0B0B0B" text-anchor="middle">复盘驱动</text>
+  <text x="480.00" y="576.00" font-size="21.33px" font-weight="600" fill="#0B0B0B" text-anchor="middle">类别门</text>
+  <text x="732.00" y="576.00" font-size="21.33px" font-weight="600" fill="#0B0B0B" text-anchor="middle">查重 θ</text>
+  <text x="896.00" y="576.00" font-size="21.33px" font-weight="400" fill="#898781">写入只留一个正规入口，放行或拒绝均记审计</text>
+  <text x="118.00" y="698.43" font-size="26.67px" font-weight="600" fill="#0B0B0B">长期记忆 · 双库分治</text>
+  <text x="138.00" y="752.47" font-size="26.67px" font-weight="600" fill="#0B0B0B">事实库</text>
+  <text x="138.00" y="786.47" font-size="21.33px" font-weight="400" fill="#52514E">SQLite · 属性精确过滤</text>
+  <text x="138.00" y="818.47" font-size="20.00px" font-weight="400" fill="#898781">参数 · 条令 · 地形</text>
+  <text x="138.00" y="848.47" font-size="20.00px" font-weight="400" fill="#898781">要求“差一个数字就是错”</text>
+  <text x="760.00" y="752.47" font-size="26.67px" font-weight="600" fill="#0B0B0B">经验库</text>
+  <text x="760.00" y="786.47" font-size="21.33px" font-weight="400" fill="#52514E">向量 · 语义召回</text>
+  <text x="760.00" y="818.47" font-size="20.00px" font-weight="400" fill="#898781">教训 · 对策</text>
+  <text x="760.00" y="848.47" font-size="20.00px" font-weight="400" fill="#898781">要求“换个说法也能搜到”</text>
+  <text x="720.00" y="904.40" font-size="21.33px" font-weight="400" fill="#52514E" text-anchor="middle">更新 / 淘汰</text>
+  <text x="118.00" y="956.40" font-size="26.67px" font-weight="600" fill="#0B0B0B">进化：写入 · 合并 · 遗忘 · 抽象</text>
+  <text x="1262.00" y="960.80" font-size="21.33px" font-weight="400" fill="#52514E">三路读取</text>
+  <text x="118.00" y="1098.87" font-size="26.67px" font-weight="600" fill="#0B0B0B">检索层 · 任务感知的三路混合检索</text>
+  <text x="230.00" y="1145.87" font-size="21.33px" font-weight="600" fill="#0B0B0B" text-anchor="middle">向量 · 语义</text>
+  <text x="488.00" y="1145.87" font-size="21.33px" font-weight="600" fill="#0B0B0B" text-anchor="middle">BM25 · 词法</text>
+  <text x="746.00" y="1145.87" font-size="21.33px" font-weight="600" fill="#0B0B0B" text-anchor="middle">属性精确</text>
+  <text x="880.00" y="1144.87" font-size="20.00px" font-weight="400" fill="#52514E">→ 归一加权融合（记忆类型先验 + 阶段亲和）</text>
+  <text x="880.00" y="1186.27" font-size="20.00px" font-weight="400" fill="#898781">按 MDMP 阶段生成查询，命中后再给对口阶段加分</text>
+  <text x="114.00" y="1188.87" font-size="20.00px" font-weight="400" fill="#898781">注：三路中仅“属性精确”只走事实库，向量与 BM25 两库均查</text>
+  <text x="1422.00" y="730.80" font-size="21.33px" font-weight="400" fill="#2A78D6" text-anchor="middle" transform="translate(1422.00,730.80) rotate(90)">装载进上下文</text>
+  <text x="118.00" y="1274.80" font-size="24.00px" font-weight="400" fill="#52514E">审计日志 · 全链路可回放：每条记忆为什么写入、为什么删除</text>
+</svg>
