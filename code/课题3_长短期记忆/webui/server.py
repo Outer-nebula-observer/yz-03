@@ -249,8 +249,11 @@ def api_session_start(body: dict) -> dict:
     STATE.progress["s2"] = bool(queries)
     STATE.sessions.append({
         "plan_id": plan_id, "goal": goal,
+        "constraints": constraints,
+        "queries": [q.to_dict() for q in queries],
         "started_at": time.time(), "closed_at": None,
         "report": None, "produced": [], "reused": [], "stats": {},
+        "retrieved": [], "context": "", "review": "", "plan_output": "",
     })
     STATE.add_event("divider", "①", f"场次 {plan_id} 开启", goal)
     STATE.add_event("input", "①", f"输入：规划任务 {plan_id}",
@@ -287,6 +290,7 @@ def api_session_retrieve(body: dict) -> dict:
             known[r["plan_id"]] = max(known.get(r["plan_id"], 0), r["count"])
         STATE.current_session["reused"] = [{"plan_id": k, "count": v}
                                            for k, v in known.items()]
+        STATE.current_session["retrieved"] = [hit_dict(h) for h in hits]   # 存档本场完整命中
     # —— 事件（产出） ——
     n_fact = sum(1 for h in hits if h.entry.type.value == "fact")
     n_exp = len(hits) - n_fact
@@ -382,6 +386,7 @@ def api_session_close(body: dict) -> dict:
     STATE.add_event("input", "⑦", "输入：复盘材料",
                     review[:160] + ("…" if len(review) > 160 else ""))
     plan_id = wm.slot.plan_id
+    ctx_text = STATE.ctl.render_context()   # 本场最终注入 LLM 的上下文（存档）
     report = STATE.ctl.close_session(review)
     STATE.last_report = report
     STATE.progress["s7"] = True
@@ -393,6 +398,8 @@ def api_session_close(body: dict) -> dict:
         entry["report"] = report_dict(report)
         entry["produced"] = list(report.wrote) + list(report.abstracted)
         entry["stats"] = dict(STATE.ctl.session_stats)
+        entry["review"] = review
+        entry["context"] = ctx_text
     rd = report_dict(report)
     STATE.add_event(
         "output", "⑦", "产出：记忆进化完成（本场沉淀）",
@@ -831,11 +838,17 @@ def _campaign_next() -> dict:
     # 场次历史（右栏多轮沉淀主线）
     STATE.sessions.append({
         "plan_id": rd["plan_id"], "goal": rd["goal"],
+        "constraints": rd.get("constraints", []),
+        "queries": [q.to_dict() for q in queries],
         "started_at": time.time() - 1, "closed_at": time.time(),
         "report": report_dict(report),
         "produced": list(report.wrote) + list(report.abstracted),
         "reused": [{"plan_id": u["session_id"], "count": 1} for u in reused],
         "stats": dict(ctl.session_stats),
+        "retrieved": [hit_dict(h) for h in hits],
+        "context": context,
+        "review": rd.get("review", ""),
+        "plan_output": "",
     })
     # 推进战役状态
     camp["idx"] = idx + 1

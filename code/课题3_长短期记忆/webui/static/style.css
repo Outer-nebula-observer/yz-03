@@ -326,3 +326,19 @@ button.chain:hover { background: #5a4b82; }
   border-left: 2px solid var(--accent); padding: 6px 8px; border-radius: 4px; }
 .evt.open .d { display: block; }
 .evt.open .bd b { color: var(--accent); }
+
+/* ---------------- v0.7 场次完整详情（点开展开） ---------------- */
+.sess.clickable { cursor: pointer; }
+.sess-detail { display: none; margin-top: 8px; border-top: 1px dashed var(--line);
+  padding-top: 8px; font-size: 12px; }
+.sess-detail h4 { margin: 8px 0 4px; font-size: 12px; color: var(--accent); }
+.sd-ul { margin: 2px 0 6px; padding-left: 16px; }
+.sd-q { background: #f7fafc; border-radius: 4px; padding: 3px 6px; margin: 3px 0; }
+.sd-q code { background: var(--chip); padding: 1px 5px; border-radius: 4px; font-size: 11px; }
+.sd-hit { border: 1px solid var(--line); border-radius: 5px; padding: 6px 8px; margin: 5px 0; }
+.sd-ctx { background: #f6f8fb; border: 1px solid var(--line); border-radius: 5px;
+  padding: 6px 8px; font-size: 11px; max-height: 180px; overflow: auto; white-space: pre-wrap; }
+.sd-b, .sd-r { background: #fbfcfd; border: 1px solid var(--line); border-radius: 5px;
+  padding: 6px 8px; margin: 4px 0; }
+.evt.divider.clickable { cursor: pointer; }
+.evt-detail-row { padding: 8px 14px; background: #fbfcfd; border-bottom: 1px solid var(--line); }

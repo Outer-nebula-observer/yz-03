@@ -634,8 +634,12 @@ async function refreshEvents() {
   };
   $("events").innerHTML = evs.map(e => {
     if (e.kind === "divider") {
-      return `<div class="evt divider"><span class="d-line"></span>
-        <b>${esc(e.title)}</b><span class="d-line"></span></div>`;
+      const pid = (e.title.match(/场次\s*([^\s｜]+)/)
+                   || e.title.match(/([A-Za-z0-9_-]+)\s*｜/))?.[1] || "";
+      return `<div class="evt divider clickable" data-pid="${esc(pid)}"
+          onclick="toggleSessionDetailFromEvents(this)">
+        <span class="d-line"></span><b>${esc(e.title)}</b><span class="d-line"></span>
+        ${pid ? '<span class="chev">+</span>' : ""}</div>`;
     }
     const [tag, cls] = kindMeta[e.kind] || ["·", "sys"];
     const hasD = !!e.detail;
@@ -675,27 +679,80 @@ async function refreshSessions() {
     const rep = s.report;
     const badges = [];
     if (rep) {
-      badges.push(`✍ 写入 ${rep.write}`, `🔀 合并 ${rep.merge}`,
-                  `🗑 遗忘 ${rep.forget}`);
+      badges.push(`写入 ${rep.write}`, `合并 ${rep.merge}`, `遗忘 ${rep.forget}`);
     } else {
       badges.push("● 进行中");
     }
     if (s.reused?.length) {
-      badges.push(`⤴ 复用往场 ${s.reused.reduce((a, b) => a + b.count, 0)} 条`);
+      badges.push(`复用往场 ${s.reused.reduce((a, b) => a + b.count, 0)} 条`);
     }
     const produced = rep ? [...(rep.wrote_ids || []), ...(rep.abstracted_ids || [])] : [];
     return `
-    <div class="sess${s.closed_at ? " closed" : " open"}">
+    <div class="sess${s.closed_at ? " closed" : " open"} clickable" onclick="toggleSession(this)">
       <div class="head"><b>${esc(s.plan_id)}</b>
-        <span>${s.closed_at ? `✓ 已复盘 · ${fmtDur(s.duration_s)}` : "● 进行中"}</span></div>
+        <span>${s.closed_at ? `✓ 已复盘 · ${fmtDur(s.duration_s)} · 点开看详情` : "● 进行中"}</span></div>
       <div class="goal">${esc(s.goal) || "（无目标）"}</div>
       <div class="badges">${badges.map(b => `<span>${b}</span>`).join("")}</div>
       ${produced.length ? `<div class="prod">沉淀记忆：${produced.map(id =>
         `<span class="idchip">${esc(id)}</span>`).join("")}</div>` : ""}
       ${s.reused?.length ? `<div class="prod reuse">复用往场：${s.reused.map(x =>
         `<span class="idchip past">${esc(x.plan_id)} ×${x.count}</span>`).join("")}</div>` : ""}
+      <div class="sess-detail">${sessionDetailHtml(s)}</div>
     </div>`;
   }).join("");
+}
+
+/* ---------------- 场次完整详情（指令/事实/记忆构建/结果） ---------------- */
+function sessionDetailHtml(s) {
+  const qs = s.queries || [];
+  const hits = s.retrieved || [];
+  const rep = s.report;
+  const qHtml = qs.length
+    ? qs.map(q => `<div class="sd-q">【${esc(q.intent || q.q_id || "")}】<code>${esc(q.route)}/${esc(q.target)}</code> ${esc(q.query_text || "")}
+        ${q.attrs ? `<span class="dim">attrs=${esc(JSON.stringify(q.attrs))}</span>` : ""}</div>`).join("")
+    : `<div class="dim">（无显式查询，可能用阶段模板）</div>`;
+  const hitHtml = hits.length
+    ? hits.map(h => `<div class="sd-hit"><span class="badge ${h.type}">${h.type === "fact" ? "事实" : "经验"}</span>
+        <span class="badge route">${h.route}</span> <b>${h.score.toFixed(3)}</b>
+        <div class="content">${esc(h.content)}</div>
+        <div class="ops">来源 ${esc(h.provenance?.source || "—")} · 场次 ${esc(h.provenance?.session_id || "—")}</div></div>`).join("")
+    : `<div class="dim">（暂无检索命中记录）</div>`;
+  const bHtml = rep
+    ? `写入 ${rep.write} · 合并 ${rep.merge} · 遗忘 ${rep.forget} · 抽象 ${rep.abstract} · 查重跳过 ${rep.skip_duplicate}
+      ${(rep.wrote_ids || []).length ? `<div class="dim">写入 id：${(rep.wrote_ids).map(x => esc(x)).join("、")}</div>` : ""}
+      ${(rep.abstracted_ids || []).length ? `<div class="dim">抽象 id：${(rep.abstracted_ids).map(x => esc(x)).join("、")}</div>` : ""}
+      ${(rep.merged_pairs || []).length ? `<div class="dim">合并对：${rep.merged_pairs.map(([n, src]) => esc(n) + " ← " + src.length + "条").join("；")}</div>` : ""}`
+    : "（尚未复盘进化）";
+  const ctxHtml = s.context
+    ? `<pre class="sd-ctx">${esc(s.context)}</pre>`
+    : `<div class="dim">（无上下文存档）</div>`;
+  const constraints = s.constraints && s.constraints.length
+    ? s.constraints.map(c => `<li>${esc(c)}</li>`).join("") : "<li>（无）</li>";
+  return `<h4>作战指令</h4>
+      <div><b>目标：</b>${esc(s.goal || "—")}</div>
+      <div><b>约束：</b><ul class="sd-ul">${constraints}</ul></div>
+      <div><b>查询列表：</b></div>${qHtml}
+    <h4>检索命中（有哪些事实/经验）</h4>${hitHtml}
+    <h4>记忆构建（进化）</h4><div class="sd-b">${bHtml}</div>
+    <h4>作战结果 / 复盘</h4><div class="sd-r">${esc(s.review || "（无复盘记录）")}</div>
+    <h4>注入 LLM 的最终上下文</h4>${ctxHtml}`;
+}
+
+function toggleSession(el) {
+  const d = el.querySelector(".sess-detail");
+  if (d) d.style.display = d.style.display === "none" ? "block" : "none";
+}
+
+function toggleSessionDetailFromEvents(el) {
+  const pid = el.dataset.pid;
+  const s = lastSessions.find(x => x.plan_id === pid);
+  if (!s) return;
+  let row = el.nextElementSibling;
+  if (row && row.classList && row.classList.contains("evt-detail-row")) {
+    row.remove();
+    return;
+  }
+  el.insertAdjacentHTML("afterend", `<div class="evt-detail-row">${sessionDetailHtml(s)}</div>`);
 }
 
 /* ---------------- 演示数据 ---------------- */
