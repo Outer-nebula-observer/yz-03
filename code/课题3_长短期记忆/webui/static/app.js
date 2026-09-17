@@ -803,12 +803,14 @@ async function exportSnapshot() {
   } finally { unbusy("btn-export"); }
 }
 async function resetAll() {
-  if (!confirm("确定清空重置？将删除全部记忆与过程数据，不可恢复。")) return;
+  if (!confirm("确定清空重置？将删除全部记忆与过程数据，回到空白状态，不可恢复。")) return;
   const btn = busy("btn-reset", "重置中…");
   try {
-    await api("/api/reset", {});
-    showToast("已清空重置", "warn");
-    location.reload();
+    const r = await api("/api/reset", {});
+    if (!r) return;
+    showToast("已清空，回到空白状态", "warn");
+    // fresh=1：刷新后不自动预置演示数据，直到手动点“预置战例/教训”
+    location.href = location.pathname + "?fresh=1";
   } finally { unbusy("btn-reset"); }
 }
 
@@ -1051,7 +1053,9 @@ window.addEventListener("DOMContentLoaded", async () => {
   addQueryRow();          // 默认一条空查询行（可删；场景填充会重建）
   await loadStages();    // MDMP 七阶段（规划阶段副驾驶）——先于 seed，
                          // 保证首次渲染记忆列表/命中时 stageName 可用
-  await seed();          // 首次进入自动预置演示数据（幂等），开箱即可玩
+  const fresh = new URLSearchParams(location.search).has("fresh");
+  if (!fresh) await seed();          // 普通打开：自动预置演示数据（幂等），开箱即可玩
+  else showToast("空白重置状态：可点左侧“预置战例/教训”恢复演示数据", "ok");
   await loadScenes();    // 场景库加载并默认填充第一场景
   await loadCampaigns(); // 多轮战役案例加载
   switchZone("left", "scenes");    // 左栏默认：场景·战役
