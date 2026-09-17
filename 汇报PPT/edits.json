@@ -1,0 +1,773 @@
+{
+  "template_slug": "report-massive-reports",
+  "selected_slides": [
+    7,
+    3,
+    30,
+    21,
+    4,
+    26
+  ],
+  "edits": [
+    {
+      "slide": 7,
+      "slot_id": "s7_sh16_p0r0",
+      "new_text": "可进化外部记忆系统"
+    },
+    {
+      "slide": 7,
+      "slot_id": "s7_sh16_p0r2",
+      "new_text": "课题定位"
+    },
+    {
+      "slide": 7,
+      "slot_id": "s7_sh4_p0r0",
+      "new_text": "系统构成"
+    },
+    {
+      "slide": 7,
+      "slot_id": "s7_sh4_p1r0",
+      "new_text": "技术路线"
+    },
+    {
+      "slide": 7,
+      "slot_id": "s7_sh5_p0r0",
+      "new_text": "实验验证"
+    },
+    {
+      "slide": 7,
+      "slot_id": "s7_sh5_p1r0",
+      "new_text": "真实模型"
+    },
+    {
+      "slide": 7,
+      "slot_id": "s7_sh50_p0r0",
+      "new_text": "短期层"
+    },
+    {
+      "slide": 7,
+      "slot_id": "s7_sh51_p0r0",
+      "new_text": "面向作战规划智能体，解决跨场次经验无法积累"
+    },
+    {
+      "slide": 7,
+      "slot_id": "s7_sh51_p1r0",
+      "new_text": "工作记忆+事实/经验双库+三路融合+四类进化"
+    },
+    {
+      "slide": 7,
+      "slot_id": "s7_sh51_p2r0",
+      "new_text": "七步闭环：建槽→查询→检索→装载→规划→反馈→进化"
+    },
+    {
+      "slide": 7,
+      "slot_id": "s7_sh60_p0r0",
+      "new_text": "长期层"
+    },
+    {
+      "slide": 7,
+      "slot_id": "s7_sh61_p0r0",
+      "new_text": "自建50条8类测试集，双库增益p=0.0001"
+    },
+    {
+      "slide": 7,
+      "slot_id": "s7_sh55_p0r0",
+      "new_text": "检索层"
+    },
+    {
+      "slide": 7,
+      "slot_id": "s7_sh56_p0r0",
+      "new_text": "跨场次召回0.83对0，遗忘无误删"
+    },
+    {
+      "slide": 7,
+      "slot_id": "s7_sh56_p1r0",
+      "new_text": "YZ-03"
+    },
+    {
+      "slide": 7,
+      "slot_id": "s7_sh56_p2r0",
+      "new_text": "DeepSeek真模型规划引用率1.00"
+    },
+    {
+      "slide": 7,
+      "slot_id": "s7_sh62_p0r0",
+      "new_text": "进化层"
+    },
+    {
+      "slide": 7,
+      "slot_id": "s7_sh63_p0r0",
+      "new_text": "WebUI支持遗忘曲线/抽屉/事件流/进度条"
+    },
+    {
+      "slide": 7,
+      "slot_id": "s7_sh57_p0r0",
+      "new_text": "WebUI"
+    },
+    {
+      "slide": 7,
+      "slot_id": "s7_sh58_p0r0",
+      "new_text": "智戎事件驱动适配已落地（hook_evolve等）"
+    },
+    {
+      "slide": 7,
+      "slot_id": "s7_sh58_p1r0",
+      "new_text": "零第三方依赖，离线Mock可复现"
+    },
+    {
+      "slide": 7,
+      "slot_id": "s7_sh58_p2r0",
+      "new_text": "代码位于课题3_长短期记忆，docs/17实验报告"
+    },
+    {
+      "slide": 7,
+      "slot_id": "s7_sh64_p0r0",
+      "new_text": "智戎接入"
+    },
+    {
+      "slide": 7,
+      "slot_id": "s7_sh65_p0r0",
+      "new_text": "实验报告已按本科论文规范排版为Word"
+    },
+    {
+      "slide": 7,
+      "slot_id": "s7_sh65_p1r0",
+      "new_text": "最终汇报PPT由gorden-ppt-skill生成"
+    },
+    {
+      "slide": 7,
+      "slot_id": "s7_sh65_p2r0",
+      "new_text": "2025"
+    },
+    {
+      "slide": 7,
+      "slot_id": "s7_sh95_p0r0",
+      "new_text": "消融实验"
+    },
+    {
+      "slide": 7,
+      "slot_id": "s7_sh96_p0r0",
+      "new_text": "DeepSeek"
+    },
+    {
+      "slide": 3,
+      "slot_id": "s3_sh19_p0r0",
+      "new_text": "01"
+    },
+    {
+      "slide": 3,
+      "slot_id": "s3_sh5_p0r0",
+      "new_text": "事实库：参数、条令、地形，属性精确过滤"
+    },
+    {
+      "slide": 3,
+      "slot_id": "s3_sh5_p1r0",
+      "new_text": "经验库：教训、对策，向量语义召回"
+    },
+    {
+      "slide": 3,
+      "slot_id": "s3_sh5_p2r0",
+      "new_text": "三路融合：vector、BM25、SQL，可单路消融"
+    },
+    {
+      "slide": 3,
+      "slot_id": "s3_sh5_p3r0",
+      "new_text": "进化四操作：写、合、忘、抽，全部可审计"
+    },
+    {
+      "slide": 3,
+      "slot_id": "s3_sh16_p0r0",
+      "new_text": "FACTS & EXPS"
+    },
+    {
+      "slide": 3,
+      "slot_id": "s3_sh50_p0r0",
+      "new_text": "02"
+    },
+    {
+      "slide": 3,
+      "slot_id": "s3_sh58_p0r0",
+      "new_text": "遗忘模型：R=e^(-t/S)，命中强化S+1"
+    },
+    {
+      "slide": 3,
+      "slot_id": "s3_sh58_p1r0",
+      "new_text": "边界门控：复盘驱动、类别判定、语义查重"
+    },
+    {
+      "slide": 3,
+      "slot_id": "s3_sh58_p2r0",
+      "new_text": "阶段感知：MDMP七阶段查询与亲和"
+    },
+    {
+      "slide": 3,
+      "slot_id": "s3_sh58_p3r0",
+      "new_text": "WebUI：遗忘曲线、记忆抽屉、事件流、三线表报告"
+    },
+    {
+      "slide": 3,
+      "slot_id": "s3_sh76_p0r0",
+      "new_text": "HYBRID RETRIEVAL"
+    },
+    {
+      "slide": 3,
+      "slot_id": "s3_sh79_p0r0",
+      "new_text": "03"
+    },
+    {
+      "slide": 3,
+      "slot_id": "s3_sh83_p0r0",
+      "new_text": "智戎：事件驱动hook_evolve，结构化反馈"
+    },
+    {
+      "slide": 3,
+      "slot_id": "s3_sh83_p1r0",
+      "new_text": "待改进：测试集规模有限、真向量待复测"
+    },
+    {
+      "slide": 3,
+      "slot_id": "s3_sh83_p2r0",
+      "new_text": "待改进：知识锚定未实现、冲突无仲裁"
+    },
+    {
+      "slide": 3,
+      "slot_id": "s3_sh83_p3r0",
+      "new_text": "零第三方依赖，Mock/真模型可切换"
+    },
+    {
+      "slide": 3,
+      "slot_id": "s3_sh97_p0r0",
+      "new_text": "EVOLUTION"
+    },
+    {
+      "slide": 3,
+      "slot_id": "s3_sh100_p0r0",
+      "new_text": "04"
+    },
+    {
+      "slide": 3,
+      "slot_id": "s3_sh102_p0r0",
+      "new_text": "05"
+    },
+    {
+      "slide": 3,
+      "slot_id": "s3_sh102_p1r0",
+      "new_text": "06"
+    },
+    {
+      "slide": 3,
+      "slot_id": "s3_sh102_p2r0",
+      "new_text": "2025"
+    },
+    {
+      "slide": 3,
+      "slot_id": "s3_sh102_p3r0",
+      "new_text": "2025"
+    },
+    {
+      "slide": 3,
+      "slot_id": "s3_sh116_p0r0",
+      "new_text": "UI & BRIDGE"
+    },
+    {
+      "slide": 3,
+      "slot_id": "s3_sh37_p0r0",
+      "new_text": "系统核心能力"
+    },
+    {
+      "slide": 3,
+      "slot_id": "s3_sh118_p0r0",
+      "new_text": "2025"
+    },
+    {
+      "slide": 30,
+      "slot_id": "s30_sh16_p0r0",
+      "new_text": "问题·思路·实现·验证"
+    },
+    {
+      "slide": 30,
+      "slot_id": "s30_sh16_p0r2",
+      "new_text": "成果与亮点"
+    },
+    {
+      "slide": 30,
+      "slot_id": "s30_sh46_p0r0",
+      "new_text": "问题剖析"
+    },
+    {
+      "slide": 30,
+      "slot_id": "s30_sh46_p1r0",
+      "new_text": "改进行动"
+    },
+    {
+      "slide": 30,
+      "slot_id": "s30_sh47_p0r0",
+      "new_text": "问题分解"
+    },
+    {
+      "slide": 30,
+      "slot_id": "s30_sh47_p1r0",
+      "new_text": "研究问题"
+    },
+    {
+      "slide": 30,
+      "slot_id": "s30_sh48_p0r0",
+      "new_text": "后续规划"
+    },
+    {
+      "slide": 30,
+      "slot_id": "s30_sh49_p0r0",
+      "new_text": "未达目标"
+    },
+    {
+      "slide": 30,
+      "slot_id": "s30_sh50_p0r0",
+      "new_text": "01"
+    },
+    {
+      "slide": 30,
+      "slot_id": "s30_sh51_p0r0",
+      "new_text": "双库分层"
+    },
+    {
+      "slide": 30,
+      "slot_id": "s30_sh51_p1r0",
+      "new_text": "检索融合"
+    },
+    {
+      "slide": 30,
+      "slot_id": "s30_sh52_p0r0",
+      "new_text": "进化机制"
+    },
+    {
+      "slide": 30,
+      "slot_id": "s30_sh52_p1r0",
+      "new_text": "消融验证"
+    },
+    {
+      "slide": 30,
+      "slot_id": "s30_sh53_p0r0",
+      "new_text": "真模型验证"
+    },
+    {
+      "slide": 30,
+      "slot_id": "s30_sh53_p1r0",
+      "new_text": "智戎适配"
+    },
+    {
+      "slide": 30,
+      "slot_id": "s30_sh54_p0r0",
+      "new_text": "P1经验不积累/P2约束丢失/P3查询混杂/P4库噪声/P5目标检索弱"
+    },
+    {
+      "slide": 30,
+      "slot_id": "s30_sh55_p0r0",
+      "new_text": "把记忆组织为可演化外部系统，以复盘晋升连接短长期"
+    },
+    {
+      "slide": 30,
+      "slot_id": "s30_sh56_p0r0",
+      "new_text": "实现双库+三路检索+写/合/忘/抽+边界+阶段"
+    },
+    {
+      "slide": 30,
+      "slot_id": "s30_sh57_p0r0",
+      "new_text": "消融p=0.0001，跨场次0.83，引用率1.00"
+    },
+    {
+      "slide": 21,
+      "slot_id": "s21_sh16_p0r0",
+      "new_text": "实验验证与成果"
+    },
+    {
+      "slide": 21,
+      "slot_id": "s21_sh16_p0r3",
+      "new_text": "核心业绩达成"
+    },
+    {
+      "slide": 21,
+      "slot_id": "s21_sh10_p0r0",
+      "new_text": "系统有效性"
+    },
+    {
+      "slide": 21,
+      "slot_id": "s21_sh11_p0r0",
+      "new_text": "双库贡献"
+    },
+    {
+      "slide": 21,
+      "slot_id": "s21_sh12_p0r0",
+      "new_text": "跨场次复用"
+    },
+    {
+      "slide": 21,
+      "slot_id": "s21_sh13_p0r0",
+      "new_text": "滤噪与遗忘"
+    },
+    {
+      "slide": 21,
+      "slot_id": "s21_sh25_p0r0",
+      "new_text": "双库全开G3 hit@5=0.636，显著高于仅事实库"
+    },
+    {
+      "slide": 21,
+      "slot_id": "s21_sh26_p0r0",
+      "new_text": "hit@5提升"
+    },
+    {
+      "slide": 21,
+      "slot_id": "s21_sh27_p0r0",
+      "new_text": "第一场教训第二场召回0.83，对照0"
+    },
+    {
+      "slide": 21,
+      "slot_id": "s21_sh28_p0r0",
+      "new_text": "MRR提升"
+    },
+    {
+      "slide": 21,
+      "slot_id": "s21_sh29_p0r0",
+      "new_text": "min_score=0.16负例返回0%，遗忘误删0"
+    },
+    {
+      "slide": 21,
+      "slot_id": "s21_sh30_p0r0",
+      "new_text": "0.83召回"
+    },
+    {
+      "slide": 21,
+      "slot_id": "s21_sh31_p0r0",
+      "new_text": "DeepSeek规划引用率1.00，约束满足1.00"
+    },
+    {
+      "slide": 21,
+      "slot_id": "s21_sh32_p0r0",
+      "new_text": "0误删"
+    },
+    {
+      "slide": 21,
+      "slot_id": "s21_sh33_p0r0",
+      "new_text": "WebUI 66/66自测通过；冒烟21/21"
+    },
+    {
+      "slide": 21,
+      "slot_id": "s21_sh34_p0r0",
+      "new_text": "负例0%"
+    },
+    {
+      "slide": 21,
+      "slot_id": "s21_sh35_p0r0",
+      "new_text": "事件驱动适配已落地；自检5/5"
+    },
+    {
+      "slide": 21,
+      "slot_id": "s21_sh36_p0r0",
+      "new_text": "引用率1.00"
+    },
+    {
+      "slide": 21,
+      "slot_id": "s21_sh37_p0r0",
+      "new_text": "真实向量复测待开展"
+    },
+    {
+      "slide": 21,
+      "slot_id": "s21_sh38_p0r0",
+      "new_text": "20/20通过"
+    },
+    {
+      "slide": 21,
+      "slot_id": "s21_sh39_p0r0",
+      "new_text": "领域巡检脚本已提供，等待智戎真实数据"
+    },
+    {
+      "slide": 21,
+      "slot_id": "s21_sh40_p0r0",
+      "new_text": "事件驱动"
+    },
+    {
+      "slide": 21,
+      "slot_id": "s21_sh56_p0r0",
+      "new_text": "0.636"
+    },
+    {
+      "slide": 21,
+      "slot_id": "s21_sh57_p0r0",
+      "new_text": "真实模型"
+    },
+    {
+      "slide": 21,
+      "slot_id": "s21_sh60_p0r0",
+      "new_text": "0.83"
+    },
+    {
+      "slide": 21,
+      "slot_id": "s21_sh61_p0r1",
+      "new_text": "领域巡检"
+    },
+    {
+      "slide": 21,
+      "slot_id": "s21_sh63_p0r0",
+      "new_text": "1.00"
+    },
+    {
+      "slide": 21,
+      "slot_id": "s21_sh64_p0r1",
+      "new_text": "min_score=0.16"
+    },
+    {
+      "slide": 21,
+      "slot_id": "s21_sh66_p0r0",
+      "new_text": "0"
+    },
+    {
+      "slide": 21,
+      "slot_id": "s21_sh67_p0r1",
+      "new_text": "G2 0.341"
+    },
+    {
+      "slide": 21,
+      "slot_id": "s21_sh70_p0r0",
+      "new_text": "0.16"
+    },
+    {
+      "slide": 21,
+      "slot_id": "s21_sh71_p0r0",
+      "new_text": "WebUI交付"
+    },
+    {
+      "slide": 21,
+      "slot_id": "s21_sh71_p0r1",
+      "new_text": "G3 0.636"
+    },
+    {
+      "slide": 21,
+      "slot_id": "s21_sh73_p0r0",
+      "new_text": "20/20"
+    },
+    {
+      "slide": 21,
+      "slot_id": "s21_sh74_p0r1",
+      "new_text": "p=0.0001"
+    },
+    {
+      "slide": 21,
+      "slot_id": "s21_sh76_p0r0",
+      "new_text": "对照组0"
+    },
+    {
+      "slide": 21,
+      "slot_id": "s21_sh77_p0r2",
+      "new_text": "保护线有效"
+    },
+    {
+      "slide": 21,
+      "slot_id": "s21_sh77_p0r3",
+      "new_text": "词袋环境"
+    },
+    {
+      "slide": 21,
+      "slot_id": "s21_sh81_p0r0",
+      "new_text": "待真向量复测"
+    },
+    {
+      "slide": 4,
+      "slot_id": "s4_sh16_p0r0",
+      "new_text": "当前不足分析"
+    },
+    {
+      "slide": 4,
+      "slot_id": "s4_sh16_p0r2",
+      "new_text": "后续优先级"
+    },
+    {
+      "slide": 4,
+      "slot_id": "s4_sh81_p0r0",
+      "new_text": "H类仅6条、G类仅4对，统计功效有限"
+    },
+    {
+      "slide": 4,
+      "slot_id": "s4_sh80_p0r0",
+      "new_text": "样本量"
+    },
+    {
+      "slide": 4,
+      "slot_id": "s4_sh59_p0r0",
+      "new_text": "检索口径"
+    },
+    {
+      "slide": 4,
+      "slot_id": "s4_sh74_p0r0",
+      "new_text": "消融基于字符词袋，真向量未复测"
+    },
+    {
+      "slide": 4,
+      "slot_id": "s4_sh73_p0r0",
+      "new_text": "知识锚定"
+    },
+    {
+      "slide": 4,
+      "slot_id": "s4_sh87_p0r0",
+      "new_text": "入库前未与权威知识库比对"
+    },
+    {
+      "slide": 4,
+      "slot_id": "s4_sh92_p0r0",
+      "new_text": "冲突仲裁"
+    },
+    {
+      "slide": 4,
+      "slot_id": "s4_sh101_p0r0",
+      "new_text": "矛盾经验无仲裁，谁分高谁被召回"
+    },
+    {
+      "slide": 4,
+      "slot_id": "s4_sh3_p0r0",
+      "new_text": "遗忘可逆"
+    },
+    {
+      "slide": 4,
+      "slot_id": "s4_sh5_p0r0",
+      "new_text": "真模型复测"
+    },
+    {
+      "slide": 4,
+      "slot_id": "s4_sh60_p0r0",
+      "new_text": "遗忘为硬删除，未做软删恢复"
+    },
+    {
+      "slide": 4,
+      "slot_id": "s4_sh102_p0r0",
+      "new_text": "问题与不足"
+    },
+    {
+      "slide": 26,
+      "slot_id": "s26_sh16_p0r0",
+      "new_text": "总结与展望"
+    },
+    {
+      "slide": 26,
+      "slot_id": "s26_sh16_p0r2",
+      "new_text": "总结"
+    },
+    {
+      "slide": 26,
+      "slot_id": "s26_sh88_p0r0",
+      "new_text": "分层有效"
+    },
+    {
+      "slide": 26,
+      "slot_id": "s26_sh89_p0r0",
+      "new_text": "双库贡献"
+    },
+    {
+      "slide": 26,
+      "slot_id": "s26_sh90_p0r0",
+      "new_text": "跨场次可行"
+    },
+    {
+      "slide": 26,
+      "slot_id": "s26_sh91_p0r0",
+      "new_text": "进化可审计"
+    },
+    {
+      "slide": 26,
+      "slot_id": "s26_sh93_p0r0",
+      "new_text": "滤噪可靠"
+    },
+    {
+      "slide": 26,
+      "slot_id": "s26_sh95_p0r0",
+      "new_text": "真模型可用"
+    },
+    {
+      "slide": 26,
+      "slot_id": "s26_sh96_p0r0",
+      "new_text": "事件驱动"
+    },
+    {
+      "slide": 26,
+      "slot_id": "s26_sh97_p0r0",
+      "new_text": "领域巡检"
+    },
+    {
+      "slide": 26,
+      "slot_id": "s26_sh98_p0r0",
+      "new_text": "知识锚定"
+    },
+    {
+      "slide": 26,
+      "slot_id": "s26_sh99_p0r0",
+      "new_text": "动态信任分"
+    },
+    {
+      "slide": 26,
+      "slot_id": "s26_sh100_p0r0",
+      "new_text": "真向量复测"
+    },
+    {
+      "slide": 26,
+      "slot_id": "s26_sh105_p0r0",
+      "new_text": "智戎接入"
+    },
+    {
+      "slide": 26,
+      "slot_id": "s26_sh87_p0r0",
+      "new_text": "结构层结论在词袋环境下稳定"
+    },
+    {
+      "slide": 26,
+      "slot_id": "s26_sh121_p0r0",
+      "new_text": "智戎场景差异可用事件驱动适配"
+    },
+    {
+      "slide": 26,
+      "slot_id": "s26_sh139_p0r0",
+      "new_text": "下一步：真向量重跑与重标定"
+    },
+    {
+      "slide": 26,
+      "slot_id": "s26_sh140_p0r0",
+      "new_text": "下一步：H类扩至20条"
+    },
+    {
+      "slide": 26,
+      "slot_id": "s26_sh152_p0r0",
+      "new_text": "下一步：知识锚定与冲突仲裁"
+    },
+    {
+      "slide": 26,
+      "slot_id": "s26_sh153_p0r0",
+      "new_text": "下一步：智戎真实链路联调"
+    },
+    {
+      "slide": 26,
+      "slot_id": "s26_sh157_p0r0",
+      "new_text": "预期：把方向性证据升级为结论"
+    },
+    {
+      "slide": 26,
+      "slot_id": "s26_sh158_p0r0",
+      "new_text": "01"
+    },
+    {
+      "slide": 26,
+      "slot_id": "s26_sh162_p0r0",
+      "new_text": "02"
+    },
+    {
+      "slide": 26,
+      "slot_id": "s26_sh163_p0r0",
+      "new_text": "03"
+    },
+    {
+      "slide": 26,
+      "slot_id": "s26_sh169_p0r0",
+      "new_text": "04"
+    },
+    {
+      "slide": 26,
+      "slot_id": "s26_sh170_p0r0",
+      "new_text": "05"
+    }
+  ]
+}
