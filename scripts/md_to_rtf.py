@@ -199,8 +199,11 @@ def convert(md_text: str) -> str:
             continue
 
         if stripped.startswith(">"):
-            out.append(make_para(stripped.lstrip(">").strip(), style="quote"))
-            i += 1
+            q_lines = []
+            while i < n and lines[i].strip().startswith(">"):
+                q_lines.append(lines[i].strip().lstrip(">").strip())
+                i += 1
+            out.append(make_para(" ".join(q_lines), style="quote"))
             continue
 
         if re.match(r"^[-*]\s+", stripped):
@@ -217,8 +220,22 @@ def convert(md_text: str) -> str:
             i += 1
             continue
 
-        out.append(make_para(stripped, style="body"))
+        # 合并连续普通行（同一段落内的软换行，不拆成多个 Word 段落）
+        para_lines = [stripped]
         i += 1
+        while i < n:
+            nxt = lines[i].strip()
+            if (not nxt or nxt.startswith("```") or nxt.startswith("|")
+                    or re.match(r"^(#{1,4})\s+", nxt)
+                    or re.fullmatch(r"-{3,}|\*{3,}|_{3,}", nxt)
+                    or nxt.startswith(">")
+                    or re.match(r"^[-*]\s+", nxt)
+                    or re.match(r"^\[\d+\]\s+", nxt)):
+                break
+            para_lines.append(nxt)
+            i += 1
+        out.append(make_para(" ".join(para_lines), style="body"))
+        continue
 
     body = "\n".join(out)
     # 最后统一把上标占位符替换为 RTF 上标控制字
