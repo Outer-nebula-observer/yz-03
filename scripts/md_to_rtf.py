@@ -47,6 +47,8 @@ def escape(text: str) -> str:
 
 def inline(text: str) -> str:
     """行内格式化：把 [[n]] 替成 ASCII 占位符，**加粗** 与 `代码` 保留。"""
+    # 清理中文字符之间无意义的空格（软换行合并产生的半角空格等）
+    text = re.sub(r"(?<=[\u4e00-\u9fff])\s+(?=[\u4e00-\u9fff])", "", text)
     # 先保护上标占位符（纯 ASCII，不会被 escape 破坏）
     text = re.sub(r"\[\[([^\[\]]+)\]\]", r"@@S\1@@", text)
     parts: List[str] = []
@@ -298,7 +300,7 @@ def make_cover() -> str:
              "密级：\\ul 　　　　　　　　\\ul0\\par}")
     C.append("\\par\\par\\par")
     # 大标题（一号黑体居中）
-    C.append("{\\pard\\qc\\f3\\fs44\\b 实  验  报  告\\b0\\par}")
+    C.append("{\\pard\\qc\\f3\\fs44\\b 实验报告\\b0\\par}")
     C.append("\\par\\par")
     # 课题名称（三号黑体居中）
     C.append("{\\pard\\qc\\f3\\fs32\\b "
