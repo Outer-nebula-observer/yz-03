@@ -241,7 +241,7 @@ def convert(md_text: str) -> str:
 
     body = make_cover() + "\n" + "\n".join(out)
     # 最后统一把上标占位符替换为 RTF 上标控制字
-    body = re.sub(r"@@S([^@]+)@@", r"\\super \1 \\nosupersub ", body)
+    body = re.sub(r"@@S([^@]+)@@", r"\\super [\1]\\nosupersub ", body)
 
     header = (
         "{\\rtf1\\ansi\\ansicpg936"
@@ -260,6 +260,9 @@ def convert(md_text: str) -> str:
     rtf = header + body + footer
     # 兜底转义：封面等手写中文若未转义，统一转为 \uN（否则 Word 按本地代码页读到乱码）
     rtf = re.sub(r"[^\x00-\x7f]", lambda m: escape(m.group(0)), rtf)
+    # 清理数字章节号前后的多余空格（连续 2+ 压缩为 1，保留正常中英间距）
+    rtf = re.sub(r"(\s{2,})(?=\d+\.\d+)", " ", rtf)
+    rtf = re.sub(r"(?<=\d+\.\d+)(\s{2,})", " ", rtf)
     return rtf
 
 
