@@ -424,8 +424,8 @@ function renderMemHealth() {
 
 function selectMem(id) {
   UI.selectedMemId = id;
-  refreshMemory();          // 下方遗忘曲线面板同步
-  openMemoryDrawer();       // 右侧抽屉：总览/历史/遗忘日志
+  refreshMemory();          // 下方遗忘曲线面板同步（点击条目 = 查看遗忘曲线）
+  // 不再自动打开抽屉；需要看单条历史/进化轨迹时点遗忘曲线面板里的“详情”
 }
 
 function renderForgettingCurve() {
@@ -464,6 +464,7 @@ function renderForgettingCurve() {
     <span class="idchip">${esc(m.id)}</span>
     <span>S=${S.toFixed(1)} · 距上次召回 ${days.toFixed(1)} 天 · 当前留存 ${(R0 * 100).toFixed(0)}%</span>
     ${m.protected ? `<span class="badge">🔒 受保护（importance≥2 永不遗忘）</span>` : ""}
+    <button class="ghost" style="margin-left:auto" onclick="openMemoryDrawer()">详情</button>
   </div>
   <svg viewBox="0 0 ${W} ${H}" width="100%" height="${H}" role="img" aria-label="遗忘曲线">
     <line x1="${PAD}" y1="${y(1)}" x2="${W - PAD}" y2="${y(1)}" stroke="#666" stroke-dasharray="2 3"/>
