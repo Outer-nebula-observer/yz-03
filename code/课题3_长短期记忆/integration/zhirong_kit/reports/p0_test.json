@@ -1,0 +1,82 @@
+{
+  "ts": "2026-09-17 08:58:06",
+  "pass": 15,
+  "total": 15,
+  "checks": [
+    {
+      "name": "中文别名（目标/约束）",
+      "ok": true,
+      "detail": "[QueryItem(q_id='mission_receipt-q1', intent='召回同型任务历史教训', t"
+    },
+    {
+      "name": "英文别名（id/objective/constraints）",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "自带查询→QueryItem",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "无查询→阶段模板兜底",
+      "ok": true,
+      "detail": "3 条"
+    },
+    {
+      "name": "fail → 含‘教训’",
+      "ok": true,
+      "detail": "复盘：任务结果——fail。\n指标 伤亡=3。\n关键事件：伏击\n教训：任务未达成"
+    },
+    {
+      "name": "success → 含‘经验’",
+      "ok": true,
+      "detail": "复盘：任务结果——success。\n指标 时间=2。\n经验：本类任务当前方案有效"
+    },
+    {
+      "name": "partially → 不误加教训/经验",
+      "ok": true,
+      "detail": "复盘：任务结果——partially。"
+    },
+    {
+      "name": "空 payload → 不崩且无教训/经验",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "多次反馈累积→事件驱动进化写入",
+      "ok": true,
+      "detail": "write=2 库 0→3"
+    },
+    {
+      "name": "无 session 也能进化（不依赖 hook_plan）",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "缓冲已清空（不重复消费）",
+      "ok": true,
+      "detail": "buffered=0"
+    },
+    {
+      "name": "有 session 时 evolve 走正常收场且写入",
+      "ok": true,
+      "detail": "write=1"
+    },
+    {
+      "name": "重复教训不会重复写入（幂等）",
+      "ok": true,
+      "detail": "第一次write=1 第二次write=0"
+    },
+    {
+      "name": "domain_check 可运行且 exit=0",
+      "ok": true,
+      "detail": "tail=['', '[报告已落盘] /mnt/c/Users/20784/Desktop/YZ-03/code/课题3_长短期记忆/integration/zhirong_kit/reports/domain_check.json']"
+    },
+    {
+      "name": "domain_check 报告落盘",
+      "ok": true,
+      "detail": "/mnt/c/Users/20784/Desktop/YZ-03/code/课题3_长短期记忆/integration/zhirong_kit/reports/domain_check.json"
+    }
+  ]
+}
