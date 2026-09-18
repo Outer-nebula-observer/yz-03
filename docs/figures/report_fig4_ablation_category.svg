@@ -1,0 +1,65 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="680" viewBox="0 0 1200 680" font-family="'Microsoft YaHei','PingFang SC','Noto Sans CJK SC',sans-serif">
+<defs><marker id="arw" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#52514E"/></marker></defs>
+<text x="90.0" y="76.0" font-size="36" font-weight="600" fill="#0B0B0B" text-anchor="start">G2 vs G3：分类别 hit@5</text>
+<text x="90.0" y="112.0" font-size="21" font-weight="400" fill="#52514E" text-anchor="start">双库贡献消融（固定 44 条检索用例）；Δhit@5=0.2955，配对置换 p=0.0001（n=44）</text>
+<path d="M120,560.0 L1140,560.0" fill="none" stroke="#E1E0D9" stroke-width="1"/>
+<text x="106.0" y="566.0" font-size="16" font-weight="400" fill="#898781" text-anchor="end">0.00</text>
+<path d="M120,469.1 L1140,469.1" fill="none" stroke="#E1E0D9" stroke-width="1"/>
+<text x="106.0" y="475.1" font-size="16" font-weight="400" fill="#898781" text-anchor="end">0.25</text>
+<path d="M120,378.2 L1140,378.2" fill="none" stroke="#E1E0D9" stroke-width="1"/>
+<text x="106.0" y="384.2" font-size="16" font-weight="400" fill="#898781" text-anchor="end">0.50</text>
+<path d="M120,287.3 L1140,287.3" fill="none" stroke="#E1E0D9" stroke-width="1"/>
+<text x="106.0" y="293.3" font-size="16" font-weight="400" fill="#898781" text-anchor="end">0.75</text>
+<path d="M120,196.4 L1140,196.4" fill="none" stroke="#E1E0D9" stroke-width="1"/>
+<text x="106.0" y="202.4" font-size="16" font-weight="400" fill="#898781" text-anchor="end">1.00</text>
+<rect x="148.9" y="196.4" width="40.0" height="363.6" rx="5" fill="#DCDBD4" stroke="none" stroke-width="0"/>
+<text x="168.9" y="188.4" font-size="14" font-weight="600" fill="#0B0B0B" text-anchor="middle">1</text>
+<rect x="196.9" y="196.4" width="40.0" height="363.6" rx="5" fill="#2A78D6" stroke="none" stroke-width="0"/>
+<text x="216.9" y="188.4" font-size="14" font-weight="600" fill="#0B0B0B" text-anchor="middle">1</text>
+<text x="192.9" y="590.0" font-size="18" font-weight="600" fill="#0B0B0B" text-anchor="middle">A</text>
+<text x="192.9" y="612.0" font-size="14" font-weight="400" fill="#898781" text-anchor="middle">属性精确</text>
+<rect x="294.6" y="257.0" width="40.0" height="303.0" rx="5" fill="#DCDBD4" stroke="none" stroke-width="0"/>
+<text x="314.6" y="249.0" font-size="14" font-weight="600" fill="#0B0B0B" text-anchor="middle">0.833</text>
+<rect x="342.6" y="257.0" width="40.0" height="303.0" rx="5" fill="#2A78D6" stroke="none" stroke-width="0"/>
+<text x="362.6" y="249.0" font-size="14" font-weight="600" fill="#0B0B0B" text-anchor="middle">0.833</text>
+<text x="338.6" y="590.0" font-size="18" font-weight="600" fill="#0B0B0B" text-anchor="middle">B</text>
+<text x="338.6" y="612.0" font-size="14" font-weight="400" fill="#898781" text-anchor="middle">事实语义</text>
+<rect x="440.3" y="560.0" width="40.0" height="0.0" rx="5" fill="#DCDBD4" stroke="none" stroke-width="0"/>
+<text x="460.3" y="552.0" font-size="14" font-weight="600" fill="#0B0B0B" text-anchor="middle">0</text>
+<rect x="488.3" y="332.7" width="40.0" height="227.3" rx="5" fill="#2A78D6" stroke="none" stroke-width="0"/>
+<text x="508.3" y="324.7" font-size="14" font-weight="600" fill="#0B0B0B" text-anchor="middle">0.625</text>
+<text x="484.3" y="590.0" font-size="18" font-weight="600" fill="#0B0B0B" text-anchor="middle">C</text>
+<text x="484.3" y="612.0" font-size="14" font-weight="400" fill="#898781" text-anchor="middle">经验转述</text>
+<rect x="586.0" y="560.0" width="40.0" height="0.0" rx="5" fill="#DCDBD4" stroke="none" stroke-width="0"/>
+<text x="606.0" y="552.0" font-size="14" font-weight="600" fill="#0B0B0B" text-anchor="middle">0</text>
+<rect x="634.0" y="196.4" width="40.0" height="363.6" rx="5" fill="#2A78D6" stroke="none" stroke-width="0"/>
+<text x="654.0" y="188.4" font-size="14" font-weight="600" fill="#0B0B0B" text-anchor="middle">1</text>
+<text x="630.0" y="590.0" font-size="18" font-weight="600" fill="#0B0B0B" text-anchor="middle">D</text>
+<text x="630.0" y="612.0" font-size="14" font-weight="400" fill="#898781" text-anchor="middle">词法</text>
+<rect x="731.7" y="560.0" width="40.0" height="0.0" rx="5" fill="#DCDBD4" stroke="none" stroke-width="0"/>
+<text x="751.7" y="552.0" font-size="14" font-weight="600" fill="#0B0B0B" text-anchor="middle">0</text>
+<rect x="779.7" y="560.0" width="40.0" height="0.0" rx="5" fill="#2A78D6" stroke="none" stroke-width="0"/>
+<text x="799.7" y="552.0" font-size="14" font-weight="600" fill="#0B0B0B" text-anchor="middle">0</text>
+<text x="775.7" y="590.0" font-size="18" font-weight="600" fill="#0B0B0B" text-anchor="middle">E</text>
+<text x="775.7" y="612.0" font-size="14" font-weight="400" fill="#898781" text-anchor="middle">负例</text>
+<rect x="877.4" y="196.4" width="40.0" height="363.6" rx="5" fill="#DCDBD4" stroke="none" stroke-width="0"/>
+<text x="897.4" y="188.4" font-size="14" font-weight="600" fill="#0B0B0B" text-anchor="middle">1</text>
+<rect x="925.4" y="196.4" width="40.0" height="363.6" rx="5" fill="#2A78D6" stroke="none" stroke-width="0"/>
+<text x="945.4" y="188.4" font-size="14" font-weight="600" fill="#0B0B0B" text-anchor="middle">1</text>
+<text x="921.4" y="590.0" font-size="18" font-weight="600" fill="#0B0B0B" text-anchor="middle">F</text>
+<text x="921.4" y="612.0" font-size="14" font-weight="400" fill="#898781" text-anchor="middle">参数干扰</text>
+<rect x="1023.1" y="560.0" width="40.0" height="0.0" rx="5" fill="#DCDBD4" stroke="none" stroke-width="0"/>
+<text x="1043.1" y="552.0" font-size="14" font-weight="600" fill="#0B0B0B" text-anchor="middle">0</text>
+<rect x="1071.1" y="196.4" width="40.0" height="363.6" rx="5" fill="#2A78D6" stroke="none" stroke-width="0"/>
+<text x="1091.1" y="188.4" font-size="14" font-weight="600" fill="#0B0B0B" text-anchor="middle">1</text>
+<text x="1067.1" y="590.0" font-size="18" font-weight="600" fill="#0B0B0B" text-anchor="middle">G</text>
+<text x="1067.1" y="612.0" font-size="14" font-weight="400" fill="#898781" text-anchor="middle">阶段决胜</text>
+<path d="M120,430.1 L1140,430.1" fill="none" stroke="#EB6834" stroke-width="2" stroke-dasharray="8 5"/>
+<text x="1134.0" y="422.1" font-size="16" font-weight="600" fill="#EB6834" text-anchor="end">随机基线 0.357</text>
+<rect x="120.0" y="120.0" width="26.0" height="16.0" rx="4" fill="#F9F9F7" stroke="#DCDBD4" stroke-width="1.2"/>
+<text x="156.0" y="134.0" font-size="16" font-weight="400" fill="#52514E" text-anchor="start">G2 仅事实库</text>
+<rect x="310.0" y="120.0" width="26.0" height="16.0" rx="4" fill="#EAF2FD" stroke="#2A78D6" stroke-width="1.2"/>
+<text x="346.0" y="134.0" font-size="16" font-weight="400" fill="#52514E" text-anchor="start">G3 双库全开</text>
+<path d="M120,560 L1140,560" fill="none" stroke="#898781" stroke-width="1.5"/>
+<text x="90.0" y="654.0" font-size="16" font-weight="400" fill="#898781" text-anchor="start">数据来源：eval/results/ablation_report.json</text>
+</svg>

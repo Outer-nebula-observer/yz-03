@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1300" height="660" viewBox="0 0 1300 660" font-family="'Microsoft YaHei','PingFang SC','Noto Sans CJK SC',sans-serif">
+<defs><marker id="arw" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#52514E"/></marker></defs>
+<text x="80.0" y="76.0" font-size="36" font-weight="600" fill="#0B0B0B" text-anchor="start">跨场次复用：第一场沉淀 → 第二场命中</text>
+<text x="80.0" y="112.0" font-size="21" font-weight="400" fill="#52514E" text-anchor="start">H 类 6 条用例：先跑第一场复盘写入经验，再用第二场相关查询检索</text>
+<rect x="80.0" y="170.0" width="310.0" height="190.0" rx="12" fill="#FDEEE7" stroke="#EB6834" stroke-width="2.2"/>
+<text x="104.0" y="208.0" font-size="23" font-weight="600" fill="#0B0B0B" text-anchor="start">第一场 P1</text>
+<text x="104.0" y="238.0" font-size="18" font-weight="600" fill="#52514E" text-anchor="start">夜间夺占 2 号高地</text>
+<text x="104.0" y="274.0" font-size="16" font-weight="400" fill="#898781" text-anchor="start">复盘进化：教训 / 经验写入长期库</text>
+<text x="104.0" y="302.0" font-size="16" font-weight="400" fill="#898781" text-anchor="start">来源标记 复盘:P1</text>
+<rect x="490.0" y="170.0" width="310.0" height="190.0" rx="12" fill="#E6F7F1" stroke="#1BAF7A" stroke-width="2.2"/>
+<text x="514.0" y="208.0" font-size="23" font-weight="600" fill="#0B0B0B" text-anchor="start">长期经验库</text>
+<text x="514.0" y="238.0" font-size="18" font-weight="600" fill="#52514E" text-anchor="start">向量语义召回 + SQLite</text>
+<text x="514.0" y="274.0" font-size="16" font-weight="400" fill="#898781" text-anchor="start">跨场次唯一沉淀通道</text>
+<text x="514.0" y="302.0" font-size="16" font-weight="400" fill="#898781" text-anchor="start">按 session_id 记录来源</text>
+<rect x="900.0" y="170.0" width="310.0" height="190.0" rx="12" fill="#EAF2FD" stroke="#2A78D6" stroke-width="2.2"/>
+<text x="924.0" y="208.0" font-size="23" font-weight="600" fill="#0B0B0B" text-anchor="start">第二场 P2</text>
+<text x="924.0" y="238.0" font-size="18" font-weight="600" fill="#52514E" text-anchor="start">相关任务查询</text>
+<text x="924.0" y="274.0" font-size="16" font-weight="400" fill="#898781" text-anchor="start">检索命中往场沉淀</text>
+<text x="924.0" y="302.0" font-size="16" font-weight="400" fill="#898781" text-anchor="start">命中结果带 ⏪ 往场徽标</text>
+<path d="M390,265 L486,265" fill="none" stroke="#52514E" stroke-width="2.2" marker-end="url(#arw)"/>
+<path d="M800,265 L896,265" fill="none" stroke="#52514E" stroke-width="2.2" marker-end="url(#arw)"/>
+<text x="650.0" y="250.0" font-size="16" font-weight="400" fill="#898781" text-anchor="middle">写入</text>
+<text x="650.0" y="286.0" font-size="16" font-weight="400" fill="#898781" text-anchor="middle">召回</text>
+<text x="80.0" y="420.0" font-size="24" font-weight="600" fill="#0B0B0B" text-anchor="start">实验结果</text>
+<rect x="120.0" y="450.1" width="120.0" height="149.9" rx="6" fill="#1BAF7A" stroke="none" stroke-width="0"/>
+<text x="180.0" y="438.1" font-size="18" font-weight="600" fill="#0B0B0B" text-anchor="middle">0.833</text>
+<text x="180.0" y="630.0" font-size="16" font-weight="400" fill="#52514E" text-anchor="middle">处理组 hit@5</text>
+<rect x="380.0" y="597.0" width="120.0" height="3.0" rx="6" fill="#DCDBD4" stroke="none" stroke-width="0"/>
+<text x="440.0" y="585.0" font-size="18" font-weight="600" fill="#0B0B0B" text-anchor="middle">0.000</text>
+<text x="440.0" y="630.0" font-size="16" font-weight="400" fill="#52514E" text-anchor="middle">对照组 hit@5</text>
+<rect x="640.0" y="597.0" width="120.0" height="3.0" rx="6" fill="#DCDBD4" stroke="none" stroke-width="0"/>
+<text x="700.0" y="585.0" font-size="18" font-weight="600" fill="#0B0B0B" text-anchor="middle">0.000</text>
+<text x="700.0" y="630.0" font-size="16" font-weight="400" fill="#52514E" text-anchor="middle">负控 false cross recall</text>
+<path d="M100,600 L920,600" fill="none" stroke="#898781" stroke-width="1.5"/>
+<rect x="960.0" y="430.0" width="300.0" height="170.0" rx="12" fill="#E6F7F1" stroke="#1BAF7A" stroke-width="2.0"/>
+<text x="984.0" y="466.0" font-size="20" font-weight="600" fill="#1BAF7A" text-anchor="start">结论</text>
+<text x="984.0" y="502.0" font-size="16" font-weight="400" fill="#52514E" text-anchor="start">命中 5/6，对照组不可达</text>
+<text x="984.0" y="532.0" font-size="16" font-weight="400" fill="#52514E" text-anchor="start">负控为 0：无跨主题假阳性</text>
+<text x="984.0" y="562.0" font-size="16" font-weight="600" fill="#EB6834" text-anchor="start">p=0.059（方向性证据）</text>
+<text x="80.0" y="636.0" font-size="16" font-weight="400" fill="#898781" text-anchor="start">数据来源：eval/results/ablation_report.json · G4</text>
+</svg>

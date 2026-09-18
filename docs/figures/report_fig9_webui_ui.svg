@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1320" height="760" viewBox="0 0 1320 760" font-family="'Microsoft YaHei','PingFang SC','Noto Sans CJK SC',sans-serif">
+<defs><marker id="arw" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#52514E"/></marker></defs>
+<text x="80.0" y="76.0" font-size="36" font-weight="600" fill="#0B0B0B" text-anchor="start">WebUI：事件流 · 记忆详情抽屉 · 库健康度</text>
+<text x="80.0" y="112.0" font-size="21" font-weight="400" fill="#52514E" text-anchor="start">界面示意（布局与真实 WebUI 一致）：左侧事件流可展开，右侧抽屉含总览/单条历史/遗忘日志</text>
+<rect x="60.0" y="150.0" width="1200.0" height="560.0" rx="14" fill="#FFFFFF" stroke="#DCDBD4" stroke-width="2"/>
+<rect x="60.0" y="150.0" width="1200.0" height="46.0" rx="14" fill="#F2F3F5" stroke="none" stroke-width="0"/>
+<rect x="60.0" y="186.0" width="1200.0" height="10.0" rx="8" fill="#F2F3F5" stroke="none" stroke-width="0"/>
+<circle cx="92" cy="173" r="7" fill="#FF5F56"/>
+<circle cx="116" cy="173" r="7" fill="#FFBD2E"/>
+<circle cx="140" cy="173" r="7" fill="#27C93F"/>
+<rect x="200.0" y="162.0" width="520.0" height="24.0" rx="6" fill="#FFFFFF" stroke="#DCDBD4" stroke-width="1.2"/>
+<text x="214.0" y="180.0" font-size="14" font-weight="400" fill="#898781" text-anchor="start">127.0.0.1:8765</text>
+<rect x="80.0" y="216.0" width="600.0" height="470.0" rx="10" fill="#F9F9F7" stroke="#E1E0D9" stroke-width="1.5"/>
+<text x="100.0" y="252.0" font-size="22" font-weight="600" fill="#0B0B0B" text-anchor="start">运行事件流</text>
+<rect x="100.0" y="278.0" width="560.0" height="66.0" rx="8" fill="#FFFFFF" stroke="#E1E0D9" stroke-width="1.2"/>
+<rect x="100.0" y="278.0" width="6.0" height="66.0" rx="3" fill="#2A78D6" stroke="none" stroke-width="0"/>
+<text x="120.0" y="304.0" font-size="16" font-weight="600" fill="#0B0B0B" text-anchor="start">① 场次 P1 开启</text>
+<text x="120.0" y="328.0" font-size="14" font-weight="400" fill="#898781" text-anchor="start">夜间夺占 2 号高地</text>
+<rect x="100.0" y="350.0" width="560.0" height="66.0" rx="8" fill="#FFFFFF" stroke="#E1E0D9" stroke-width="1.2"/>
+<rect x="100.0" y="350.0" width="6.0" height="66.0" rx="3" fill="#1BAF7A" stroke="none" stroke-width="0"/>
+<text x="120.0" y="376.0" font-size="16" font-weight="600" fill="#0B0B0B" text-anchor="start">③④ 检索装载完成</text>
+<text x="120.0" y="400.0" font-size="14" font-weight="400" fill="#898781" text-anchor="start">命中 4 条（事实 2 / 经验 2）</text>
+<rect x="100.0" y="422.0" width="560.0" height="66.0" rx="8" fill="#FFFFFF" stroke="#E1E0D9" stroke-width="1.2"/>
+<rect x="100.0" y="422.0" width="6.0" height="66.0" rx="3" fill="#4A3AA7" stroke="none" stroke-width="0"/>
+<text x="120.0" y="448.0" font-size="16" font-weight="600" fill="#0B0B0B" text-anchor="start">⑤ 规划输出</text>
+<text x="120.0" y="472.0" font-size="14" font-weight="400" fill="#898781" text-anchor="start">装载记忆已注入上下文</text>
+<rect x="100.0" y="494.0" width="560.0" height="66.0" rx="8" fill="#FFFFFF" stroke="#E1E0D9" stroke-width="1.2"/>
+<rect x="100.0" y="494.0" width="6.0" height="66.0" rx="3" fill="#EB6834" stroke="none" stroke-width="0"/>
+<text x="120.0" y="520.0" font-size="16" font-weight="600" fill="#0B0B0B" text-anchor="start">⑦ 复盘进化</text>
+<text x="120.0" y="544.0" font-size="14" font-weight="400" fill="#898781" text-anchor="start">write=2 · abstract=1</text>
+<rect x="100.0" y="566.0" width="560.0" height="66.0" rx="8" fill="#FFFFFF" stroke="#E1E0D9" stroke-width="1.2"/>
+<rect x="100.0" y="566.0" width="6.0" height="66.0" rx="3" fill="#EDA100" stroke="none" stroke-width="0"/>
+<text x="120.0" y="592.0" font-size="16" font-weight="600" fill="#0B0B0B" text-anchor="start">⏩ 模拟时间推进 15 天</text>
+<text x="120.0" y="616.0" font-size="14" font-weight="400" fill="#898781" text-anchor="start">遗忘 11 条（低价值未召回）</text>
+<rect x="700.0" y="216.0" width="540.0" height="470.0" rx="10" fill="#FFFFFF" stroke="#2A78D6" stroke-width="2.2"/>
+<text x="722.0" y="252.0" font-size="22" font-weight="600" fill="#0B0B0B" text-anchor="start">记忆详情</text>
+<text x="722.0" y="286.0" font-size="17" font-weight="600" fill="#2A78D6" text-anchor="start">总览</text>
+<rect x="722.0" y="294.0" width="60.0" height="3.0" rx="2" fill="#2A78D6" stroke="none" stroke-width="0"/>
+<text x="852.0" y="286.0" font-size="17" font-weight="400" fill="#52514E" text-anchor="start">单条历史</text>
+<text x="982.0" y="286.0" font-size="17" font-weight="400" fill="#52514E" text-anchor="start">遗忘日志</text>
+<rect x="700.0" y="300.0" width="540.0" height="1.0" rx="8" fill="#E1E0D9" stroke="none" stroke-width="0"/>
+<text x="722.0" y="336.0" font-size="16" font-weight="600" fill="#52514E" text-anchor="start">记忆 42 · 受保护 12 · 已低于遗忘线 3 · 已遗忘 7</text>
+<rect x="722.0" y="356.0" width="500.0" height="16.0" rx="8" fill="#E9EDF2" stroke="none" stroke-width="0"/>
+<rect x="722.0" y="356.0" width="321.0" height="16.0" rx="8" fill="#1BAF7A" stroke="none" stroke-width="0"/>
+<rect x="1043.0" y="356.0" width="142.0" height="16.0" rx="8" fill="#EB6834" stroke="none" stroke-width="0"/>
+<rect x="1185.0" y="356.0" width="37.0" height="16.0" rx="8" fill="#C0392B" stroke="none" stroke-width="0"/>
+<text x="722.0" y="398.0" font-size="14" font-weight="400" fill="#898781" text-anchor="start">健康 27 · 受保护 12 · 已低于遗忘线 3</text>
+<rect x="720.0" y="424.0" width="500.0" height="80.0" rx="8" fill="#FBFCFD" stroke="#E1E0D9" stroke-width="1.2"/>
+<text x="736.0" y="450.0" font-size="14" font-weight="600" fill="#1BAF7A" text-anchor="start">experience-seed-204b9</text>
+<text x="736.0" y="474.0" font-size="15" font-weight="400" fill="#0B0B0B" text-anchor="start">教训：夜间突袭必须前置电子压制。</text>
+<text x="736.0" y="494.0" font-size="13" font-weight="400" fill="#898781" text-anchor="start">S=3.0 · 召回 2 · 留存 92%</text>
+<rect x="720.0" y="516.0" width="500.0" height="80.0" rx="8" fill="#FBFCFD" stroke="#E1E0D9" stroke-width="1.2"/>
+<text x="736.0" y="542.0" font-size="14" font-weight="600" fill="#2A78D6" text-anchor="start">fact-320m-east</text>
+<text x="736.0" y="566.0" font-size="15" font-weight="400" fill="#0B0B0B" text-anchor="start">2 号高地海拔 320 米，仅东侧可装甲通行。</text>
+<text x="736.0" y="586.0" font-size="13" font-weight="400" fill="#898781" text-anchor="start">S=1.0 · 召回 1 · 留存 61%</text>
+<text x="80.0" y="736.0" font-size="16" font-weight="400" fill="#898781" text-anchor="start">界面示意（基于真实 WebUI 布局）：抽屉支持总览/单条历史/遗忘日志；健康度条显示 健康/受保护/低于遗忘线。</text>
+</svg>
