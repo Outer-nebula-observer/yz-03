@@ -153,11 +153,11 @@ def render_cards(slide, items, left=2.0, top=4.5, width=29.8, gap=0.22, height=1
     # 条目较多时自动压缩卡片高度，避免超出页面
     n = len([x for x in items if x])
     if n >= 6:
-        height = 1.42
-        gap = 0.12
-        head_size, body_size = 13, 12
+        height = 1.62
+        gap = 0.16
+        head_size, body_size = 12.5, 11.5
     else:
-        head_size, body_size = 16, 13.5
+        head_size, body_size = 15, 13
     y = top
     for i, item in enumerate(items):
         if not item:
@@ -167,16 +167,16 @@ def render_cards(slide, items, left=2.0, top=4.5, width=29.8, gap=0.22, height=1
         add_round(slide, left, y, width, card_h)
         add_rect(slide, left, y, 0.22, card_h, fill=ACCENT)
         if number:
-            add_text(slide, f"{i+1:02d}", left+0.45, y+0.15, 1.5, 1.1, size=20,
-                     bold=True, color=ACCENT)
+            add_text(slide, f"{i+1:02d}", left+0.45, y+0.18, 1.5, 1.0, size=18,
+                     bold=True, color=ACCENT, wrap=False)
             tx = left + 1.6
         else:
             tx = left + 0.5
         if head:
-            add_text(slide, head, tx, y+0.12, width-2.2, 0.6, size=head_size, bold=True, color=PRIMARY)
-            add_text(slide, body, tx, y+0.68, width-2.2, 0.7, size=body_size, color=GREY)
+            add_text(slide, head, tx, y+0.15, width-2.2, 0.55, size=head_size, bold=True, color=PRIMARY)
+            add_text(slide, body, tx, y+0.72, width-2.2, 0.85, size=body_size, color=GREY)
         else:
-            add_text(slide, body, tx, y+0.4, width-2.2, 0.8, size=body_size+1, color=DARK)
+            add_text(slide, body, tx, y+0.42, width-2.2, 0.95, size=body_size+1, color=DARK)
         y += card_h + gap
     return y
 
@@ -199,22 +199,22 @@ def render_grid2x2(slide, items, left=2.0, top=4.6, width=29.8, height=5.6, gap=
         else:
             add_text(slide, body, x+0.7, y+1.7, w-1.4, height-2.0, size=16, color=DARK)
 
-def render_numbered_list(slide, items, left=2.2, top=4.7, width=29.5, gap=1.15):
+def render_numbered_list(slide, items, left=2.2, top=4.7, width=29.5, gap=1.55):
     """轻量编号列表：不用圆角卡，避免版式疲劳。"""
     y = top
     for i, item in enumerate(items):
         if not item:
             continue
         head, body = split_head_body(item)
-        add_text(slide, f"{i+1:02d}", left, y, 1.8, 1.2, size=24, bold=True,
+        add_text(slide, f"{i+1:02d}", left, y, 1.8, 1.2, size=22, bold=True,
                  color=ACCENT, wrap=False)
         tx = left + 2.0
         if head:
-            add_text(slide, head, tx, y+0.05, width-2.2, 0.7, size=17, bold=True, color=PRIMARY)
-            add_text(slide, body, tx, y+0.72, width-2.2, 0.7, size=13.5, color=GREY)
+            add_text(slide, head, tx, y+0.06, width-2.2, 0.6, size=16, bold=True, color=PRIMARY)
+            add_text(slide, body, tx, y+0.72, width-2.2, 0.85, size=12.5, color=GREY)
         else:
-            add_text(slide, body, tx, y+0.15, width-2.2, 1.0, size=15, color=DARK)
-        add_rect(slide, left, y + 1.0, width, 0.03, fill=LINE)
+            add_text(slide, body, tx, y+0.22, width-2.2, 1.0, size=14, color=DARK)
+        add_rect(slide, left, y + 1.35, width, 0.03, fill=LINE)
         y += gap
 
 
@@ -229,12 +229,12 @@ def render_stats(slide, items, left=2.0, top=4.8, width=29.8, height=4.6, gap=0.
             continue
         head, body = split_head_body(item)
         x = left + i * (w + gap)
-        add_rect(slide, x, top, w, 0.6, fill=ACCENT)
-        add_text(slide, head, x, top+1.0, w, 1.4, size=30, bold=True, color=PRIMARY, align=PP_ALIGN.CENTER, wrap=False)
-        add_text(slide, body, x+0.3, top+2.8, w-0.6, height-2.8, size=13, color=GREY, align=PP_ALIGN.CENTER)
+        add_rect(slide, x, top, w, 0.55, fill=ACCENT)
+        add_text(slide, head, x, top+0.95, w, 1.5, size=26, bold=True, color=PRIMARY, align=PP_ALIGN.CENTER, wrap=True)
+        add_text(slide, body, x+0.3, top+2.55, w-0.6, height-2.55, size=12.5, color=GREY, align=PP_ALIGN.CENTER)
 
 
-def render_two_col(slide, items, left=2.2, top=4.7, width=29.5, gap=1.2):
+def render_two_col(slide, items, left=2.2, top=4.7, width=29.5, gap=1.5):
     """两栏对照：平分条目成左右两列，无圆角框。"""
     valid = [x for x in items if x]
     half = (len(valid) + 1) // 2
@@ -246,17 +246,17 @@ def render_two_col(slide, items, left=2.2, top=4.7, width=29.5, gap=1.2):
         w = width/2
         add_rect(slide, x, top, 1.8, 0.08, fill=ACCENT)
         add_text(slide, labels[col], x, top+0.25, w, 0.7, size=15, bold=True, color=PRIMARY)
-        y = top + 1.1
+        y = top + 1.3
         for item in valid[start:start+half]:
             head, body = split_head_body(item)
-            add_text(slide, "•", x, y+0.02, 0.7, 0.7, size=15, color=ACCENT, bold=True, wrap=False)
+            add_text(slide, "•", x, y+0.02, 0.7, 0.7, size=14, color=ACCENT, bold=True, wrap=False)
             if head:
-                add_text(slide, head, x+0.8, y-0.05, w-1.2, 0.6, size=13.5, bold=True, color=PRIMARY)
-                add_text(slide, body, x+0.8, y+0.5, w-1.2, 0.7, size=12, color=GREY)
+                add_text(slide, head, x+0.8, y+0.02, w-1.2, 0.6, size=12.5, bold=True, color=PRIMARY)
+                add_text(slide, body, x+0.8, y+0.6, w-1.2, 0.8, size=11.5, color=GREY)
             else:
-                add_text(slide, body, x+0.8, y+0.05, w-1.2, 0.9, size=13, color=DARK)
-            y += gap
-        add_rect(slide, x, y+0.15, w, 0.02, fill=LINE)
+                add_text(slide, body, x+0.8, y+0.08, w-1.2, 0.9, size=12.5, color=DARK)
+            y += gap + 0.25
+        add_rect(slide, x, y+0.1, w, 0.02, fill=LINE)
 
 
 def add_code_block(slide, code, left=2.0, top=8.4, width=29.8, height=8.4):
