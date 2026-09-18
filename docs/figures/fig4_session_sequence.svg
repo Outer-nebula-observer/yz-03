@@ -1,0 +1,90 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1480" height="1300" viewBox="0 0 1480 1300" font-family="'Microsoft YaHei','PingFang SC','Noto Sans CJK SC',sans-serif">
+<defs>
+<marker id="arw" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+<path d="M0,0 L10,5 L0,10 z" fill="#52514E"/>
+</marker>
+</defs>
+<text x="90" y="92" font-size="37.33" font-weight="600" fill="#0B0B0B">单场任务数据流时序</text>
+<text x="90" y="130" font-size="24" font-weight="400" fill="#52514E">七步闭环：① 建槽 → ② 查询列表 → ③ 检索 → ④ 装载 → ⑤ 规划输出 → ⑥ AFSIM 反馈 → ⑦ 复盘进化</text>
+<rect x="60" y="272" width="1360" height="128" rx="10" fill="#FDEEE7" fill-opacity="0.32"/>
+<text x="74" y="296" font-size="18" font-weight="600" fill="#898781">① 建槽</text>
+<rect x="60" y="405" width="1360" height="281" rx="10" fill="#FDF3E1" fill-opacity="0.32"/>
+<text x="74" y="429" font-size="18" font-weight="600" fill="#898781">③④ 检索 · 装载</text>
+<rect x="60" y="691" width="1360" height="157" rx="10" fill="#EAF2FD" fill-opacity="0.32"/>
+<text x="74" y="715" font-size="18" font-weight="600" fill="#898781">⑤⑥ 规划输出 · AFSIM 反馈</text>
+<rect x="60" y="853" width="1360" height="249" rx="10" fill="#EDEBF7" fill-opacity="0.32"/>
+<text x="74" y="877" font-size="18" font-weight="600" fill="#898781">⑦ 复盘进化</text>
+<rect x="60" y="1107" width="1360" height="81" rx="10" fill="#E6F7F1" fill-opacity="0.32"/>
+<text x="74" y="1131" font-size="18" font-weight="600" fill="#898781">下一场 · 跨场次复用</text>
+<path d="M130,226 L130,1196" fill="none" stroke="#DCDBD4" stroke-width="1.6" stroke-dasharray="6 5"/>
+<rect x="40" y="168" width="180" height="58" rx="10" fill="#F9F9F7" stroke="#E1E0D9" stroke-width="2.00"/>
+<text x="130" y="196" font-size="19" font-weight="600" fill="#0B0B0B" text-anchor="middle">调用方</text>
+<text x="130" y="216" font-size="14" fill="#898781" text-anchor="middle">pipeline / zhirong_kit</text>
+<path d="M330,226 L330,1196" fill="none" stroke="#DCDBD4" stroke-width="1.6" stroke-dasharray="6 5"/>
+<rect x="240" y="168" width="180" height="58" rx="10" fill="#EAF2FD" stroke="#2A78D6" stroke-width="2.00"/>
+<text x="330" y="196" font-size="19" font-weight="600" fill="#0B0B0B" text-anchor="middle">controller.py</text>
+<text x="330" y="216" font-size="14" fill="#898781" text-anchor="middle">总调度</text>
+<path d="M530,226 L530,1196" fill="none" stroke="#DCDBD4" stroke-width="1.6" stroke-dasharray="6 5"/>
+<rect x="440" y="168" width="180" height="58" rx="10" fill="#FDEEE7" stroke="#EB6834" stroke-width="2.00"/>
+<text x="530" y="196" font-size="19" font-weight="600" fill="#0B0B0B" text-anchor="middle">WorkingMemory</text>
+<text x="530" y="216" font-size="14" fill="#898781" text-anchor="middle">short_term/</text>
+<path d="M730,226 L730,1196" fill="none" stroke="#DCDBD4" stroke-width="1.6" stroke-dasharray="6 5"/>
+<rect x="640" y="168" width="180" height="58" rx="10" fill="#FDF3E1" stroke="#EDA100" stroke-width="2.00"/>
+<text x="730" y="196" font-size="19" font-weight="600" fill="#0B0B0B" text-anchor="middle">HybridRetriever</text>
+<text x="730" y="216" font-size="14" fill="#898781" text-anchor="middle">retrieval/</text>
+<path d="M930,226 L930,1196" fill="none" stroke="#DCDBD4" stroke-width="1.6" stroke-dasharray="6 5"/>
+<rect x="840" y="168" width="180" height="58" rx="10" fill="#E6F7F1" stroke="#1BAF7A" stroke-width="2.00"/>
+<text x="930" y="196" font-size="19" font-weight="600" fill="#0B0B0B" text-anchor="middle">Factual / Exp.</text>
+<text x="930" y="216" font-size="14" fill="#898781" text-anchor="middle">long_term/ 双库</text>
+<path d="M1130,226 L1130,1196" fill="none" stroke="#DCDBD4" stroke-width="1.6" stroke-dasharray="6 5"/>
+<rect x="1040" y="168" width="180" height="58" rx="10" fill="#EDEBF7" stroke="#4A3AA7" stroke-width="2.00"/>
+<text x="1130" y="196" font-size="19" font-weight="600" fill="#0B0B0B" text-anchor="middle">MemoryEvolution</text>
+<text x="1130" y="216" font-size="14" fill="#898781" text-anchor="middle">evolution/</text>
+<path d="M1330,226 L1330,1196" fill="none" stroke="#DCDBD4" stroke-width="1.6" stroke-dasharray="6 5"/>
+<rect x="1240" y="168" width="180" height="58" rx="10" fill="#F9F9F7" stroke="#E1E0D9" stroke-width="2.00"/>
+<text x="1330" y="196" font-size="19" font-weight="600" fill="#0B0B0B" text-anchor="middle">Boundary / LLM</text>
+<text x="1330" y="216" font-size="14" fill="#898781" text-anchor="middle">boundary + llm.py</text>
+<path d="M130,312 L330,312" fill="none" stroke="#52514E" stroke-width="2.00" marker-end="url(#arw)"/>
+<text x="140" y="304" font-size="16.5" fill="#52514E">start_session(plan_id, goal, constraints, queries)</text>
+<path d="M330,352 L530,352" fill="none" stroke="#52514E" stroke-width="2.00" marker-end="url(#arw)"/>
+<text x="340" y="344" font-size="16.5" fill="#52514E">建槽位：目标 / 约束 / 查询列表</text>
+<path d="M530,384 L330,384" fill="none" stroke="#52514E" stroke-width="2.00" stroke-dasharray="7 5" marker-end="url(#arw)"/>
+<text x="340" y="376" font-size="16.5" fill="#52514E">slot 就绪（约束不可压缩）</text>
+<path d="M130,430 L330,430" fill="none" stroke="#52514E" stroke-width="2.00" marker-end="url(#arw)"/>
+<text x="140" y="422" font-size="16.5" fill="#52514E">retrieve_and_load(top_k)</text>
+<path d="M330,466 L730,466" fill="none" stroke="#52514E" stroke-width="2.00" marker-end="url(#arw)"/>
+<text x="340" y="458" font-size="16.5" fill="#52514E">retrieve(query_list)</text>
+<path d="M730,502 L930,502" fill="none" stroke="#52514E" stroke-width="2.00" marker-end="url(#arw)"/>
+<text x="740" y="494" font-size="16.5" fill="#52514E">三路查询：vector / bm25 / sql（属性精确）</text>
+<path d="M930,536 L730,536" fill="none" stroke="#52514E" stroke-width="2.00" stroke-dasharray="7 5" marker-end="url(#arw)"/>
+<text x="740" y="528" font-size="16.5" fill="#52514E">候选记忆与分数</text>
+<rect x="570" y="557" width="320" height="34" rx="8" fill="#FFFFFF" stroke="#EDA100" stroke-width="1.6"/>
+<text x="730" y="579" font-size="16" fill="#52514E" text-anchor="middle">_norm + 融合 + 阶段亲和 + min_score</text>
+<path d="M730,616 L530,616" fill="none" stroke="#52514E" stroke-width="2.00" marker-end="url(#arw)"/>
+<text x="540" y="608" font-size="16.5" fill="#52514E">load_memory(brief) 装载</text>
+<path d="M530,650 L330,650" fill="none" stroke="#52514E" stroke-width="2.00" stroke-dasharray="7 5" marker-end="url(#arw)"/>
+<text x="340" y="642" font-size="16.5" fill="#52514E">【装载记忆】进入上下文</text>
+<path d="M330,714 L1330,714" fill="none" stroke="#52514E" stroke-width="2.00" marker-end="url(#arw)"/>
+<text x="340" y="706" font-size="16.5" fill="#52514E">render_context() → LLM prompt</text>
+<path d="M1330,756 L130,756" fill="none" stroke="#52514E" stroke-width="2.00" stroke-dasharray="7 5" marker-end="url(#arw)"/>
+<text x="140" y="748" font-size="16.5" fill="#52514E">规划输出（外部管线 / 智戎）</text>
+<path d="M130,798 L330,798" fill="none" stroke="#52514E" stroke-width="2.00" marker-end="url(#arw)"/>
+<text x="140" y="790" font-size="16.5" fill="#52514E">feedback：AFSIM 推演结果</text>
+<path d="M330,866 L1130,866" fill="none" stroke="#52514E" stroke-width="2.00" marker-end="url(#arw)"/>
+<text x="340" y="858" font-size="16.5" fill="#52514E">close_session(review)</text>
+<path d="M1130,900 L1330,900" fill="none" stroke="#52514E" stroke-width="2.00" marker-end="url(#arw)"/>
+<text x="1140" y="892" font-size="16.5" fill="#52514E">extract_memory_ops(review)</text>
+<path d="M1130,930 L1330,930" fill="none" stroke="#52514E" stroke-width="2.00" marker-end="url(#arw)"/>
+<text x="1140" y="922" font-size="16.5" fill="#52514E">boundary.promote(候选)</text>
+<rect x="970" y="951" width="320" height="34" rx="8" fill="#FFFFFF" stroke="#4A3AA7" stroke-width="1.6"/>
+<text x="1130" y="973" font-size="16" fill="#52514E" text-anchor="middle">write 查重 → merge → forget → abstract</text>
+<path d="M1130,1010 L930,1010" fill="none" stroke="#52514E" stroke-width="2.00" marker-end="url(#arw)"/>
+<text x="940" y="1002" font-size="16.5" fill="#52514E">store.add：事实库 / 经验库</text>
+<path d="M1130,1046 L330,1046" fill="none" stroke="#52514E" stroke-width="2.00" stroke-dasharray="7 5" marker-end="url(#arw)"/>
+<text x="340" y="1038" font-size="16.5" fill="#52514E">EvolutionReport(write/merge/forget/abstract)</text>
+<path d="M330,1080 L130,1080" fill="none" stroke="#52514E" stroke-width="2.00" stroke-dasharray="7 5" marker-end="url(#arw)"/>
+<text x="140" y="1072" font-size="16.5" fill="#52514E">场次关闭报告</text>
+<rect x="-10" y="1121" width="280" height="34" rx="8" fill="#FFFFFF" stroke="#E1E0D9" stroke-width="1.6"/>
+<text x="130" y="1143" font-size="16" fill="#52514E" text-anchor="middle">下一场：新查询命中往场经验</text>
+<text x="90" y="1252" font-size="17" fill="#898781">核心实现：controller.start_session / retrieve_and_load / close_session；hybrid.retrieve；working_memory.load_memory / render；evolution.evolve_from_review；boundary.promote。</text>
+</svg>
