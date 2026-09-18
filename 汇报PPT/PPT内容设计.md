@@ -120,34 +120,34 @@
 ## 第 13 页｜内容页
 - 标题：**总体架构**
 - 内容：
-  - 四层：模型层/能力层/跨切面/编排层
-  - 能力层四模块互不依赖：短期、长期、检索、进化
-  - 两层之间唯一写通道：复盘晋升 + 三道边界门
-  - 可独立消融：依赖注入实现 G0-G6
-  - 配图占位：系统架构图（建议 docs/figures/fig1_architecture.png）
+  - 四层架构：模型层统一数据对象，能力层分短期/长期/检索/进化，跨切面处理边界与阶段，编排层由控制器与管线调度。
+  - 模块解耦：四个能力层互不 import，只通过 schema 对象通信，为独立消融提供物理基础。
+  - 唯一写通道：短期→长期只经复盘晋升，经三道边界门，每次判定写入审计日志。
+  - 可独立消融：通过依赖注入开关能力，G0-G6 固定用例集验证。
+  - 配图占位：系统架构图
 - **配图建议**：架构图（docs/figures/fig1_architecture.png）
-- **备注/讲稿**：【配图】本页右侧预留图位：放 docs/figures/fig1_architecture.png（系统架构图）。 | 【讲稿】讲清分层与‘可独立消融’。
+- **备注/讲稿**：【配图】本页右侧图位：放 docs/figures/fig1_architecture.png（系统架构图）。 | 【讲稿】讲清分层与‘可独立消融’。
 
 ## 第 14 页｜代码页
 - 标题：**短期工作记忆**
 - 内容：
-  - 槽位保存目标/约束/查询/消息；约束永不压缩
-  - FIFO 超阈值触发压缩，被驱逐消息进入归档
-  - 伪代码如下（memsys/short_term/working_memory.py）：
+  - 槽位保存目标/约束/查询/消息；约束永不压缩，保证规划合规
+  - FIFO 超阈值触发递归摘要，被驱逐消息进入归档区供复盘晋升
+  - 渲染顺序刻意使用首尾位置偏置：关键信息放头部，近期消息放尾部
 - 代码/伪代码：
 ```
 def render(slot):
-    parts = [阶段, 目标, 约束]          # 头部：不可压缩
+    parts = [阶段, 目标, 约束]
     if slot.loaded_briefs:
-        parts.append('【装载记忆】' + 逐条brief)
-    parts.append(查询列表)               # 审计
+        parts.append('【装载记忆】' + briefs)
+    parts.append(查询列表)
     parts.append(最新消息[-20:])
     return '\n'.join(parts)
 
 def flush(slot, llm):
     evicted = slot.fifo.pop(前半)
-    slot.summary = llm.summarize(old + evicted)
-    slot.archived.append(evicted)        # 归档不丢
+    slot.summary = llm.summarize(旧摘要 + evicted)
+    slot.archived.append(evicted)
 ```
 - 配图：无
 - **备注/讲稿**：【配图】无。 | 【讲稿】讲清‘首尾关键、约束不压缩、归档可复盘’。
@@ -155,14 +155,12 @@ def flush(slot, llm):
 ## 第 15 页｜代码页
 - 标题：**长期双库**
 - 内容：
-  - 事实库：SQLite + 属性精确；经验库：向量语义召回
-  - attrs 精确命中绕过 min_score（构造性相关）
-  - 接口示例：
+  - 事实库：SQLite+属性精确；经验库：向量语义召回
+  - attrs 精确命中绕过 min_score——查询方显式指定条件即构造性相关
+  - 接口示例与融合策略如下
 - 代码/伪代码：
 ```
-# 事实精确：属性过滤
 hits_exact = factual.search_attrs({'装备': 'T-90'})
-# 经验语义：向量召回
 hits_sem = experiential.search('夜战侦察教训')
 # 融合时：attrs 命中即相关，不参与相似度阈值
 ```
@@ -172,7 +170,7 @@ hits_sem = experiential.search('夜战侦察教训')
 ## 第 16 页｜代码页
 - 标题：**混合检索：三路融合 + 单路**
 - 内容：
-  - vector/BM25/SQL 三路；hybrid 加权累加，single 便于消融
+  - vector/BM25/SQL 三路；hybrid 加权累加，single 供消融
   - 归一化：向量余弦、BM25 查询自匹配上界、SQL 恒 1
   - 公式：s_hybrid = Σ w_r·n_r(id)
 - 代码/伪代码：
@@ -183,11 +181,13 @@ def retrieve(q, mode='hybrid', top_k=5):
         pool += [route(q, alt) for alt in routes
                  if alt != q.route]
     pool = [normalize(r) for r in pool]
-    fused = aggregate_by_id(pool, weights)  # 多路累加
-    if q.stage: fused = add_stage_bonus(fused, q.stage)
+    fused = aggregate_by_id(pool, weights)
+    if q.stage:
+        fused = add_stage_bonus(fused, q.stage)
     ranked = [x for x in sorted(fused, reverse=True)
               if x.score >= min_score][:top_k]
-    for r in ranked: r.entry.mark_recalled()
+    for r in ranked:
+        r.entry.mark_recalled()
     return ranked
 ```
 - 配图：无
@@ -196,23 +196,27 @@ def retrieve(q, mode='hybrid', top_k=5):
 ## 第 17 页｜代码页
 - 标题：**记忆进化：写/合/忘/抽**
 - 内容：
-  - 建议-执行分离：LLM 提候选，确定性代码执行
+  - 建议-执行分离：LLM 提候选，确定性代码执行写/合/忘/抽
   - 遗忘：R=e^{-t/S}，命中 S+1；importance≥2 保护
-  - 抽象：≥2 条新经验 → 一条通用教训
+  - 同场新经验≥2 条触发抽象
 - 代码/伪代码：
 ```
 def evolve_from_review(review, session_id):
     ops = llm.extract_memory_ops(review)
     for op in ops:
-        if not boundary.promote(op.content): continue
-        if write(op) is None: skipped += 1
+        if not boundary.promote(op.content):
+            continue
+        if write(op) is None:
+            skipped += 1
     merge_new_entries()
     forget()
-    if len(new_experiences) >= 2: abstract()
+    if len(new_experiences) >= 2:
+        abstract()
 
 # 遗忘核心
-R = math.exp(-t / max(S, 1e-6))
-# 命中强化：S += 1, t 重置
+R = exp(-t / max(S, 1e-6))
+# 命中强化
+S += 1; t 重置
 ```
 - 配图：无
 - **备注/讲稿**：【配图】无。 | 【讲稿】讲清‘为什么建议与执行分离’——可审计。
@@ -220,23 +224,23 @@ R = math.exp(-t / max(S, 1e-6))
 ## 第 18 页｜内容页
 - 标题：**边界门控与阶段感知**
 - 内容：
-  - 复盘晋升经三道门：复盘驱动、类别判定、语义查重
-  - 每次判定写入审计日志（boundary）
-  - 查询按 MDMP 七阶段生成，阶段匹配记忆加亲和分
-  - 复盘教训归因到阶段，供同阶段检索优先召回
+  - 复盘驱动：只有场次复盘文本才能触发晋升，流水账被挡在门外
+  - 类别判定：事实/经验分别进入对应存储，避免类型混乱
+  - 语义查重：写入前 θ 余弦去重，重复经验不重复入库；每次判定写审计日志
+  - 阶段感知：查询按 MDMP 七阶段生成，阶段匹配记忆加亲和分，复盘教训归因到阶段
 - 配图：无
 - **备注/讲稿**：【配图】无。 | 【讲稿】澄清‘什么能进长期库、什么时候检索什么’。
 
 ## 第 19 页｜内容页
 - 标题：**WebUI 可视化**
 - 内容：
-  - 后台 /api 与前端三栏；左右栏页签化，避免过长
-  - 记忆详情抽屉：总览/单条历史/遗忘日志
+  - 三栏页签化布局：左输入/中运行/右产出，长内容折叠为页签
+  - 记忆详情抽屉：总览/单条历史/遗忘日志，支持点击展开
   - 遗忘曲线：R=e^{-t/S} 与‘立即召回 S+1’对比
-  - 战役进度条、库健康度分布条、事件流点击展开
-  - 配图占位：WebUI 截图（抽屉/遗忘曲线/事件流）
+  - 战役进度条、库健康度分布条、事件流点击展开详情
+  - 配图占位：WebUI 截图
 - **配图建议**：WebUI 截图（记忆详情抽屉/遗忘曲线/事件流）
-- **备注/讲稿**：【配图】本页右侧预留图位：放 WebUI 截图（运行 python webui/server.py 后截取记忆详情抽屉、遗忘曲线、事件流）。 | 【讲稿】展示可视化如何帮助理解系统。
+- **备注/讲稿**：【配图】本页右侧图位：放 WebUI 截图（记忆详情抽屉/遗忘曲线/事件流）。 | 【讲稿】展示可视化如何帮助理解系统。
 
 ## 第 20 页｜章节扉页
 - 标题：**实验设计与验证**
@@ -247,10 +251,10 @@ R = math.exp(-t / max(S, 1e-6))
 ## 第 21 页｜内容页
 - 标题：**数据集与评估协议**
 - 内容：
-  - 自建 50 条 8 类测试集（A-H），避免关键词共现
-  - 固定用例集，依赖注入开关能力（G0-G6）
-  - 检索指标：hit@3/5、MRR、NDCG；任务层：引用/约束/噪声
-  - 统计：随机基线、bootstrap CI、配对置换检验
+  - 测试集：自建 50 条 8 类（A-H），查询与答案刻意避免关键词共现
+  - 对照组：固定用例集，通过依赖注入开关能力（G0-G6），不删减用例
+  - 指标：检索层 hit@3/5、MRR、NDCG；任务层 引用率/约束满足/噪声污染
+  - 统计：随机基线解析式、bootstrap CI、配对置换检验，种子固定 42
 - 配图：无
 - **备注/讲稿**：【配图】无。 | 【讲稿】强调‘对照是开关能力而不是删用例’。
 
@@ -267,13 +271,13 @@ R = math.exp(-t / max(S, 1e-6))
 ## 第 23 页｜内容页
 - 标题：**跨场次与检索策略（RQ2/RQ3）**
 - 内容：
-  - 跨场次：处理组 0.833 vs 对照 0，负控 0
-  - p=0.059，样本有限 → 方向性证据
-  - 检索：hybrid 0.857 vs vector 0.929（词袋）
-  - 但干扰压制 hybrid 1.0 > 单路 ≤0.875
-  - 结论：混合价值在排序，真向量再定召回
+  - 跨场次：处理组 0.833 vs 对照 0，负控 0；机制路径完整，但 n=6 样本有限
+  - p=0.059：方向性证据，需扩容到 20 条才能形成结论
+  - 检索：词袋下 hybrid 0.857 vs vector 0.929，召回未胜出
+  - 干扰压制：hybrid 1.0 高于任一单路 ≤0.875，排序更好
+  - 结论：混合价值在排序；真向量复测后再判定召回
 - **配图建议**：跨场次复用示意（WebUI 截图/表格）
-- **备注/讲稿**：【配图】可放跨场次 WebUI 截图（第二场命中带‘往场沉淀’）或表格。 | 【讲稿】对负结果要诚实：词袋下混合召回无增益。
+- **备注/讲稿**：【配图】可放跨场次 WebUI 截图（第二场命中带‘往场沉淀’）或表格。 | 【讲稿】对负结果要诚实。
 
 ## 第 24 页｜内容页
 - 标题：**滤噪、遗忘与真实模型（RQ4/RQ5）**
@@ -295,18 +299,18 @@ R = math.exp(-t / max(S, 1e-6))
 - 标题：**智戎事件驱动适配（P0 落地）**
 - 内容：
   - hook_evolve：不依赖‘场次结束’，可随时触发进化
-  - 结构化反馈：AFSIM 数值/事件 → 复盘文本
+  - 结构化反馈：AFSIM 数值/事件转复盘文本，失败补‘教训’
   - normalize_task：结构化任务 → goal/constraints/queries
-  - domain_check：领域巡检 + min_score 建议
-  - 配图占位：智戎接入架构/事件流图
+  - domain_check：领域巡检 + min_score 建议，等待真实数据
+  - 配图占位：智戎接入/事件流图
 - **配图建议**：智戎接入/事件流图（可复用 docs/figures/fig2_campaign_trajectory.png）
-- **备注/讲稿**：【配图】本页右侧预留图位：放 docs/figures/fig2_campaign_trajectory.png 或智戎桥接架构示意图。 | 【讲稿】强调 P1（无结束信号）已有适配方案。
+- **备注/讲稿**：【配图】本页右侧图位：放 docs/figures/fig2_campaign_trajectory.png 或智戎桥接架构示意图。 | 【讲稿】强调 P1（无结束信号）已有适配方案。
 
 ## 第 27 页｜内容页
 - 标题：**总结与展望**
 - 内容：
-  - 结论：分层与进化机制在词袋固定设置下有效（p=0.0001）
-  - 真实模型验证了检索-生成链路可用（引用率 1.00）
+  - 结论：分层与进化机制在词袋固定设置下有效，双库 p=0.0001
+  - 真模型验证了检索-生成链路可用，引用率 1.00（示范性）
   - 下一步：真向量重跑与重标定 min_score/θ
   - 下一步：H 类扩至 20 条、知识锚定、冲突仲裁
   - 下一步：智戎真实链路联调与领域巡检
