@@ -36,15 +36,15 @@ PAGES = [
  {"type":"agenda","title":"目录 CONTENTS","items":["01 问题与思路","02 相关工作与启发","03 系统设计与实现","04 实验设计与验证","05 智戎接入与总结展望"],"note":"【配图】无。\n【讲稿】按五部分走，重点在系统设计与实验验证。","image":""},
  # ---------------- 01 问题与思路 ----------------
  {"type":"section","num":"01","title":"问题与思路","subtitle":"PROBLEM & APPROACH","image":"","note":"【配图】可放 docs/figures/fig2_campaign_trajectory.png 作背景。\n【讲稿】先讲‘为什么需要外部记忆’。","image2":""},
- {"type":"content","tag":"01 · 问题与思路","title":"课题背景","items":["作战规划智能体以场次接任务：目标→查询→检索→规划→推演→复盘→下一场","模型与上下文都不保留跨场次状态，同类错误会反复出现","长上下文只解决容量，RAG 只解决知识供给，均不解决经验沉淀/更新/淘汰","目标：在模型之外构建可读写、可演化、可审计的外部记忆系统","配图占位：七步闭环示意图"],"note":"【配图】本页右侧图位：放 docs/figures/fig2_campaign_trajectory.png（多轮战役轨迹/七步闭环示意图）。\n【讲稿】用‘同一夜间进攻任务，第一场隘口遇伏，第二场大概率再吃亏’举例。","image":"七步闭环示意图（docs/figures/fig2_campaign_trajectory.png 或手绘）"},
- {"type":"content","tag":"01 · 问题与思路","title":"五个失败模式","layout":"numbered_list","items":["P1 经验不积累：场次间无状态传递，同样错误重复出现","P2 上下文超限：粗暴截断可能丢失硬约束，规划违反约束","P3 查询口径混杂：参数精确与经验语义同路，互相干扰","P4 库噪声：复盘无差别入库，长期库变成日志不可审计","P5 目标检索弱：直接用任务目标文本查询，语义信息量不足"],"note":"【配图】无。\n【讲稿】P1-P4 来自初始问题拆解，P5 来自导师反馈。","image":""},
- {"type":"content","tag":"01 · 问题与思路","title":"五个研究问题 RQ1-RQ5","layout":"numbered_list","items":["RQ1 双库贡献：事实/经验分库是否带来可测召回增益","RQ2 跨场次复用：第一场复盘能否被第二场召回","RQ3 检索策略：三路融合相对单路是否有增益","RQ4 滤噪与遗忘：阈值能否滤噪、遗忘是否不误删","RQ5 真实模型：DeepSeek 是否实际引用装载记忆"],"note":"【配图】无。\n【讲稿】实验章节会逐个回答。","image":""},
- {"type":"content","tag":"01 · 问题与思路","title":"总体思路","layout":"grid2x2","items":["外部系统：把记忆组织成可演化结构，不止检索增强","复盘晋升：短期→长期唯一写通道，三道门控","建议-执行分离：LLM 提候选，确定性代码执行写/合/忘/抽","阶段感知：MDMP 七阶段生成查询，对口记忆加分"],"note":"【配图】无。\n【讲稿】一句话：把跨场次知识做成可回放、可审计的外部系统。","image":""},
+ {"type":"content","tag":"01 · 问题与思路","title":"课题背景","layout":"vert_fill","items":["从零开始的问题：作战规划智能体以场次接任务，目标→查询→检索→规划→推演→复盘→下一场；模型与上下文都不保留跨场次状态，同类错误会反复出现。","长上下文不够：扩展窗口只解决“当前提示词放得下”，窗口关闭后信息即失效；RAG 只解决外部知识供给，不解决经验如何沉淀、更新与淘汰。","模型内记忆代价高：通过微调或状态注入改变模型本身，成本高且无法审计；军事场景需要可回放、可解释的记忆操作。","目标定位：在模型之外构建可读写、可演化、可审计的外部记忆系统，以“写入-检索-更新-淘汰”为生命周期。"],"note":"【讲稿】用“同一夜间进攻任务，第一场隘口遇伏，第二场大概率再吃亏”开场。","image":""},
+ {"type":"content","tag":"01 · 问题与思路","title":"五个失败模式","layout":"icon_rows","items":["P1 经验不积累：场次间无状态传递；第一场在隘口遇伏，第二场可能仍未派先遣侦察，失败教训没有载体。","P2 上下文超限：场内战报与硬约束同时涌入，粗暴截断可能把“禁止越境”等约束切掉，规划易合规出错。","P3 查询口径混杂：装备参数需要精确，经验教训需要语义泛化；同一路无法同时满足精确与召回。","P4 库噪声：复盘无差别入库让长期库积累流水账，信号被噪声淹没，且无法回答“这条为什么在库中”。","P5 目标检索弱：直接用任务目标一句话查询信息量太薄，规划不同阶段需要的记忆类型不同。"],"note":"【讲稿】P1-P4 来自初始拆解，P5 来自导师反馈；每行右侧为示意图占位。","image":""},
+ {"type":"content","tag":"01 · 问题与思路","title":"五个研究问题 RQ1-RQ5","layout":"mapping_rows","items":["P1/P5 → RQ1 双库贡献：事实/经验分库是否在固定用例集上带来可测召回增益？对应 G2 vs G3 消融。","P1 → RQ2 跨场次复用：第一场复盘写入能否被第二场召回？处理组 0.833 vs 对照 0。","P3 → RQ3 检索策略：三路融合相对单路是否有增益？词袋下召回未胜出，排序/干扰压制更好。","P2/P4 → RQ4 滤噪与遗忘：阈值能否滤除负例、遗忘是否不误删保护记忆？","P4 → RQ5 真实模型：DeepSeek 是否实际引用装载记忆？T6 引用率 1.00。"],"note":"【讲稿】强调 RQ 是从失败模式引申而来，实验章节逐一回答。","image":""},
+ {"type":"content","tag":"01 · 问题与思路","title":"总体思路","layout":"grid2x2","items":["外部系统：把记忆从上下文窗口搬到独立系统，可写、可检索、可更新、可淘汰；短期管当前场次，长期管跨场次知识。","复盘晋升：短期→长期只留一条写通道，即场次结束后的复盘；三道门控：复盘驱动、类别判定、语义查重，每次操作进审计日志。","建议-执行分离：LLM/规则只负责提候选，写入、合并、遗忘、抽象由确定性代码执行；保证“为什么删、从哪来”可审计。","阶段感知：查询按 MDMP 七阶段生成，阶段匹配记忆加亲和分；复盘教训归因到阶段，让“方案拟制”优先看到历史战例。"],"note":"【讲稿】四句话说清系统设计哲学。","image":""},
  # ---------------- 02 相关工作与启发 ----------------
  {"type":"section","num":"02","title":"相关工作与启发","subtitle":"RELATED WORK & INSPIRATION","image":"","note":"【配图】可放 docs/figures/fig1_architecture.png 作背景。\n【讲稿】说明借鉴什么、不采用什么。","image2":""},
- {"type":"content","tag":"02 · 相关工作与启发","title":"上下文组织与工作记忆","items":["综述框架（Zhang 2024）：记忆的‘形式-操作-应用’分层","MemGPT：主上下文+外部存档，本文改为确定性阈值换页","SCM：控制器显式决定读/写/归档，本文收敛为复盘晋升","LLMLingua/LongLLMLingua/ICAE：位置偏置与‘只压历史不压约束’"],"note":"【配图】无。\n【讲稿】每条都说明：借鉴什么、为什么不完整照搬。","image":""},
- {"type":"content","tag":"02 · 相关工作与启发","title":"长期存储与检索","items":["ChatDB：数据库即符号记忆 → 采用属性精确过滤","ExpeL：经验库+向量召回 → 补充重要性加权与持久化","Reflexion：语言反思 → 采用语言形式经验","MemoryBank：艾宾浩斯遗忘 → 加入 importance≥2 保护线","Zep：时间戳/溯源 → 采用溯源字段，不采用图存储","MIRIX / TiM：多路策略与显式检索计划 → 压缩为三路融合"],"note":"【配图】无。\n【讲稿】这一段说明检索与存储不是凭空设计。","image":""},
- {"type":"content","tag":"02 · 相关工作与启发","title":"记忆进化与设计依据","layout":"two_col","items":["PREMem：预存储推理/θ查重 → 采用相似度去重","StructMem：跨事件整合 → 演化为‘抽象’操作","MemSkill：INSERT/UPDATE/DELETE/SKIP → 采用操作类型化","Mem-α：建议-执行分离 → 本文核心架构","小结：组合层面+领域化（保护线/精确绕过阈值/阶段供给）"],"note":"【配图】无。\n【讲稿】强调：机制都有原型，差异在组合与军事场景限定。","image":""},
+ {"type":"content","tag":"02 · 相关工作与启发","title":"上下文组织与工作记忆","layout":"vert_fill","items":["综述框架（Zhang 2024）：把记忆工作归纳为“形式-操作-应用”三层；本文补齐“写、更新、遗忘”闭环并把每步做成可审计事件。","MemGPT 分层：主上下文+外部存档；本文采用分层，但改成确定性阈值换页（0.7预警/1.0压缩），保证可复现可消融。","SCM 控制器：显式决定何时读/写/归档；本文沿用“控制器唯一调度”，但把写长期库收窄为复盘晋升一条通道。","LLMLingua/ICAE 压缩：借用位置偏置与“只压历史不压约束”，压缩器本身留作后续扩展。"],"note":"【讲稿】每条讲“借鉴什么、为什么不完整照搬”。","image":""},
+ {"type":"content","tag":"02 · 相关工作与启发","title":"长期存储与检索","layout":"numbered_list","items":["ChatDB：数据库即符号记忆 → 只保留属性精确过滤，不实现全量 NL→SQL。","ExpeL：经验库+向量召回 → 补齐重要性加权与 SQLite 持久化。","Reflexion：语言反思 → 采用语言形式经验，不采用在线强化。","MemoryBank：艾宾浩斯遗忘+召唤强化 → 增加 importance≥2 保护线。","Zep：时序知识图谱+溯源 → 采用溯源字段，不采用图存储。","MIRIX/TiM：多路策略与显式检索计划 → 压缩为三路融合。"],"note":"【讲稿】说明检索与存储不是凭空设计。","image":""},
+ {"type":"content","tag":"02 · 相关工作与启发","title":"记忆进化与设计依据","layout":"two_col","items":["PREMem：θ 相似度去重 → 写入前查重","StructMem：跨事件整合 → “抽象”操作","MemSkill：操作类型化 → MemoryOp 枚举","Mem-α：建议-执行分离 → 核心架构","不采用完整聚类：50 条量级收益不明显","不采用在线强化：战场奖励信号不稳定","不采用图存储：构建纠错成本高","领域化：保护线、精确绕过阈值、阶段供给"],"note":"【讲稿】强调机制都有原型，差异在组合与军事场景限定。","image":""},
  # ---------------- 03 系统设计与实现 ----------------
  {"type":"section","num":"03","title":"系统设计与实现","subtitle":"DESIGN & IMPLEMENTATION","image":"","note":"【配图】可放 docs/figures/fig1_architecture.png 作背景。\n【讲稿】进入核心章节。","image2":""},
  {"type":"content","tag":"03 · 系统设计与实现","title":"总体架构","items":["四层：模型层/能力层/跨切面/编排层","能力层四模块互不依赖：短期、长期、检索、进化","两层之间唯一写通道：复盘晋升 + 三道边界门","可独立消融：依赖注入实现 G0-G6","","配图占位：系统架构图（建议 docs/figures/fig1_architecture.png）"],"note":"【配图】本页右侧预留图位：放 docs/figures/fig1_architecture.png（系统架构图）。\n【讲稿】讲清分层与‘可独立消融’。","image":"架构图（docs/figures/fig1_architecture.png）"},
@@ -259,6 +259,71 @@ def render_two_col(slide, items, left=2.2, top=4.7, width=29.5, gap=1.5):
         add_rect(slide, x, y+0.1, w, 0.02, fill=LINE)
 
 
+def render_vert_fill(slide, items, left=2.2, top=4.8, width=29.5, bottom=17.4):
+    """竖向四段/五段铺满：编号 + 内容标题 + 文字说明，适用于课题背景等。"""
+    valid = [x for x in items if x]
+    n = len(valid)
+    if n == 0:
+        return
+    step = (bottom - top) / n
+    for i, item in enumerate(valid):
+        y = top + i * step
+        head, body = split_head_body(item)
+        add_text(slide, f"{i+1:02d}", left, y+0.28, 1.8, 1.2, size=26, bold=True,
+                 color=ACCENT, wrap=False)
+        tx = left + 2.0
+        add_text(slide, head, tx, y+0.2, width-2.2, 0.9, size=20, bold=True, color=PRIMARY)
+        add_text(slide, body, tx, y+1.05, width-2.2, step-1.5, size=14, color=GREY)
+        add_rect(slide, left, y + step - 0.28, width, 0.03, fill=LINE)
+
+
+def render_icon_rows(slide, items, left=2.2, top=4.8, width=29.5, bottom=17.4, icon_w=3.2):
+    """五段横向行：编号+标题+正文，右侧预留小图框。"""
+    valid = [x for x in items if x]
+    n = len(valid)
+    if n == 0:
+        return
+    step = (bottom - top) / n
+    for i, item in enumerate(valid):
+        y = top + i * step
+        head, body = split_head_body(item)
+        add_text(slide, f"{i+1:02d}", left, y+0.28, 1.8, 1.2, size=24, bold=True,
+                 color=ACCENT, wrap=False)
+        tx = left + 2.0
+        text_w = left + width - tx - icon_w - 0.5
+        add_text(slide, head, tx, y+0.18, text_w, 0.8, size=18, bold=True, color=PRIMARY)
+        add_text(slide, body, tx, y+0.95, text_w, step-1.4, size=13, color=GREY)
+        add_image_box(slide, left + width - icon_w, y + step*0.18, icon_w, step*0.62)
+        add_rect(slide, left, y + step - 0.25, width, 0.025, fill=LINE)
+
+
+def render_mapping_rows(slide, items, left=2.2, top=4.8, width=29.5, bottom=17.4, icon_w=3.0):
+    """P→RQ 映射行：左侧来源标签 + 箭头 + RQ 标题/正文 + 右侧图位。"""
+    valid = [x for x in items if x]
+    n = len(valid)
+    if n == 0:
+        return
+    step = (bottom - top) / n
+    for i, item in enumerate(valid):
+        y = top + i * step
+        head, body = split_head_body(item)
+        if "→" in head:
+            src, name = head.split("→", 1)
+        else:
+            src, name = f"P{i+1}", head
+        add_round(slide, left, y+0.24, 3.6, 1.9, fill=RGBColor(0xE7, 0xEF, 0xF9))
+        add_text(slide, src.strip(), left+0.2, y+0.58, 3.2, 1.2, size=18, bold=True,
+                 color=ACCENT, align=PP_ALIGN.CENTER, wrap=False)
+        ax = left + 4.0
+        add_text(slide, "→", ax, y+0.35, 1.0, 1.4, size=28, bold=True, color=ACCENT, wrap=False)
+        tx = ax + 1.2
+        text_w = left + width - tx - icon_w - 0.4
+        add_text(slide, name.strip(), tx, y+0.15, text_w, 0.9, size=19, bold=True, color=PRIMARY)
+        add_text(slide, body, tx, y+1.02, text_w, step-1.5, size=13.5, color=GREY)
+        add_image_box(slide, left + width - icon_w, y+0.4, icon_w, step*0.6)
+        add_rect(slide, left, y + step - 0.22, width, 0.025, fill=LINE)
+
+
 def add_code_block(slide, code, left=2.0, top=8.4, width=29.8, height=8.4):
     add_rect(slide, left, top, width, 0.7, fill=PRIMARY)
     add_text(slide, "代码 / 伪代码", left+0.5, top+0.08, 8, 0.55, size=13, bold=True,
@@ -321,6 +386,12 @@ def build():
                 render_two_col(slide, items)
             elif layout == "stats":
                 render_stats(slide, items)
+            elif layout == "vert_fill":
+                render_vert_fill(slide, items)
+            elif layout == "icon_rows":
+                render_icon_rows(slide, items)
+            elif layout == "mapping_rows":
+                render_mapping_rows(slide, items)
             elif p.get("image"):
                 render_cards(slide, items[:-1], left=2.0, top=4.6, width=17.8, height=2.1, gap=0.22)
                 add_image_box(slide, 21.4, 4.6, 10.5, 11.4)
@@ -341,8 +412,14 @@ def build():
             add_footer(slide, idx)
         set_notes(slide, p.get("note", ""))
 
-    prs.save(PPTX)
-    print(f"[OK] {PPTX} 已生成，共 {TOTAL} 页")
+    try:
+        prs.save(PPTX)
+        saved = PPTX
+    except PermissionError:
+        saved = os.path.join(OUT_DIR, "最终汇报成果_new.pptx")
+        prs.save(saved)
+        print(f"[警告] {PPTX} 被占用，已生成替代文件：{saved}")
+    print(f"[OK] {saved} 已生成，共 {TOTAL} 页")
 
 def export_md():
     lines = ["# 最终汇报 PPT 内容设计\n",
