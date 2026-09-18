@@ -31,20 +31,20 @@ SW, SH = Cm(33.87), Cm(19.05)
 
 PAGES = [
  # ---------------- 封面 ----------------
- {"type":"cover","title":"面向作战规划智能体的可进化外部记忆系统","subtitle":"国防科技大学 · 课题3 · 长短期记忆系统\n小组：姓名一 / 姓名二\n2025年7月","note":"【配图】可放校徽（可选）。\n【讲稿】开场1分钟：课题目标、单位、小组分工。","image":""},
+ {"type":"cover","title":"面向作战规划智能体的\n可进化外部记忆系统","subtitle":"国防科技大学 · 课题3 · 长短期记忆系统\n小组：姓名一 / 姓名二\n2025年7月","note":"【配图】可放校徽（可选）。\n【讲稿】开场1分钟：课题目标、单位、小组分工。","image":""},
  # ---------------- 目录 ----------------
  {"type":"agenda","title":"目录 CONTENTS","items":["01 问题与思路","02 相关工作与启发","03 系统设计与实现","04 实验设计与验证","05 智戎接入与总结展望"],"note":"【配图】无。\n【讲稿】按五部分走，重点在系统设计与实验验证。","image":""},
  # ---------------- 01 问题与思路 ----------------
  {"type":"section","num":"01","title":"问题与思路","subtitle":"PROBLEM & APPROACH","image":"","note":"【配图】可放 docs/figures/fig2_campaign_trajectory.png 作背景。\n【讲稿】先讲‘为什么需要外部记忆’。","image2":""},
  {"type":"content","tag":"01 · 问题与思路","title":"课题背景","items":["作战规划智能体以场次接任务：目标→查询→检索→规划→推演→复盘→下一场","模型与上下文都不保留跨场次状态，同类错误会反复出现","长上下文只解决容量，RAG 只解决知识供给，均不解决经验沉淀/更新/淘汰","目标：在模型之外构建可读写、可演化、可审计的外部记忆系统","配图占位：七步闭环示意图"],"note":"【配图】本页右侧图位：放 docs/figures/fig2_campaign_trajectory.png（多轮战役轨迹/七步闭环示意图）。\n【讲稿】用‘同一夜间进攻任务，第一场隘口遇伏，第二场大概率再吃亏’举例。","image":"七步闭环示意图（docs/figures/fig2_campaign_trajectory.png 或手绘）"},
- {"type":"content","tag":"01 · 问题与思路","title":"五个失败模式","items":["P1 经验不积累：场次间无状态传递，同样错误重复出现","P2 上下文超限：粗暴截断可能丢失硬约束，规划违反约束","P3 查询口径混杂：参数精确与经验语义同路，互相干扰","P4 库噪声：复盘无差别入库，长期库变成日志不可审计","P5 目标检索弱：直接用任务目标文本查询，语义信息量不足"],"note":"【配图】无。\n【讲稿】P1-P4 来自初始问题拆解，P5 来自导师反馈。","image":""},
- {"type":"content","tag":"01 · 问题与思路","title":"五个研究问题 RQ1-RQ5","items":["RQ1 双库贡献：事实/经验分库是否带来可测召回增益","RQ2 跨场次复用：第一场复盘能否被第二场召回","RQ3 检索策略：三路融合相对单路是否有增益","RQ4 滤噪与遗忘：阈值能否滤噪、遗忘是否不误删","RQ5 真实模型：DeepSeek 是否实际引用装载记忆"],"note":"【配图】无。\n【讲稿】实验章节会逐个回答。","image":""},
+ {"type":"content","tag":"01 · 问题与思路","title":"五个失败模式","layout":"numbered_list","items":["P1 经验不积累：场次间无状态传递，同样错误重复出现","P2 上下文超限：粗暴截断可能丢失硬约束，规划违反约束","P3 查询口径混杂：参数精确与经验语义同路，互相干扰","P4 库噪声：复盘无差别入库，长期库变成日志不可审计","P5 目标检索弱：直接用任务目标文本查询，语义信息量不足"],"note":"【配图】无。\n【讲稿】P1-P4 来自初始问题拆解，P5 来自导师反馈。","image":""},
+ {"type":"content","tag":"01 · 问题与思路","title":"五个研究问题 RQ1-RQ5","layout":"numbered_list","items":["RQ1 双库贡献：事实/经验分库是否带来可测召回增益","RQ2 跨场次复用：第一场复盘能否被第二场召回","RQ3 检索策略：三路融合相对单路是否有增益","RQ4 滤噪与遗忘：阈值能否滤噪、遗忘是否不误删","RQ5 真实模型：DeepSeek 是否实际引用装载记忆"],"note":"【配图】无。\n【讲稿】实验章节会逐个回答。","image":""},
  {"type":"content","tag":"01 · 问题与思路","title":"总体思路","layout":"grid2x2","items":["外部系统：把记忆组织成可演化结构，不止检索增强","复盘晋升：短期→长期唯一写通道，三道门控","建议-执行分离：LLM 提候选，确定性代码执行写/合/忘/抽","阶段感知：MDMP 七阶段生成查询，对口记忆加分"],"note":"【配图】无。\n【讲稿】一句话：把跨场次知识做成可回放、可审计的外部系统。","image":""},
  # ---------------- 02 相关工作与启发 ----------------
  {"type":"section","num":"02","title":"相关工作与启发","subtitle":"RELATED WORK & INSPIRATION","image":"","note":"【配图】可放 docs/figures/fig1_architecture.png 作背景。\n【讲稿】说明借鉴什么、不采用什么。","image2":""},
  {"type":"content","tag":"02 · 相关工作与启发","title":"上下文组织与工作记忆","items":["综述框架（Zhang 2024）：记忆的‘形式-操作-应用’分层","MemGPT：主上下文+外部存档，本文改为确定性阈值换页","SCM：控制器显式决定读/写/归档，本文收敛为复盘晋升","LLMLingua/LongLLMLingua/ICAE：位置偏置与‘只压历史不压约束’"],"note":"【配图】无。\n【讲稿】每条都说明：借鉴什么、为什么不完整照搬。","image":""},
  {"type":"content","tag":"02 · 相关工作与启发","title":"长期存储与检索","items":["ChatDB：数据库即符号记忆 → 采用属性精确过滤","ExpeL：经验库+向量召回 → 补充重要性加权与持久化","Reflexion：语言反思 → 采用语言形式经验","MemoryBank：艾宾浩斯遗忘 → 加入 importance≥2 保护线","Zep：时间戳/溯源 → 采用溯源字段，不采用图存储","MIRIX / TiM：多路策略与显式检索计划 → 压缩为三路融合"],"note":"【配图】无。\n【讲稿】这一段说明检索与存储不是凭空设计。","image":""},
- {"type":"content","tag":"02 · 相关工作与启发","title":"记忆进化与设计依据","items":["PREMem：预存储推理/θ查重 → 采用相似度去重","StructMem：跨事件整合 → 演化为‘抽象’操作","MemSkill：INSERT/UPDATE/DELETE/SKIP → 采用操作类型化","Mem-α：建议-执行分离 → 本文核心架构","小结：组合层面+领域化（保护线/精确绕过阈值/阶段供给）"],"note":"【配图】无。\n【讲稿】强调：机制都有原型，差异在组合与军事场景限定。","image":""},
+ {"type":"content","tag":"02 · 相关工作与启发","title":"记忆进化与设计依据","layout":"two_col","items":["PREMem：预存储推理/θ查重 → 采用相似度去重","StructMem：跨事件整合 → 演化为‘抽象’操作","MemSkill：INSERT/UPDATE/DELETE/SKIP → 采用操作类型化","Mem-α：建议-执行分离 → 本文核心架构","小结：组合层面+领域化（保护线/精确绕过阈值/阶段供给）"],"note":"【配图】无。\n【讲稿】强调：机制都有原型，差异在组合与军事场景限定。","image":""},
  # ---------------- 03 系统设计与实现 ----------------
  {"type":"section","num":"03","title":"系统设计与实现","subtitle":"DESIGN & IMPLEMENTATION","image":"","note":"【配图】可放 docs/figures/fig1_architecture.png 作背景。\n【讲稿】进入核心章节。","image2":""},
  {"type":"content","tag":"03 · 系统设计与实现","title":"总体架构","items":["四层：模型层/能力层/跨切面/编排层","能力层四模块互不依赖：短期、长期、检索、进化","两层之间唯一写通道：复盘晋升 + 三道边界门","可独立消融：依赖注入实现 G0-G6","","配图占位：系统架构图（建议 docs/figures/fig1_architecture.png）"],"note":"【配图】本页右侧预留图位：放 docs/figures/fig1_architecture.png（系统架构图）。\n【讲稿】讲清分层与‘可独立消融’。","image":"架构图（docs/figures/fig1_architecture.png）"},
@@ -56,10 +56,10 @@ PAGES = [
  {"type":"content","tag":"03 · 系统设计与实现","title":"WebUI 可视化","items":["后台 /api 与前端三栏；左右栏页签化，避免过长","记忆详情抽屉：总览/单条历史/遗忘日志","遗忘曲线：R=e^{-t/S} 与‘立即召回 S+1’对比","战役进度条、库健康度分布条、事件流点击展开","配图占位：WebUI 截图（抽屉/遗忘曲线/事件流）"],"note":"【配图】本页右侧预留图位：放 WebUI 截图（运行 python webui/server.py 后截取记忆详情抽屉、遗忘曲线、事件流）。\n【讲稿】展示可视化如何帮助理解系统。","image":"WebUI 截图（记忆详情抽屉/遗忘曲线/事件流）"},
  # ---------------- 04 实验设计与验证 ----------------
  {"type":"section","num":"04","title":"实验设计与验证","subtitle":"EXPERIMENTS","image":"","note":"【配图】可放消融图（docs/17 配图脚本生成）作背景。\n【讲稿】进入数据章节，先声明词袋环境。","image2":""},
- {"type":"content","tag":"04 · 实验设计与验证","title":"数据集与评估协议","items":["自建 50 条 8 类测试集（A-H），避免关键词共现","固定用例集，依赖注入开关能力（G0-G6）","检索指标：hit@3/5、MRR、NDCG；任务层：引用/约束/噪声","统计：随机基线、bootstrap CI、配对置换检验"],"note":"【配图】无。\n【讲稿】强调‘对照是开关能力而不是删用例’。","image":""},
- {"type":"content","tag":"04 · 实验设计与验证","title":"双库贡献（RQ1）","items":["G2 仅事实库 hit@5=0.341；G3 双库全开 0.636","Δ=0.295，配对置换 p=0.0001","增益全部来自经验类（C/D/G），事实类不降","随机基线 0.357，G3 显著高于随机","残余失分在转述类（C=0.625）：词袋局限"],"note":"【配图】建议放消融柱状图（docs/17 配图脚本：G2 vs G3 分类别 hit@5）。\n【讲稿】这是最硬的一条证据。","image":"消融柱状图（docs/17 §8.2 脚本生成）"},
- {"type":"content","tag":"04 · 实验设计与验证","title":"跨场次与检索策略（RQ2/RQ3）","items":["跨场次：处理组 0.833 vs 对照 0，负控 0","p=0.059，样本有限 → 方向性证据","检索：hybrid 0.857 vs vector 0.929（词袋）","但干扰压制 hybrid 1.0 > 单路 ≤0.875","结论：混合价值在排序，真向量再定召回"],"note":"【配图】可放跨场次 WebUI 截图（第二场命中带‘往场沉淀’）或表格。\n【讲稿】对负结果要诚实：词袋下混合召回无增益。","image":"跨场次复用示意（WebUI 截图/表格）"},
- {"type":"content","tag":"04 · 实验设计与验证","title":"滤噪、遗忘与真实模型（RQ4/RQ5）","items":["min_score=0.16：负例返回率 0%，正例 hit@5=0.857","遗忘：未保护删 10/10，保护 0，新写 0，误删 0","S×时间：命中强化 S+1 显著延长寿命","DeepSeek：20/20，T6 引用率 1.00、约束 1.00","限定：MockEmbedding 之上单次运行，示范性证据"],"note":"【配图】可放遗忘曲线（WebUI 截图）或 DeepSeek 输出截图。\n【讲稿】强调限定词，避免被当成最终结论。","image":"遗忘曲线（WebUI 截图）/ DeepSeek T6 输出截图"},
+ {"type":"content","tag":"04 · 实验设计与验证","title":"数据集与评估协议","layout":"numbered_list","items":["自建 50 条 8 类测试集（A-H），避免关键词共现","固定用例集，依赖注入开关能力（G0-G6）","检索指标：hit@3/5、MRR、NDCG；任务层：引用/约束/噪声","统计：随机基线、bootstrap CI、配对置换检验"],"note":"【配图】无。\n【讲稿】强调‘对照是开关能力而不是删用例’。","image":""},
+ {"type":"content","tag":"04 · 实验设计与验证","title":"双库贡献（RQ1）","layout":"stats","items":["0.636：G3 双库全开 hit@5（G2 为 0.341）","p=0.0001：配对置换检验，n=44","0.357：随机基线","0.625：C 类残余失分（词袋局限）",""],"note":"【配图】建议放消融柱状图（docs/17 配图脚本：G2 vs G3 分类别 hit@5）。\n【讲稿】这是最硬的一条证据。","image":"消融柱状图（docs/17 §8.2 脚本生成）"},
+ {"type":"content","tag":"04 · 实验设计与验证","title":"跨场次与检索策略（RQ2/RQ3）","layout":"numbered_list","items":["跨场次：处理组 0.833 vs 对照 0，负控 0","p=0.059，样本有限 → 方向性证据","检索：hybrid 0.857 vs vector 0.929（词袋）","但干扰压制 hybrid 1.0 > 单路 ≤0.875","结论：混合价值在排序，真向量再定召回"],"note":"【配图】可放跨场次 WebUI 截图（第二场命中带‘往场沉淀’）或表格。\n【讲稿】对负结果要诚实：词袋下混合召回无增益。","image":"跨场次复用示意（WebUI 截图/表格）"},
+ {"type":"content","tag":"04 · 实验设计与验证","title":"滤噪、遗忘与真实模型（RQ4/RQ5）","layout":"stats","items":["0%：负例返回率（min_score=0.16）","0：遗忘误删，保护线有效","1.00：DeepSeek 引用率（20/20）","0.857：正例 hit@5 保持",""],"note":"【配图】可放遗忘曲线（WebUI 截图）或 DeepSeek 输出截图。\n【讲稿】强调限定词，避免被当成最终结论。","image":"遗忘曲线（WebUI 截图）/ DeepSeek T6 输出截图"},
  # ---------------- 05 智戎接入与总结展望 ----------------
  {"type":"section","num":"05","title":"智戎接入与总结展望","subtitle":"INTEGRATION & OUTLOOK","image":"","note":"【配图】可放 docs/figures/fig2_campaign_trajectory.png 作背景。\n【讲稿】从‘能不能用’讲到‘怎么接’。","image2":""},
  {"type":"content","tag":"05 · 智戎接入与总结展望","title":"智戎事件驱动适配（P0 落地）","items":["hook_evolve：不依赖‘场次结束’，可随时触发进化","结构化反馈：AFSIM 数值/事件 → 复盘文本","normalize_task：结构化任务 → goal/constraints/queries","domain_check：领域巡检 + min_score 建议","配图占位：智戎接入架构/事件流图"],"note":"【配图】本页右侧预留图位：放 docs/figures/fig2_campaign_trajectory.png 或智戎桥接架构示意图。\n【讲稿】强调 P1（无结束信号）已有适配方案。","image":"智戎接入/事件流图（可复用 docs/figures/fig2_campaign_trajectory.png）"},
@@ -81,10 +81,10 @@ def _font(run, size, bold=False, color=DARK, mono=False):
     run.font.name = "Consolas" if mono else "Microsoft YaHei"
 
 def add_text(slide, text, left, top, width, height, size=18, bold=False,
-             color=DARK, align=PP_ALIGN.LEFT, mono=False):
+             color=DARK, align=PP_ALIGN.LEFT, mono=False, wrap=True):
     tb = slide.shapes.add_textbox(Cm(left), Cm(top), Cm(width), Cm(height))
     tf = tb.text_frame
-    tf.word_wrap = True
+    tf.word_wrap = wrap
     for i, ln in enumerate(str(text).split("\n")):
         p = tf.paragraphs[0] if i == 0 else tf.add_paragraph()
         p.alignment = align
@@ -120,7 +120,8 @@ def add_header(slide, tag, title):
     if tag:
         add_text(slide, tag, 2.35, 0.85, 14, 0.8, size=13, color=ACCENT, bold=True)
     add_rect(slide, 1.8, 1.5, 0.4, 2.5, fill=ACCENT)
-    add_text(slide, title, 2.5, 1.75, 29, 1.9, size=40, bold=True, color=PRIMARY)
+    ts = 40 if len(title) <= 10 else 34 if len(title) <= 16 else 30
+    add_text(slide, title, 2.5, 1.72, 29, 2.0, size=ts, bold=True, color=PRIMARY)
     add_rect(slide, 1.8, 4.05, 30.0, 0.04, fill=LINE)
 
 def add_footer(slide, idx):
@@ -198,6 +199,66 @@ def render_grid2x2(slide, items, left=2.0, top=4.6, width=29.8, height=5.6, gap=
         else:
             add_text(slide, body, x+0.7, y+1.7, w-1.4, height-2.0, size=16, color=DARK)
 
+def render_numbered_list(slide, items, left=2.2, top=4.7, width=29.5, gap=1.15):
+    """轻量编号列表：不用圆角卡，避免版式疲劳。"""
+    y = top
+    for i, item in enumerate(items):
+        if not item:
+            continue
+        head, body = split_head_body(item)
+        add_text(slide, f"{i+1:02d}", left, y, 1.8, 1.2, size=24, bold=True,
+                 color=ACCENT, wrap=False)
+        tx = left + 2.0
+        if head:
+            add_text(slide, head, tx, y+0.05, width-2.2, 0.7, size=17, bold=True, color=PRIMARY)
+            add_text(slide, body, tx, y+0.72, width-2.2, 0.7, size=13.5, color=GREY)
+        else:
+            add_text(slide, body, tx, y+0.15, width-2.2, 1.0, size=15, color=DARK)
+        add_rect(slide, left, y + 1.0, width, 0.03, fill=LINE)
+        y += gap
+
+
+def render_stats(slide, items, left=2.0, top=4.8, width=29.8, height=4.6, gap=0.9):
+    """大数字统计：适合实验数据页，视觉区别于圆角卡。"""
+    cols = min(len([x for x in items if x]), 4)
+    if cols == 0:
+        return
+    w = (width - (cols-1)*gap) / cols
+    for i, item in enumerate(items[:cols]):
+        if not item:
+            continue
+        head, body = split_head_body(item)
+        x = left + i * (w + gap)
+        add_rect(slide, x, top, w, 0.6, fill=ACCENT)
+        add_text(slide, head, x, top+1.0, w, 1.4, size=30, bold=True, color=PRIMARY, align=PP_ALIGN.CENTER, wrap=False)
+        add_text(slide, body, x+0.3, top+2.8, w-0.6, height-2.8, size=13, color=GREY, align=PP_ALIGN.CENTER)
+
+
+def render_two_col(slide, items, left=2.2, top=4.7, width=29.5, gap=1.2):
+    """两栏对照：平分条目成左右两列，无圆角框。"""
+    valid = [x for x in items if x]
+    half = (len(valid) + 1) // 2
+    labels = ("借鉴 / 启发", "注意 / 边界") if len(valid) >= 6 else ("要点", "补充")
+    for col, start in enumerate((0, half)):
+        if start >= len(valid):
+            continue
+        x = left + col * (width/2 + 1.6)
+        w = width/2
+        add_rect(slide, x, top, 1.8, 0.08, fill=ACCENT)
+        add_text(slide, labels[col], x, top+0.25, w, 0.7, size=15, bold=True, color=PRIMARY)
+        y = top + 1.1
+        for item in valid[start:start+half]:
+            head, body = split_head_body(item)
+            add_text(slide, "•", x, y+0.02, 0.7, 0.7, size=15, color=ACCENT, bold=True, wrap=False)
+            if head:
+                add_text(slide, head, x+0.8, y-0.05, w-1.2, 0.6, size=13.5, bold=True, color=PRIMARY)
+                add_text(slide, body, x+0.8, y+0.5, w-1.2, 0.7, size=12, color=GREY)
+            else:
+                add_text(slide, body, x+0.8, y+0.05, w-1.2, 0.9, size=13, color=DARK)
+            y += gap
+        add_rect(slide, x, y+0.15, w, 0.02, fill=LINE)
+
+
 def add_code_block(slide, code, left=2.0, top=8.4, width=29.8, height=8.4):
     add_rect(slide, left, top, width, 0.7, fill=PRIMARY)
     add_text(slide, "代码 / 伪代码", left+0.5, top+0.08, 8, 0.55, size=13, bold=True,
@@ -251,8 +312,15 @@ def build():
         elif t == "content":
             add_header(slide, p.get("tag"), p["title"])
             items = p["items"]
-            if p.get("layout") == "grid2x2":
+            layout = p.get("layout", "cards")
+            if layout == "grid2x2":
                 render_grid2x2(slide, items)
+            elif layout == "numbered_list":
+                render_numbered_list(slide, items)
+            elif layout == "two_col":
+                render_two_col(slide, items)
+            elif layout == "stats":
+                render_stats(slide, items)
             elif p.get("image"):
                 render_cards(slide, items[:-1], left=2.0, top=4.6, width=17.8, height=2.1, gap=0.22)
                 add_image_box(slide, 21.4, 4.6, 10.5, 11.4)
