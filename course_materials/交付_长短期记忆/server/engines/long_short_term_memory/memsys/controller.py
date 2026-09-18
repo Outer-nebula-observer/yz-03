@@ -1,0 +1,259 @@
+# -*- coding: utf-8 -*-
+"""
+memsys.controller — 记忆调度控制器（SCM 思想）
+===============================================
+职责（docs/04 七步闭环的"总调度"）：
+  ① 场次开始：创建工作记忆槽位（goal/constraints/查询列表）；
+  ② 场次中：检索装载、memory_pressure 预警时触发压缩；
+  ③ 场次结束：把工作记忆的归档物（archived）+ 复盘文本交给进化器沉淀。
+
+设计来源：SCM 的 memory controller（笔记_Liang2023-SCM，paper_code/
+04_记忆进化/SCM4LLMs/core/chat.py）——"何时写、何时读、读什么"显式化；
+加上 MemGPT 的阈值驱动（memory_pressure → 主动归档）。
+
+控制器是**唯一**允许同时碰"短期、长期、检索、进化"的角色，
+其余模块相互之间只通过 schema 里的数据对象交互（保证可独立评测）。
+"""
+
+from __future__ import annotations
+
+from typing import Dict, List, Optional
+
+from .schema import QueryItem, RetrievedMemory
+from .llm import LLMClient, MockLLM
+from .embeddings import MockEmbedding
+from .stages import queries_for_stage, get_stage, attr_stage
+from .boundary import MemoryBoundary, validate_load
+from .short_term.working_memory import WorkingMemory
+from .short_term.compression import get_strategy
+from .long_term.factual_store import FactualStore
+from .long_term.experiential_store import ExperientialStore
+from .retrieval.hybrid import HybridRetriever
+from .evolution.memory_evolution import MemoryEvolution, EvolutionReport
+
+
+class MemoryController:
+    """赛题③记忆系统总控制器。
+
+    用法（与 pipeline.py 配合，一般不直接用）：
+        ctl = MemoryController()                     # 默认全 Mock，离线可跑
+        ctl.start_session("P001", goal="夺占 2 号高地",
+                          constraints=["禁止越境"], queries=[...])
+        results = ctl.retrieve_and_load()            # ③④ 检索并装载
+        ...（规划管线执行，期间 ctl.push/record 消息与中间结果）
+        report = ctl.close_session(review_text="...")  # ⑦ 复盘沉淀
+    """
+
+    def __init__(self, factual: Optional[FactualStore] = None,
+                 experiential: Optional[ExperientialStore] = None,
+                 llm: Optional[LLMClient] = None,
+                 embedding: Optional[MockEmbedding] = None,
+                 compression: str = "truncate",
+                 capacity_tokens: int = 4000,
+                 boundary: Optional[MemoryBoundary] = None) -> None:
+        # 依赖注入：全部可替换（测试/消融时注入不同实现）
+        # llm 缺省落 MockLLM：保证"零配置离线可跑"，接真模型时注入即可
+        self.llm: LLMClient = llm if llm is not None else MockLLM()
+        self.embedding = embedding or MockEmbedding()
+        self.factual = factual or FactualStore(":memory:", self.embedding)
+        self.experiential = experiential or ExperientialStore(self.embedding)
+        self.retriever = HybridRetriever(self.factual, self.experiential)
+        self.evolution = MemoryEvolution(self.factual, self.experiential,
+                                         self.llm, self.embedding,
+                                         boundary=boundary)
+        # 边界管理器与进化器共享同一实例（审计日志集中；可注入测试替身）
+        self.boundary: MemoryBoundary = self.evolution.boundary
+        self.compression_name = compression
+        self.capacity_tokens = capacity_tokens
+        self._wm: Optional[WorkingMemory] = None
+        # 会话级检索统计（评估：每场命中多少条、走了哪些路）
+        self.session_stats: Dict[str, int] = {"retrieved": 0, "loaded": 0,
+                                              "compressed": 0}
+        # 【跨场次复用修复】本次检索调用中所有查询的**原始命中**（按 id 去重，
+        # 不因"本场已装载"而剔除）。WebUI 的复用统计与命中展示基于它——
+        # 否则阶段查询先装载了往场教训，后续场景查询再命中时被去重隐藏，
+        # 界面显示"第二场无命中/无复用"。
+        self.last_query_hits: List[RetrievedMemory] = []
+        # 阶段命中缓存：{stage_id: hits}——同阶段重复推进不重复检索
+        # （防止 UI 重复点击把 recall_count/艾宾浩斯 S 刷高，B2 同款精神）
+        self._stage_hits: Dict[str, List[RetrievedMemory]] = {}
+
+    # ---------------------------------------------------------------- ① 开场
+    def start_session(self, plan_id: str, goal: str,
+                      constraints: Optional[List[str]] = None,
+                      queries: Optional[List[QueryItem]] = None) -> WorkingMemory:
+        """① 规划开始：建槽位、设置目标约束、装载查询列表。"""
+        self._wm = WorkingMemory(plan_id=plan_id, capacity_tokens=self.capacity_tokens,
+                                 llm=self.llm)
+        self._wm.set_goal(goal, constraints)
+        if queries:
+            self._wm.set_query_list(queries)
+        self.session_stats = {"retrieved": 0, "loaded": 0, "compressed": 0}
+        self._stage_hits = {}
+        return self._wm
+
+    # ---------------------------------------------------------------- ③④ 检索装载
+    def retrieve_and_load(self, top_k: int = 3,
+                          stage: Optional[str] = None) -> List[RetrievedMemory]:
+        """执行查询列表并装载：对每个 q 检索 top-k，全部登记进工作记忆。
+
+        stage 不为 None 时只执行该阶段的查询（advance_stage 用）——
+        阶段化推进时旧阶段查询不重复执行，但 slot.query_list 保留全部
+        查询作为审计轨迹（创新点 C：检索计划完整可查）。
+        """
+        if self._wm is None:
+            raise RuntimeError("先 start_session() 再检索")
+        all_hits: List[RetrievedMemory] = []
+        raw_by_id: Dict[str, RetrievedMemory] = {}   # 本次所有查询的原始命中（去重）
+        for q in self._wm.slot.query_list:
+            if stage is not None and q.stage != stage:
+                continue
+            # 已按阶段执行过的查询不重复执行（advance_stage 有命中缓存）——
+            # 手动"检索并装载"只补执行手写/场景查询，防止阶段查询被再次
+            # 检索导致 recall_count / 艾宾浩斯 S 虚涨
+            if stage is None and q.stage and q.stage in self._stage_hits:
+                continue
+            hits = self.retriever.retrieve(q, top_k=top_k)
+            for h in hits:
+                # 原始命中观测：不管是否已装载都先记起来（供复用统计/展示）
+                raw_by_id.setdefault(h.entry.id, h)
+                # 【评审修复·跨查询去重】多条查询命中同一记忆时只装载/计数
+                # 一次（此前 demo P002 中同一条事实出现两次、retrieved 虚计）
+                if h.entry.id in self._wm.slot.loaded_memory:
+                    continue
+                # 装载登记：id + 内容摘要（摘要供 render() 写进上下文——
+                # 评审修复：检索结果此前从不进入注入 LLM 的提示词）
+                self._wm.load_memory(
+                    h.entry.id,
+                    brief=f"[{h.entry.type.value}] {h.entry.content[:100]}"
+                          f"（来源:{h.entry.source or 'seed'}）")
+                all_hits.append(h)
+                self.session_stats["retrieved"] += 1
+                self.session_stats["loaded"] += 1
+        # 记录本次所有查询的原始命中（供 WebUI 展示"命中了什么"，包括已装载的往场记忆）
+        self.last_query_hits = list(raw_by_id.values())
+        # 双向禁止②审计：长期记忆只允许以"检索结果"形态进入工作记忆
+        # （validate_load 拦"整段拷进 FIFO"——本路径恒合法，留审计痕迹）
+        if all_hits and not validate_load([h.entry.id for h in all_hits],
+                                          "retrieve"):
+            raise RuntimeError("装载形态非法：长期记忆必须经检索装载")
+        # 装载后若触发 memory_pressure → 立即压缩（SCM/MemGPT 阈值驱动）
+        if self._wm.memory_pressure:
+            get_strategy(self.compression_name).apply(
+                self._wm, int(self.capacity_tokens * 0.7))
+            self.session_stats["compressed"] += 1
+        return all_hits
+
+    # ---------------------------------------------------------------- 阶段推进（本轮升级）
+    def advance_stage(self, stage_id: str, top_k: int = 3,
+                      auto_retrieve: bool = True) -> List[RetrievedMemory]:
+        """进入指定规划阶段（MDMP 七步之一）并按阶段供给记忆。
+
+        老师意见的落地：查询不再由 goal 字面生成，而由"规划进行到哪一步"
+        决定——任务分析要情报事实、方案拟制要相似战例、推演要对抗教训
+        （stages.STAGE_TEMPLATES，MVP 确定性模板；真模型后换 LLM 生成）。
+
+        行为：按阶段模板生成查询 → 追加进 query_list（审计轨迹完整）→
+              切换 current_stage → 只执行本阶段查询（带阶段亲和加分）。
+
+        幂等：同阶段重复推进返回缓存的首次命中、**不重复检索**——
+        防止 UI 重复点击把 recall_count / 艾宾浩斯 S 刷高（B2 同款精神）。
+        """
+        if self._wm is None or self._wm.slot.status != "open":
+            raise RuntimeError("没有活动场次")
+        if get_stage(stage_id) is None:
+            raise ValueError(f"未知规划阶段: {stage_id}（见 memsys.stages.MDMP_STAGES）")
+        # 幂等短路：该阶段已执行过 → 直接回缓存
+        if stage_id in self._stage_hits:
+            self._wm.set_stage(stage_id)
+            return list(self._stage_hits[stage_id])
+        queries = queries_for_stage(stage_id, self._wm.slot.goal)
+        existing = {(q.stage, q.q_id) for q in self._wm.slot.query_list}
+        new_qs = [q for q in queries if (q.stage, q.q_id) not in existing]
+        self._wm.set_stage(stage_id)
+        if new_qs:
+            self._wm.slot.query_list.extend(new_qs)
+            self._wm.slot.touch()
+        hits: List[RetrievedMemory] = []
+        if auto_retrieve:
+            hits = self.retrieve_and_load(top_k=top_k, stage=stage_id)
+            self._stage_hits[stage_id] = list(hits)
+        return hits
+
+    # ---------------------------------------------------------------- 场次中消息
+    def push(self, msg: str) -> None:
+        """规划管线推消息进工作记忆（自动处理超限 flush）。
+
+        【评审修复】写入前过边界检查（check_write）——场次消息只能进
+        短期；每次决策进 boundary.audit_log()（"场中直写长期被禁止"
+        在此被代码强制，而非仅文档约定）。
+        """
+        d = self.boundary.check_write("message", to="short_term")
+        if not d.allowed:
+            raise ValueError(f"边界拒绝写入：{d.reason}")
+        if self._wm:
+            self._wm.push_message(msg)
+
+    def record(self, step: str, result) -> None:
+        """记录管线某步中间结果（分析/生成/比较…）。同 push，过边界检查。"""
+        d = self.boundary.check_write("message", to="short_term")
+        if not d.allowed:
+            raise ValueError(f"边界拒绝写入：{d.reason}")
+        if self._wm:
+            self._wm.record_result(step, result)
+
+    def write_long_term(self, content: str, type_hint: str = "",
+                        importance: float = 1.0,
+                        session_id: str = "") -> str | None:
+        """运行时把内容写入长期库的**唯一正规入口**（评审修复）。
+
+        全流程：boundary.promote() 三道门（复盘驱动/类别/θ 查重由
+        evolution.write 承担）→ 拒绝则返回 None 并留审计；放行则经
+        evolution.write 落库（带阶段归因）。
+        直接调用 ctl.factual.add / ctl.experiential.add 属于**管理员
+        种子路径**（知识导入），运行时应走本方法——Python 无真私有，
+        以 API 形态 + 审计日志双保险。
+        """
+        from .schema import MemoryType
+        gate = self.boundary.promote(content)
+        if not gate.allowed:
+            return None
+        mtype = (MemoryType.FACT if gate.layer == "long_term.fact"
+                 else MemoryType.EXPERIENCE)
+        return self.evolution.write(mtype, content, source="运行时晋升",
+                                    session_id=session_id,
+                                    importance=importance,
+                                    attrs={"stage": attr_stage(content)})
+
+    # ---------------------------------------------------------------- ⑦ 收场
+    def close_session(self, review_text: str = "") -> EvolutionReport:
+        """场次结束：关闭工作记忆 + 复盘驱动进化沉淀。
+
+        review_text: 复盘对话/总结文本（含"教训/经验/参数"等关键词的行
+                     会被 MockLLM 规则抽取为记忆——真模型时是 LLM 抽取）。
+        返回 EvolutionReport（write/merge/forget/abstract 统计）。
+        """
+        if self._wm is None:
+            raise RuntimeError("没有活动场次")
+        # 工作记忆归档物并入复盘材料（MemGPT flush 出的内容不丢）
+        material = review_text
+        if self._wm.archived:
+            arch_text = "\n".join(a.get("summary", "") for a in self._wm.archived)
+            material = f"{review_text}\n[工作记忆归档]\n{arch_text}"
+        report = self.evolution.evolve_from_review(material,
+                                                   session_id=self._wm.slot.plan_id)
+        self._wm.close()
+        # 【语义修复】场次结束后清除引用——working_memory 返回 None、
+        # render_context 返回空串（此前仍持已关闭槽位，状态查询与
+        # webui 会把"已关场次"当成活动场次展示）。
+        self._wm = None
+        return report
+
+    # ---------------------------------------------------------------- 便捷读取
+    @property
+    def working_memory(self) -> Optional[WorkingMemory]:
+        return self._wm
+
+    def render_context(self) -> str:
+        """当前应注入规划 LLM 的完整上下文（含目标/约束/装载记忆）。"""
+        return self._wm.render() if self._wm else ""

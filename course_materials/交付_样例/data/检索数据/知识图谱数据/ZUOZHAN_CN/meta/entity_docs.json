@@ -1,0 +1,2749 @@
+{
+  "kg": "ZUOZHAN_CN",
+  "workspace": "workspaces/zuozhan/output",
+  "generated": "2026-09-17",
+  "n_entities": 251,
+  "entities": {
+    "美军": {
+      "type": "ORGANIZATION",
+      "degree": 37,
+      "docs": [
+        "CASE1_白雪行动_1991.md",
+        "CASE2_沙伊拉特打击_2017.md",
+        "CASE3_击杀巴格达迪_2019.md",
+        "CASE4_击杀苏莱曼尼_2020.md",
+        "CASE5_打击85处目标_2024.md",
+        "CASE6_打击红方防空阵地_2025.md",
+        "CASE7_打击化武设施_2018.md"
+      ],
+      "text_units": [
+        "08e419e86c91365e96998ed615913b66eeb9400a436f3293e586739b206e59001cfe13469dde1e99a0ccc8a55a386adf81479019548bcd783004c86382f7ea76",
+        "792f201201790d4856c72d439246aee3993d50c6a04fdb0664adbf8b7095266557881aa7f21506a4a5576a441e05605156f953905d78e14e932af8b96f9ab200",
+        "b2517b870ffd7b2725a59fb2e7bda18760cd6f21f76b98cec3605cf30c9f1dfe2d8566150133c4e11b82ec81b205ce98499b5434097d197868594c6eb74dcda7",
+        "52a00936b0a4463418ad6984fd634270d49462a355415ccf6d7966f26f7093b54e7590b78b7b5495c05a905bab2ee8f5f90a4305e87f37e5ca5d14c601e55774",
+        "ec166f1d72705750136662273a6b0b8a59fef3f6cb8cf2bc11b6539eca405134c9c7958d623548e8a0c7f6a5d19d548890a6a75a2745189720c0bded2f3bad4e",
+        "eafa26556e0030cd367f88e8b9bbfc63bfb83144d4614d1d04e9ca355a38c76d89beb6891abaae5ae86f006c41fbbf80a0cc66d19564328fe19987fade3552e6",
+        "f22d2bf367eeefa550ebeb1053af49d19ceadf2d47cd042b29b9045983eb11cbfbe8d2ffadd1180f70539b7e87608daa24fc6dd7472986d681e8b29a30c2c8c8",
+        "7629728fb1f481fbea2c8297fef5e4788ed2fe3ba40327c6b4d15fbb3dd25aad80f97ea3f0bf29d6c4c737e45a3d685116792a8b891929f30844cb71650a5631",
+        "ad20c5363d4af89fedc5be521eb0e7ae1a970942a3329e58dec9bf9d60db81b38c05c68f88cb522cc3847e7ed902de5c5d1ec8a3b733b3a423da7c209e18425c",
+        "6bf995b6c98227f82983bd6bc69a86fe9d0bbd27b25999fe2010963377d88c6c2e8b010b1557d9cc79b60533e2c9d3a47c1ca847e592ccff85f14550b62a6159",
+        "b8eb21ead6af73c5d5459515146dae6a455017d449b37211b1d0f1de1db07e5877df86c36be511f1cfb965eafbdd090deb8581f0737864d55b576d5afefcc330",
+        "d0bd1a983b436f8868392310a81fe32eeaf6d03d9345993df507f6fc3dec5750dd3c8620ca86eeec14f268b6a8e689762845dfd75fdc5bd99ad4c1c749bb7e29",
+        "6f061e331c8d67d4501d931289460b1d97b54f8f0fedd18b03164c2aed2df53a4888ec00b81a11939937c9353f67861d361221001a2d5f34f5c2375a27779dbb",
+        "80dd86a5860e616a22dfc6cbf6eabbe3adf3e90fd1ad9fdb5cf81b7fbe56c6cc506104a6f8b836646b727cced5aea5317db613a534b28cab68b6854367ad48d7",
+        "54eb29379fd996246c2a7a821e1f829587bda6402d5af4ea77e95801df56fda766552f5ebc8a1f62a9c548fd1d9a9a22519e4a273283f59e44fe9f76284cbc4c"
+      ]
+    },
+    "战斧巡航导弹": {
+      "type": "EQUIPMENT",
+      "degree": 25,
+      "docs": [
+        "CASE2_沙伊拉特打击_2017.md",
+        "CASE7_打击化武设施_2018.md"
+      ],
+      "text_units": [
+        "bcc25fff9a1159fb8544e9431667ed80a86f67df73ea322ea8c988d11c59abba638b577625ff44271d7a79bed8204e7f80cdc6988060bd69f0b1e507c9c10163",
+        "35b457555fad5f9e24e2cadecfa76a84f8d2fc01ccc000baf9415b70c712646d86ab8913fcb90840f89c874beb7eedca9bfd7b67194d61d0434bae077a97abdf",
+        "52a00936b0a4463418ad6984fd634270d49462a355415ccf6d7966f26f7093b54e7590b78b7b5495c05a905bab2ee8f5f90a4305e87f37e5ca5d14c601e55774",
+        "ec166f1d72705750136662273a6b0b8a59fef3f6cb8cf2bc11b6539eca405134c9c7958d623548e8a0c7f6a5d19d548890a6a75a2745189720c0bded2f3bad4e",
+        "cb6e4d9a81fdf1c135708613cf0f696dc65b83100b4f3d752b933ff07a7bd5fbe1671909f81dbf6560e9b98f036ec06eb8beed7b2b4ec8799286514d3e1dbba6",
+        "e901380b0bfce0cb4cefb0e3b645f61f89ce94fd8916f4799f713edf41079e541b64353ef48d95d1cf0af753c363d8f15fb51289ba5929f996aee0ed10631aaa",
+        "e7f00aa8889f1be47276f9b1bf8f761621ab0acc15edd5a0463c9deace6929e750311157cbc69d750eb3427d2a27faae47aa4776e39bc62add284a5a561c00b5",
+        "54eb29379fd996246c2a7a821e1f829587bda6402d5af4ea77e95801df56fda766552f5ebc8a1f62a9c548fd1d9a9a22519e4a273283f59e44fe9f76284cbc4c",
+        "ce907af448a3a873e32d13e1984ec94bd1192b12c1f41cf2245b1bc2a9d6a3a5e40c6bebf618ecf8999cfd25aa0cb426f60181345d8bb37723198a7f00a3fd55",
+        "2e1b7bd201e3b31a3d877f8591ee014fdf94fdcfa5e49173b4b8278adc8df974f1faaf2beae55c7ce482d898134d6a7a99c4376f45befe864bc0b9fb8bcc2205",
+        "604c97d71a4a6d902f51041cd4a4ba09607bb04f3c8ae37ff96db8bc6eaf7cfef01bd93aa383cebbb4ffa3c0bfe4ba6988598c483146ec76d92d4ba24816d3ef"
+      ]
+    },
+    "F-15E打击鹰": {
+      "type": "EQUIPMENT",
+      "degree": 13,
+      "docs": [
+        "CASE6_打击红方防空阵地_2025.md",
+        "CASE7_打击化武设施_2018.md"
+      ],
+      "text_units": [
+        "7b72df71f0bf2273d52585a95154cb8ec50af36834fe6c59a78a7f3ce6c2f46b752fd0773798b9cb628c6ed86e37829a2ccce15cc390f4ffce8dde21b3d49a81",
+        "80dd86a5860e616a22dfc6cbf6eabbe3adf3e90fd1ad9fdb5cf81b7fbe56c6cc506104a6f8b836646b727cced5aea5317db613a534b28cab68b6854367ad48d7",
+        "c7b6710b996fe9b6b746659eddf204c6c1d900971925e734ed78cc8528c3f2e6be951582f7fab005804b5994193517085e360a8704c74dd33f68f5d5943ff97b",
+        "2e1b7bd201e3b31a3d877f8591ee014fdf94fdcfa5e49173b4b8278adc8df974f1faaf2beae55c7ce482d898134d6a7a99c4376f45befe864bc0b9fb8bcc2205"
+      ]
+    },
+    "联合空中作战": {
+      "type": "TASK",
+      "degree": 12,
+      "docs": [
+        "CASE1_白雪行动_1991.md",
+        "CASE2_沙伊拉特打击_2017.md"
+      ],
+      "text_units": [
+        "c185bd472823f67f00d500dbdc69058df949a1508722afa3bfa9cd7e8280f3baf760580c9dc921033e9b1d25b37a5cf1b2fd4ad125efff4875c6f510c8c18ffc",
+        "e901380b0bfce0cb4cefb0e3b645f61f89ce94fd8916f4799f713edf41079e541b64353ef48d95d1cf0af753c363d8f15fb51289ba5929f996aee0ed10631aaa"
+      ]
+    },
+    "沙伊拉特空军基地": {
+      "type": "TARGET",
+      "degree": 12,
+      "docs": [
+        "CASE2_沙伊拉特打击_2017.md"
+      ],
+      "text_units": [
+        "bcc25fff9a1159fb8544e9431667ed80a86f67df73ea322ea8c988d11c59abba638b577625ff44271d7a79bed8204e7f80cdc6988060bd69f0b1e507c9c10163",
+        "35b457555fad5f9e24e2cadecfa76a84f8d2fc01ccc000baf9415b70c712646d86ab8913fcb90840f89c874beb7eedca9bfd7b67194d61d0434bae077a97abdf"
+      ]
+    },
+    "AGM-158B JASSM-ER": {
+      "type": "EQUIPMENT",
+      "degree": 20,
+      "docs": [
+        "CASE6_打击红方防空阵地_2025.md",
+        "CASE7_打击化武设施_2018.md"
+      ],
+      "text_units": [
+        "80dd86a5860e616a22dfc6cbf6eabbe3adf3e90fd1ad9fdb5cf81b7fbe56c6cc506104a6f8b836646b727cced5aea5317db613a534b28cab68b6854367ad48d7",
+        "e7f00aa8889f1be47276f9b1bf8f761621ab0acc15edd5a0463c9deace6929e750311157cbc69d750eb3427d2a27faae47aa4776e39bc62add284a5a561c00b5",
+        "54eb29379fd996246c2a7a821e1f829587bda6402d5af4ea77e95801df56fda766552f5ebc8a1f62a9c548fd1d9a9a22519e4a273283f59e44fe9f76284cbc4c",
+        "2e1b7bd201e3b31a3d877f8591ee014fdf94fdcfa5e49173b4b8278adc8df974f1faaf2beae55c7ce482d898134d6a7a99c4376f45befe864bc0b9fb8bcc2205",
+        "50bb0fa230585deea5b71e293c56c7e0bb3839e7fcfb795ee6b78d6be106c75eec6eb5381d2a100a208e5c08292ffe00d94305141179693ed83bd978e78a76a3"
+      ]
+    },
+    "报复性空袭行动": {
+      "type": "TASK",
+      "degree": 11,
+      "docs": [
+        "CASE5_打击85处目标_2024.md"
+      ],
+      "text_units": [
+        "b8eb21ead6af73c5d5459515146dae6a455017d449b37211b1d0f1de1db07e5877df86c36be511f1cfb965eafbdd090deb8581f0737864d55b576d5afefcc330",
+        "6f061e331c8d67d4501d931289460b1d97b54f8f0fedd18b03164c2aed2df53a4888ec00b81a11939937c9353f67861d361221001a2d5f34f5c2375a27779dbb"
+      ]
+    },
+    "联合打击行动": {
+      "type": "TASK",
+      "degree": 11,
+      "docs": [
+        "CASE7_打击化武设施_2018.md"
+      ],
+      "text_units": [
+        "e7f00aa8889f1be47276f9b1bf8f761621ab0acc15edd5a0463c9deace6929e750311157cbc69d750eb3427d2a27faae47aa4776e39bc62add284a5a561c00b5"
+      ]
+    },
+    "定点清除": {
+      "type": "TASK",
+      "degree": 10,
+      "docs": [
+        "CASE3_击杀巴格达迪_2019.md",
+        "CASE4_击杀苏莱曼尼_2020.md"
+      ],
+      "text_units": [
+        "396ade05dc0e8ba5f4a69e0cbf693fa80e6e56550e60ce5ba0ba121909f734c2bdce467a319a392e385615a7fe820baf57e0ea8a6191349cac91a954c95acee2",
+        "163af8641e1d43452805ebe2136906fde48fbfe60d7fc1abb771a47ffd4be3f1ab20cfd83f4704c3f81910fed6f29100208b5b1995af9029a10af50dd88b6b5a",
+        "24db603f2ae587c9bc4466adf89934c3dd83f5a16c816b8ca644b6787bd074b5a9b5630e3dbadccb467a452cf7b320b5cfb55ecde4706fc11e19df75a0c0305a",
+        "fb8e23f1b9610ecb4030a1dbb5354a10af901fc24528243e9f5a3bf49bf6990038bd67d11000f4ba6405373256687cede956ecea6c104907ca965c6e1d36796e"
+      ]
+    },
+    "定点清除作战": {
+      "type": "TASK",
+      "degree": 11,
+      "docs": [
+        "CASE3_击杀巴格达迪_2019.md",
+        "CASE4_击杀苏莱曼尼_2020.md"
+      ],
+      "text_units": [
+        "30b6822670f9583c4c7f896ba2af82bddd6724585919b1ffa9be278ec71412f50697c0911fc8eaeaaa71773f077dfa9ec2d607ff9636e2745aa7907307e9f8f8",
+        "a8361100ad4c166d3b0ea97f8017c84a06d7be0ba31cd380c465a3f43966492820f8880eba0f0dfa0c27848a03f6a4f92bc3eccba1dc5ce7cfea1194291b9f3f"
+      ]
+    },
+    "爱国者PAC-3": {
+      "type": "EQUIPMENT",
+      "degree": 10,
+      "docs": [
+        "CASE6_打击红方防空阵地_2025.md"
+      ],
+      "text_units": [
+        "80dd86a5860e616a22dfc6cbf6eabbe3adf3e90fd1ad9fdb5cf81b7fbe56c6cc506104a6f8b836646b727cced5aea5317db613a534b28cab68b6854367ad48d7",
+        "e85297f1117972677af020cadaf113948106734bf9298ec9d298384fcc507beb2bcdeb0150f0ce0ba4da4b16df5cc076d595e2af6e7161c7e1809ba23a33ed2e"
+      ]
+    },
+    "打击链": {
+      "type": "TASK",
+      "degree": 12,
+      "docs": [
+        "CASE1_白雪行动_1991.md"
+      ],
+      "text_units": [
+        "660443373a47ee8debb2bd1eb9cd93a1bddcb5de7f2be8a45a34bf1ccf07a3408f20c829581af5f6e61f0c5c2efe52454276622892665ddd6615803060a017ed"
+      ]
+    },
+    "目标分析": {
+      "type": "PHASE",
+      "degree": 10,
+      "docs": [
+        "CASE1_白雪行动_1991.md",
+        "CASE2_沙伊拉特打击_2017.md",
+        "CASE3_击杀巴格达迪_2019.md",
+        "CASE4_击杀苏莱曼尼_2020.md",
+        "CASE5_打击85处目标_2024.md",
+        "CASE6_打击红方防空阵地_2025.md",
+        "CASE7_打击化武设施_2018.md"
+      ],
+      "text_units": [
+        "660443373a47ee8debb2bd1eb9cd93a1bddcb5de7f2be8a45a34bf1ccf07a3408f20c829581af5f6e61f0c5c2efe52454276622892665ddd6615803060a017ed",
+        "c185bd472823f67f00d500dbdc69058df949a1508722afa3bfa9cd7e8280f3baf760580c9dc921033e9b1d25b37a5cf1b2fd4ad125efff4875c6f510c8c18ffc",
+        "e901380b0bfce0cb4cefb0e3b645f61f89ce94fd8916f4799f713edf41079e541b64353ef48d95d1cf0af753c363d8f15fb51289ba5929f996aee0ed10631aaa",
+        "30b6822670f9583c4c7f896ba2af82bddd6724585919b1ffa9be278ec71412f50697c0911fc8eaeaaa71773f077dfa9ec2d607ff9636e2745aa7907307e9f8f8",
+        "a8361100ad4c166d3b0ea97f8017c84a06d7be0ba31cd380c465a3f43966492820f8880eba0f0dfa0c27848a03f6a4f92bc3eccba1dc5ce7cfea1194291b9f3f",
+        "4ce79e064c80bebb8cb42299e687ce63c7b5d113b889738689c421514e3e0fe33da8427d13a39ff7550b73b19b3ed512e1f682791f11c6a8cd498e41b8850740",
+        "7b72df71f0bf2273d52585a95154cb8ec50af36834fe6c59a78a7f3ce6c2f46b752fd0773798b9cb628c6ed86e37829a2ccce15cc390f4ffce8dde21b3d49a81",
+        "ce907af448a3a873e32d13e1984ec94bd1192b12c1f41cf2245b1bc2a9d6a3a5e40c6bebf618ecf8999cfd25aa0cb426f60181345d8bb37723198a7f00a3fd55"
+      ]
+    },
+    "沙漠风暴行动": {
+      "type": "TASK",
+      "degree": 10,
+      "docs": [
+        "CASE1_白雪行动_1991.md"
+      ],
+      "text_units": [
+        "08e419e86c91365e96998ed615913b66eeb9400a436f3293e586739b206e59001cfe13469dde1e99a0ccc8a55a386adf81479019548bcd783004c86382f7ea76",
+        "f9c650114f5a5e3fc044d46f7c7fa21dc8a8fb14025dbbc102d0fb43586b2d582585eae857e04f78129f185fdbc69404f8d68c0ff59c71439c6da3249bdfb3c9",
+        "0851058200d3f61cfd7738030208882d1c9323e668e21c40420c33ef360615d96aeae2f3b20122c425d1a4a4687ceaed4525b86298bdd8b877db434aa3e777c2",
+        "792f201201790d4856c72d439246aee3993d50c6a04fdb0664adbf8b7095266557881aa7f21506a4a5576a441e05605156f953905d78e14e932af8b96f9ab200",
+        "660443373a47ee8debb2bd1eb9cd93a1bddcb5de7f2be8a45a34bf1ccf07a3408f20c829581af5f6e61f0c5c2efe52454276622892665ddd6615803060a017ed",
+        "c185bd472823f67f00d500dbdc69058df949a1508722afa3bfa9cd7e8280f3baf760580c9dc921033e9b1d25b37a5cf1b2fd4ad125efff4875c6f510c8c18ffc"
+      ]
+    },
+    "凯拉·穆勒行动": {
+      "type": "TASK",
+      "degree": 10,
+      "docs": [
+        "CASE3_击杀巴格达迪_2019.md"
+      ],
+      "text_units": [
+        "eafa26556e0030cd367f88e8b9bbfc63bfb83144d4614d1d04e9ca355a38c76d89beb6891abaae5ae86f006c41fbbf80a0cc66d19564328fe19987fade3552e6",
+        "f22d2bf367eeefa550ebeb1053af49d19ceadf2d47cd042b29b9045983eb11cbfbe8d2ffadd1180f70539b7e87608daa24fc6dd7472986d681e8b29a30c2c8c8"
+      ]
+    },
+    "MQ-9收割者无人机": {
+      "type": "EQUIPMENT",
+      "degree": 10,
+      "docs": [
+        "CASE4_击杀苏莱曼尼_2020.md"
+      ],
+      "text_units": [
+        "ad20c5363d4af89fedc5be521eb0e7ae1a970942a3329e58dec9bf9d60db81b38c05c68f88cb522cc3847e7ed902de5c5d1ec8a3b733b3a423da7c209e18425c",
+        "163af8641e1d43452805ebe2136906fde48fbfe60d7fc1abb771a47ffd4be3f1ab20cfd83f4704c3f81910fed6f29100208b5b1995af9029a10af50dd88b6b5a",
+        "fb8e23f1b9610ecb4030a1dbb5354a10af901fc24528243e9f5a3bf49bf6990038bd67d11000f4ba6405373256687cede956ecea6c104907ca965c6e1d36796e"
+      ]
+    },
+    "电战规划": {
+      "type": "PLAN",
+      "degree": 10,
+      "docs": [
+        "CASE1_白雪行动_1991.md"
+      ],
+      "text_units": [
+        "f9c650114f5a5e3fc044d46f7c7fa21dc8a8fb14025dbbc102d0fb43586b2d582585eae857e04f78129f185fdbc69404f8d68c0ff59c71439c6da3249bdfb3c9"
+      ]
+    },
+    "平台选择": {
+      "type": "PHASE",
+      "degree": 9,
+      "docs": [
+        "CASE1_白雪行动_1991.md",
+        "CASE2_沙伊拉特打击_2017.md",
+        "CASE3_击杀巴格达迪_2019.md",
+        "CASE4_击杀苏莱曼尼_2020.md",
+        "CASE5_打击85处目标_2024.md",
+        "CASE6_打击红方防空阵地_2025.md",
+        "CASE7_打击化武设施_2018.md"
+      ],
+      "text_units": [
+        "660443373a47ee8debb2bd1eb9cd93a1bddcb5de7f2be8a45a34bf1ccf07a3408f20c829581af5f6e61f0c5c2efe52454276622892665ddd6615803060a017ed",
+        "c185bd472823f67f00d500dbdc69058df949a1508722afa3bfa9cd7e8280f3baf760580c9dc921033e9b1d25b37a5cf1b2fd4ad125efff4875c6f510c8c18ffc",
+        "52a00936b0a4463418ad6984fd634270d49462a355415ccf6d7966f26f7093b54e7590b78b7b5495c05a905bab2ee8f5f90a4305e87f37e5ca5d14c601e55774",
+        "e901380b0bfce0cb4cefb0e3b645f61f89ce94fd8916f4799f713edf41079e541b64353ef48d95d1cf0af753c363d8f15fb51289ba5929f996aee0ed10631aaa",
+        "7629728fb1f481fbea2c8297fef5e4788ed2fe3ba40327c6b4d15fbb3dd25aad80f97ea3f0bf29d6c4c737e45a3d685116792a8b891929f30844cb71650a5631",
+        "30b6822670f9583c4c7f896ba2af82bddd6724585919b1ffa9be278ec71412f50697c0911fc8eaeaaa71773f077dfa9ec2d607ff9636e2745aa7907307e9f8f8",
+        "a8361100ad4c166d3b0ea97f8017c84a06d7be0ba31cd380c465a3f43966492820f8880eba0f0dfa0c27848a03f6a4f92bc3eccba1dc5ce7cfea1194291b9f3f",
+        "4ce79e064c80bebb8cb42299e687ce63c7b5d113b889738689c421514e3e0fe33da8427d13a39ff7550b73b19b3ed512e1f682791f11c6a8cd498e41b8850740",
+        "7b72df71f0bf2273d52585a95154cb8ec50af36834fe6c59a78a7f3ce6c2f46b752fd0773798b9cb628c6ed86e37829a2ccce15cc390f4ffce8dde21b3d49a81",
+        "80dd86a5860e616a22dfc6cbf6eabbe3adf3e90fd1ad9fdb5cf81b7fbe56c6cc506104a6f8b836646b727cced5aea5317db613a534b28cab68b6854367ad48d7",
+        "ce907af448a3a873e32d13e1984ec94bd1192b12c1f41cf2245b1bc2a9d6a3a5e40c6bebf618ecf8999cfd25aa0cb426f60181345d8bb37723198a7f00a3fd55"
+      ]
+    },
+    "最大射程": {
+      "type": "PARAM",
+      "degree": 7,
+      "docs": [
+        "CASE1_白雪行动_1991.md",
+        "CASE2_沙伊拉特打击_2017.md",
+        "CASE4_击杀苏莱曼尼_2020.md",
+        "CASE6_打击红方防空阵地_2025.md",
+        "CASE7_打击化武设施_2018.md"
+      ],
+      "text_units": [
+        "660443373a47ee8debb2bd1eb9cd93a1bddcb5de7f2be8a45a34bf1ccf07a3408f20c829581af5f6e61f0c5c2efe52454276622892665ddd6615803060a017ed",
+        "35b457555fad5f9e24e2cadecfa76a84f8d2fc01ccc000baf9415b70c712646d86ab8913fcb90840f89c874beb7eedca9bfd7b67194d61d0434bae077a97abdf",
+        "52a00936b0a4463418ad6984fd634270d49462a355415ccf6d7966f26f7093b54e7590b78b7b5495c05a905bab2ee8f5f90a4305e87f37e5ca5d14c601e55774",
+        "6bf995b6c98227f82983bd6bc69a86fe9d0bbd27b25999fe2010963377d88c6c2e8b010b1557d9cc79b60533e2c9d3a47c1ca847e592ccff85f14550b62a6159",
+        "fb8e23f1b9610ecb4030a1dbb5354a10af901fc24528243e9f5a3bf49bf6990038bd67d11000f4ba6405373256687cede956ecea6c104907ca965c6e1d36796e",
+        "c7b6710b996fe9b6b746659eddf204c6c1d900971925e734ed78cc8528c3f2e6be951582f7fab005804b5994193517085e360a8704c74dd33f68f5d5943ff97b",
+        "54eb29379fd996246c2a7a821e1f829587bda6402d5af4ea77e95801df56fda766552f5ebc8a1f62a9c548fd1d9a9a22519e4a273283f59e44fe9f76284cbc4c",
+        "2e1b7bd201e3b31a3d877f8591ee014fdf94fdcfa5e49173b4b8278adc8df974f1faaf2beae55c7ce482d898134d6a7a99c4376f45befe864bc0b9fb8bcc2205"
+      ]
+    },
+    "路线规划": {
+      "type": "PHASE",
+      "degree": 7,
+      "docs": [
+        "CASE1_白雪行动_1991.md",
+        "CASE2_沙伊拉特打击_2017.md",
+        "CASE3_击杀巴格达迪_2019.md",
+        "CASE5_打击85处目标_2024.md",
+        "CASE7_打击化武设施_2018.md"
+      ],
+      "text_units": [
+        "660443373a47ee8debb2bd1eb9cd93a1bddcb5de7f2be8a45a34bf1ccf07a3408f20c829581af5f6e61f0c5c2efe52454276622892665ddd6615803060a017ed",
+        "c185bd472823f67f00d500dbdc69058df949a1508722afa3bfa9cd7e8280f3baf760580c9dc921033e9b1d25b37a5cf1b2fd4ad125efff4875c6f510c8c18ffc",
+        "e901380b0bfce0cb4cefb0e3b645f61f89ce94fd8916f4799f713edf41079e541b64353ef48d95d1cf0af753c363d8f15fb51289ba5929f996aee0ed10631aaa",
+        "396ade05dc0e8ba5f4a69e0cbf693fa80e6e56550e60ce5ba0ba121909f734c2bdce467a319a392e385615a7fe820baf57e0ea8a6191349cac91a954c95acee2",
+        "7629728fb1f481fbea2c8297fef5e4788ed2fe3ba40327c6b4d15fbb3dd25aad80f97ea3f0bf29d6c4c737e45a3d685116792a8b891929f30844cb71650a5631",
+        "30b6822670f9583c4c7f896ba2af82bddd6724585919b1ffa9be278ec71412f50697c0911fc8eaeaaa71773f077dfa9ec2d607ff9636e2745aa7907307e9f8f8",
+        "4ce79e064c80bebb8cb42299e687ce63c7b5d113b889738689c421514e3e0fe33da8427d13a39ff7550b73b19b3ed512e1f682791f11c6a8cd498e41b8850740",
+        "ce907af448a3a873e32d13e1984ec94bd1192b12c1f41cf2245b1bc2a9d6a3a5e40c6bebf618ecf8999cfd25aa0cb426f60181345d8bb37723198a7f00a3fd55"
+      ]
+    },
+    "目标选择原则": {
+      "type": "RULE",
+      "degree": 8,
+      "docs": [
+        "CASE2_沙伊拉特打击_2017.md",
+        "CASE4_击杀苏莱曼尼_2020.md",
+        "CASE5_打击85处目标_2024.md"
+      ],
+      "text_units": [
+        "cb6e4d9a81fdf1c135708613cf0f696dc65b83100b4f3d752b933ff07a7bd5fbe1671909f81dbf6560e9b98f036ec06eb8beed7b2b4ec8799286514d3e1dbba6",
+        "e901380b0bfce0cb4cefb0e3b645f61f89ce94fd8916f4799f713edf41079e541b64353ef48d95d1cf0af753c363d8f15fb51289ba5929f996aee0ed10631aaa",
+        "a8361100ad4c166d3b0ea97f8017c84a06d7be0ba31cd380c465a3f43966492820f8880eba0f0dfa0c27848a03f6a4f92bc3eccba1dc5ce7cfea1194291b9f3f",
+        "6f061e331c8d67d4501d931289460b1d97b54f8f0fedd18b03164c2aed2df53a4888ec00b81a11939937c9353f67861d361221001a2d5f34f5c2375a27779dbb",
+        "4ce79e064c80bebb8cb42299e687ce63c7b5d113b889738689c421514e3e0fe33da8427d13a39ff7550b73b19b3ed512e1f682791f11c6a8cd498e41b8850740"
+      ]
+    },
+    "弹目匹配": {
+      "type": "PHASE",
+      "degree": 7,
+      "docs": [
+        "CASE1_白雪行动_1991.md",
+        "CASE2_沙伊拉特打击_2017.md",
+        "CASE4_击杀苏莱曼尼_2020.md",
+        "CASE5_打击85处目标_2024.md",
+        "CASE6_打击红方防空阵地_2025.md",
+        "CASE7_打击化武设施_2018.md"
+      ],
+      "text_units": [
+        "660443373a47ee8debb2bd1eb9cd93a1bddcb5de7f2be8a45a34bf1ccf07a3408f20c829581af5f6e61f0c5c2efe52454276622892665ddd6615803060a017ed",
+        "c185bd472823f67f00d500dbdc69058df949a1508722afa3bfa9cd7e8280f3baf760580c9dc921033e9b1d25b37a5cf1b2fd4ad125efff4875c6f510c8c18ffc",
+        "52a00936b0a4463418ad6984fd634270d49462a355415ccf6d7966f26f7093b54e7590b78b7b5495c05a905bab2ee8f5f90a4305e87f37e5ca5d14c601e55774",
+        "e901380b0bfce0cb4cefb0e3b645f61f89ce94fd8916f4799f713edf41079e541b64353ef48d95d1cf0af753c363d8f15fb51289ba5929f996aee0ed10631aaa",
+        "24db603f2ae587c9bc4466adf89934c3dd83f5a16c816b8ca644b6787bd074b5a9b5630e3dbadccb467a452cf7b320b5cfb55ecde4706fc11e19df75a0c0305a",
+        "a8361100ad4c166d3b0ea97f8017c84a06d7be0ba31cd380c465a3f43966492820f8880eba0f0dfa0c27848a03f6a4f92bc3eccba1dc5ce7cfea1194291b9f3f",
+        "4ce79e064c80bebb8cb42299e687ce63c7b5d113b889738689c421514e3e0fe33da8427d13a39ff7550b73b19b3ed512e1f682791f11c6a8cd498e41b8850740",
+        "7b72df71f0bf2273d52585a95154cb8ec50af36834fe6c59a78a7f3ce6c2f46b752fd0773798b9cb628c6ed86e37829a2ccce15cc390f4ffce8dde21b3d49a81",
+        "80dd86a5860e616a22dfc6cbf6eabbe3adf3e90fd1ad9fdb5cf81b7fbe56c6cc506104a6f8b836646b727cced5aea5317db613a534b28cab68b6854367ad48d7",
+        "ce907af448a3a873e32d13e1984ec94bd1192b12c1f41cf2245b1bc2a9d6a3a5e40c6bebf618ecf8999cfd25aa0cb426f60181345d8bb37723198a7f00a3fd55"
+      ]
+    },
+    "B-1B轰炸机": {
+      "type": "EQUIPMENT",
+      "degree": 7,
+      "docs": [
+        "CASE5_打击85处目标_2024.md",
+        "CASE7_打击化武设施_2018.md"
+      ],
+      "text_units": [
+        "b8eb21ead6af73c5d5459515146dae6a455017d449b37211b1d0f1de1db07e5877df86c36be511f1cfb965eafbdd090deb8581f0737864d55b576d5afefcc330",
+        "d0bd1a983b436f8868392310a81fe32eeaf6d03d9345993df507f6fc3dec5750dd3c8620ca86eeec14f268b6a8e689762845dfd75fdc5bd99ad4c1c749bb7e29",
+        "884fc1f62d0e1f9976ca66b1873ebd55c237903a1ff9d1fee8862044def666d95de00f4c1120de3d2243f92cb2f0437614e44db06d0a9140183d68f4408cfab1",
+        "4ce79e064c80bebb8cb42299e687ce63c7b5d113b889738689c421514e3e0fe33da8427d13a39ff7550b73b19b3ed512e1f682791f11c6a8cd498e41b8850740",
+        "50bb0fa230585deea5b71e293c56c7e0bb3839e7fcfb795ee6b78d6be106c75eec6eb5381d2a100a208e5c08292ffe00d94305141179693ed83bd978e78a76a3",
+        "54eb29379fd996246c2a7a821e1f829587bda6402d5af4ea77e95801df56fda766552f5ebc8a1f62a9c548fd1d9a9a22519e4a273283f59e44fe9f76284cbc4c",
+        "2e1b7bd201e3b31a3d877f8591ee014fdf94fdcfa5e49173b4b8278adc8df974f1faaf2beae55c7ce482d898134d6a7a99c4376f45befe864bc0b9fb8bcc2205"
+      ]
+    },
+    "三角洲部队": {
+      "type": "COMBAT_UNIT",
+      "degree": 6,
+      "docs": [
+        "CASE3_击杀巴格达迪_2019.md"
+      ],
+      "text_units": [
+        "eafa26556e0030cd367f88e8b9bbfc63bfb83144d4614d1d04e9ca355a38c76d89beb6891abaae5ae86f006c41fbbf80a0cc66d19564328fe19987fade3552e6",
+        "396ade05dc0e8ba5f4a69e0cbf693fa80e6e56550e60ce5ba0ba121909f734c2bdce467a319a392e385615a7fe820baf57e0ea8a6191349cac91a954c95acee2"
+      ]
+    },
+    "精确制导弹药": {
+      "type": "RESOURCE",
+      "degree": 6,
+      "docs": [
+        "CASE3_击杀巴格达迪_2019.md"
+      ],
+      "text_units": [
+        "30b6822670f9583c4c7f896ba2af82bddd6724585919b1ffa9be278ec71412f50697c0911fc8eaeaaa71773f077dfa9ec2d607ff9636e2745aa7907307e9f8f8"
+      ]
+    },
+    "定点清除苏莱曼尼行动": {
+      "type": "TASK",
+      "degree": 6,
+      "docs": [
+        "CASE4_击杀苏莱曼尼_2020.md"
+      ],
+      "text_units": [
+        "ad20c5363d4af89fedc5be521eb0e7ae1a970942a3329e58dec9bf9d60db81b38c05c68f88cb522cc3847e7ed902de5c5d1ec8a3b733b3a423da7c209e18425c"
+      ]
+    },
+    "弹药库": {
+      "type": "TARGET",
+      "degree": 5,
+      "docs": [
+        "CASE2_沙伊拉特打击_2017.md",
+        "CASE6_打击红方防空阵地_2025.md"
+      ],
+      "text_units": [
+        "bcc25fff9a1159fb8544e9431667ed80a86f67df73ea322ea8c988d11c59abba638b577625ff44271d7a79bed8204e7f80cdc6988060bd69f0b1e507c9c10163",
+        "52a00936b0a4463418ad6984fd634270d49462a355415ccf6d7966f26f7093b54e7590b78b7b5495c05a905bab2ee8f5f90a4305e87f37e5ca5d14c601e55774",
+        "e901380b0bfce0cb4cefb0e3b645f61f89ce94fd8916f4799f713edf41079e541b64353ef48d95d1cf0af753c363d8f15fb51289ba5929f996aee0ed10631aaa",
+        "7b72df71f0bf2273d52585a95154cb8ec50af36834fe6c59a78a7f3ce6c2f46b752fd0773798b9cb628c6ed86e37829a2ccce15cc390f4ffce8dde21b3d49a81",
+        "80dd86a5860e616a22dfc6cbf6eabbe3adf3e90fd1ad9fdb5cf81b7fbe56c6cc506104a6f8b836646b727cced5aea5317db613a534b28cab68b6854367ad48d7"
+      ]
+    },
+    "卡西姆·苏莱曼尼": {
+      "type": "PERSON",
+      "degree": 5,
+      "docs": [
+        "CASE4_击杀苏莱曼尼_2020.md"
+      ],
+      "text_units": [
+        "ad20c5363d4af89fedc5be521eb0e7ae1a970942a3329e58dec9bf9d60db81b38c05c68f88cb522cc3847e7ed902de5c5d1ec8a3b733b3a423da7c209e18425c",
+        "24db603f2ae587c9bc4466adf89934c3dd83f5a16c816b8ca644b6787bd074b5a9b5630e3dbadccb467a452cf7b320b5cfb55ecde4706fc11e19df75a0c0305a",
+        "6bf995b6c98227f82983bd6bc69a86fe9d0bbd27b25999fe2010963377d88c6c2e8b010b1557d9cc79b60533e2c9d3a47c1ca847e592ccff85f14550b62a6159",
+        "a8361100ad4c166d3b0ea97f8017c84a06d7be0ba31cd380c465a3f43966492820f8880eba0f0dfa0c27848a03f6a4f92bc3eccba1dc5ce7cfea1194291b9f3f"
+      ]
+    },
+    "Fateh-313征服者-313": {
+      "type": "EQUIPMENT",
+      "degree": 5,
+      "docs": [
+        "CASE4_击杀苏莱曼尼_2020.md",
+        "CASE6_打击红方防空阵地_2025.md"
+      ],
+      "text_units": [
+        "24db603f2ae587c9bc4466adf89934c3dd83f5a16c816b8ca644b6787bd074b5a9b5630e3dbadccb467a452cf7b320b5cfb55ecde4706fc11e19df75a0c0305a",
+        "6bf995b6c98227f82983bd6bc69a86fe9d0bbd27b25999fe2010963377d88c6c2e8b010b1557d9cc79b60533e2c9d3a47c1ca847e592ccff85f14550b62a6159",
+        "80dd86a5860e616a22dfc6cbf6eabbe3adf3e90fd1ad9fdb5cf81b7fbe56c6cc506104a6f8b836646b727cced5aea5317db613a534b28cab68b6854367ad48d7",
+        "913ab1fe5c160fe07c04a8e24bbc63141cbfe28c3c46db87a0d9d62dd854f5465636b390e276f2c284a1ca03ca0b1c34cb9ed2033a514077fb3e9ad41bab7d66"
+      ]
+    },
+    "EF-111渡鸦电子战飞机": {
+      "type": "EQUIPMENT",
+      "degree": 5,
+      "docs": [
+        "CASE1_白雪行动_1991.md"
+      ],
+      "text_units": [
+        "08e419e86c91365e96998ed615913b66eeb9400a436f3293e586739b206e59001cfe13469dde1e99a0ccc8a55a386adf81479019548bcd783004c86382f7ea76",
+        "f9c650114f5a5e3fc044d46f7c7fa21dc8a8fb14025dbbc102d0fb43586b2d582585eae857e04f78129f185fdbc69404f8d68c0ff59c71439c6da3249bdfb3c9",
+        "b2517b870ffd7b2725a59fb2e7bda18760cd6f21f76b98cec3605cf30c9f1dfe2d8566150133c4e11b82ec81b205ce98499b5434097d197868594c6eb74dcda7"
+      ]
+    },
+    "EC-130H罗盘呼叫电子战飞机": {
+      "type": "EQUIPMENT",
+      "degree": 5,
+      "docs": [
+        "CASE1_白雪行动_1991.md"
+      ],
+      "text_units": [
+        "08e419e86c91365e96998ed615913b66eeb9400a436f3293e586739b206e59001cfe13469dde1e99a0ccc8a55a386adf81479019548bcd783004c86382f7ea76",
+        "0851058200d3f61cfd7738030208882d1c9323e668e21c40420c33ef360615d96aeae2f3b20122c425d1a4a4687ceaed4525b86298bdd8b877db434aa3e777c2",
+        "b2517b870ffd7b2725a59fb2e7bda18760cd6f21f76b98cec3605cf30c9f1dfe2d8566150133c4e11b82ec81b205ce98499b5434097d197868594c6eb74dcda7"
+      ]
+    },
+    "特朗普": {
+      "type": "PERSON",
+      "degree": 5,
+      "docs": [
+        "CASE2_沙伊拉特打击_2017.md",
+        "CASE4_击杀苏莱曼尼_2020.md"
+      ],
+      "text_units": [
+        "bcc25fff9a1159fb8544e9431667ed80a86f67df73ea322ea8c988d11c59abba638b577625ff44271d7a79bed8204e7f80cdc6988060bd69f0b1e507c9c10163",
+        "ec166f1d72705750136662273a6b0b8a59fef3f6cb8cf2bc11b6539eca405134c9c7958d623548e8a0c7f6a5d19d548890a6a75a2745189720c0bded2f3bad4e",
+        "163af8641e1d43452805ebe2136906fde48fbfe60d7fc1abb771a47ffd4be3f1ab20cfd83f4704c3f81910fed6f29100208b5b1995af9029a10af50dd88b6b5a"
+      ]
+    },
+    "巴格达迪": {
+      "type": "PERSON",
+      "degree": 6,
+      "docs": [
+        "CASE3_击杀巴格达迪_2019.md"
+      ],
+      "text_units": [
+        "eafa26556e0030cd367f88e8b9bbfc63bfb83144d4614d1d04e9ca355a38c76d89beb6891abaae5ae86f006c41fbbf80a0cc66d19564328fe19987fade3552e6",
+        "f22d2bf367eeefa550ebeb1053af49d19ceadf2d47cd042b29b9045983eb11cbfbe8d2ffadd1180f70539b7e87608daa24fc6dd7472986d681e8b29a30c2c8c8",
+        "7629728fb1f481fbea2c8297fef5e4788ed2fe3ba40327c6b4d15fbb3dd25aad80f97ea3f0bf29d6c4c737e45a3d685116792a8b891929f30844cb71650a5631"
+      ]
+    },
+    "AGM-114地狱火导弹": {
+      "type": "EQUIPMENT",
+      "degree": 5,
+      "docs": [
+        "CASE4_击杀苏莱曼尼_2020.md"
+      ],
+      "text_units": [
+        "163af8641e1d43452805ebe2136906fde48fbfe60d7fc1abb771a47ffd4be3f1ab20cfd83f4704c3f81910fed6f29100208b5b1995af9029a10af50dd88b6b5a",
+        "24db603f2ae587c9bc4466adf89934c3dd83f5a16c816b8ca644b6787bd074b5a9b5630e3dbadccb467a452cf7b320b5cfb55ecde4706fc11e19df75a0c0305a",
+        "fb8e23f1b9610ecb4030a1dbb5354a10af901fc24528243e9f5a3bf49bf6990038bd67d11000f4ba6405373256687cede956ecea6c104907ca965c6e1d36796e"
+      ]
+    },
+    "打击行动": {
+      "type": "TASK",
+      "degree": 5,
+      "docs": [
+        "CASE2_沙伊拉特打击_2017.md"
+      ],
+      "text_units": [
+        "35b457555fad5f9e24e2cadecfa76a84f8d2fc01ccc000baf9415b70c712646d86ab8913fcb90840f89c874beb7eedca9bfd7b67194d61d0434bae077a97abdf",
+        "ec166f1d72705750136662273a6b0b8a59fef3f6cb8cf2bc11b6539eca405134c9c7958d623548e8a0c7f6a5d19d548890a6a75a2745189720c0bded2f3bad4e"
+      ]
+    },
+    "电子战飞机": {
+      "type": "EQUIPMENT",
+      "degree": 5,
+      "docs": [
+        "CASE1_白雪行动_1991.md"
+      ],
+      "text_units": [
+        "b2517b870ffd7b2725a59fb2e7bda18760cd6f21f76b98cec3605cf30c9f1dfe2d8566150133c4e11b82ec81b205ce98499b5434097d197868594c6eb74dcda7"
+      ]
+    },
+    "报复性空袭": {
+      "type": "TASK",
+      "degree": 6,
+      "docs": [
+        "CASE5_打击85处目标_2024.md"
+      ],
+      "text_units": [
+        "4ce79e064c80bebb8cb42299e687ce63c7b5d113b889738689c421514e3e0fe33da8427d13a39ff7550b73b19b3ed512e1f682791f11c6a8cd498e41b8850740"
+      ]
+    },
+    "红方防空阵地": {
+      "type": "TARGET",
+      "degree": 5,
+      "docs": [
+        "CASE6_打击红方防空阵地_2025.md"
+      ],
+      "text_units": [
+        "7b72df71f0bf2273d52585a95154cb8ec50af36834fe6c59a78a7f3ce6c2f46b752fd0773798b9cb628c6ed86e37829a2ccce15cc390f4ffce8dde21b3d49a81"
+      ]
+    },
+    "机场": {
+      "type": "TARGET",
+      "degree": 5,
+      "docs": [
+        "CASE6_打击红方防空阵地_2025.md"
+      ],
+      "text_units": [
+        "913ab1fe5c160fe07c04a8e24bbc63141cbfe28c3c46db87a0d9d62dd854f5465636b390e276f2c284a1ca03ca0b1c34cb9ed2033a514077fb3e9ad41bab7d66"
+      ]
+    },
+    "NSM导弹": {
+      "type": "EQUIPMENT",
+      "degree": 5,
+      "docs": [
+        "CASE6_打击红方防空阵地_2025.md"
+      ],
+      "text_units": [
+        "c7b6710b996fe9b6b746659eddf204c6c1d900971925e734ed78cc8528c3f2e6be951582f7fab005804b5994193517085e360a8704c74dd33f68f5d5943ff97b"
+      ]
+    },
+    "化武设施": {
+      "type": "TARGET",
+      "degree": 5,
+      "docs": [
+        "CASE7_打击化武设施_2018.md"
+      ],
+      "text_units": [
+        "e7f00aa8889f1be47276f9b1bf8f761621ab0acc15edd5a0463c9deace6929e750311157cbc69d750eb3427d2a27faae47aa4776e39bc62add284a5a561c00b5"
+      ]
+    },
+    "叙利亚": {
+      "type": "ENVIRONMENT",
+      "degree": 4,
+      "docs": [
+        "CASE5_打击85处目标_2024.md",
+        "CASE7_打击化武设施_2018.md"
+      ],
+      "text_units": [
+        "b8eb21ead6af73c5d5459515146dae6a455017d449b37211b1d0f1de1db07e5877df86c36be511f1cfb965eafbdd090deb8581f0737864d55b576d5afefcc330",
+        "6f061e331c8d67d4501d931289460b1d97b54f8f0fedd18b03164c2aed2df53a4888ec00b81a11939937c9353f67861d361221001a2d5f34f5c2375a27779dbb",
+        "e7f00aa8889f1be47276f9b1bf8f761621ab0acc15edd5a0463c9deace6929e750311157cbc69d750eb3427d2a27faae47aa4776e39bc62add284a5a561c00b5",
+        "50bb0fa230585deea5b71e293c56c7e0bb3839e7fcfb795ee6b78d6be106c75eec6eb5381d2a100a208e5c08292ffe00d94305141179693ed83bd978e78a76a3"
+      ]
+    },
+    "EA-6B徘徊者电子战飞机": {
+      "type": "EQUIPMENT",
+      "degree": 4,
+      "docs": [
+        "CASE1_白雪行动_1991.md"
+      ],
+      "text_units": [
+        "08e419e86c91365e96998ed615913b66eeb9400a436f3293e586739b206e59001cfe13469dde1e99a0ccc8a55a386adf81479019548bcd783004c86382f7ea76",
+        "0851058200d3f61cfd7738030208882d1c9323e668e21c40420c33ef360615d96aeae2f3b20122c425d1a4a4687ceaed4525b86298bdd8b877db434aa3e777c2",
+        "b2517b870ffd7b2725a59fb2e7bda18760cd6f21f76b98cec3605cf30c9f1dfe2d8566150133c4e11b82ec81b205ce98499b5434097d197868594c6eb74dcda7"
+      ]
+    },
+    "伊拉克防空网络": {
+      "type": "TARGET",
+      "degree": 4,
+      "docs": [
+        "CASE1_白雪行动_1991.md"
+      ],
+      "text_units": [
+        "f9c650114f5a5e3fc044d46f7c7fa21dc8a8fb14025dbbc102d0fb43586b2d582585eae857e04f78129f185fdbc69404f8d68c0ff59c71439c6da3249bdfb3c9",
+        "792f201201790d4856c72d439246aee3993d50c6a04fdb0664adbf8b7095266557881aa7f21506a4a5576a441e05605156f953905d78e14e932af8b96f9ab200",
+        "b2517b870ffd7b2725a59fb2e7bda18760cd6f21f76b98cec3605cf30c9f1dfe2d8566150133c4e11b82ec81b205ce98499b5434097d197868594c6eb74dcda7"
+      ]
+    },
+    "第160特种作战航空团": {
+      "type": "COMBAT_UNIT",
+      "degree": 4,
+      "docs": [
+        "CASE3_击杀巴格达迪_2019.md"
+      ],
+      "text_units": [
+        "eafa26556e0030cd367f88e8b9bbfc63bfb83144d4614d1d04e9ca355a38c76d89beb6891abaae5ae86f006c41fbbf80a0cc66d19564328fe19987fade3552e6",
+        "f22d2bf367eeefa550ebeb1053af49d19ceadf2d47cd042b29b9045983eb11cbfbe8d2ffadd1180f70539b7e87608daa24fc6dd7472986d681e8b29a30c2c8c8",
+        "7629728fb1f481fbea2c8297fef5e4788ed2fe3ba40327c6b4d15fbb3dd25aad80f97ea3f0bf29d6c4c737e45a3d685116792a8b891929f30844cb71650a5631"
+      ]
+    },
+    "MH-47支奴干直升机": {
+      "type": "EQUIPMENT",
+      "degree": 4,
+      "docs": [
+        "CASE3_击杀巴格达迪_2019.md"
+      ],
+      "text_units": [
+        "eafa26556e0030cd367f88e8b9bbfc63bfb83144d4614d1d04e9ca355a38c76d89beb6891abaae5ae86f006c41fbbf80a0cc66d19564328fe19987fade3552e6",
+        "396ade05dc0e8ba5f4a69e0cbf693fa80e6e56550e60ce5ba0ba121909f734c2bdce467a319a392e385615a7fe820baf57e0ea8a6191349cac91a954c95acee2",
+        "7629728fb1f481fbea2c8297fef5e4788ed2fe3ba40327c6b4d15fbb3dd25aad80f97ea3f0bf29d6c4c737e45a3d685116792a8b891929f30844cb71650a5631"
+      ]
+    },
+    "Qiam-1起义-1": {
+      "type": "EQUIPMENT",
+      "degree": 4,
+      "docs": [
+        "CASE4_击杀苏莱曼尼_2020.md",
+        "CASE6_打击红方防空阵地_2025.md"
+      ],
+      "text_units": [
+        "6bf995b6c98227f82983bd6bc69a86fe9d0bbd27b25999fe2010963377d88c6c2e8b010b1557d9cc79b60533e2c9d3a47c1ca847e592ccff85f14550b62a6159",
+        "80dd86a5860e616a22dfc6cbf6eabbe3adf3e90fd1ad9fdb5cf81b7fbe56c6cc506104a6f8b836646b727cced5aea5317db613a534b28cab68b6854367ad48d7",
+        "913ab1fe5c160fe07c04a8e24bbc63141cbfe28c3c46db87a0d9d62dd854f5465636b390e276f2c284a1ca03ca0b1c34cb9ed2033a514077fb3e9ad41bab7d66"
+      ]
+    },
+    "AGM-88哈姆反辐射导弹": {
+      "type": "EQUIPMENT",
+      "degree": 4,
+      "docs": [
+        "CASE1_白雪行动_1991.md"
+      ],
+      "text_units": [
+        "792f201201790d4856c72d439246aee3993d50c6a04fdb0664adbf8b7095266557881aa7f21506a4a5576a441e05605156f953905d78e14e932af8b96f9ab200",
+        "660443373a47ee8debb2bd1eb9cd93a1bddcb5de7f2be8a45a34bf1ccf07a3408f20c829581af5f6e61f0c5c2efe52454276622892665ddd6615803060a017ed"
+      ]
+    },
+    "交战控制站": {
+      "type": "EQUIPMENT",
+      "degree": 4,
+      "docs": [
+        "CASE6_打击红方防空阵地_2025.md"
+      ],
+      "text_units": [
+        "e85297f1117972677af020cadaf113948106734bf9298ec9d298384fcc507beb2bcdeb0150f0ce0ba4da4b16df5cc076d595e2af6e7161c7e1809ba23a33ed2e",
+        "eb844211d780866c5be38ec9b19e69269f935a53ae7097854b644c1a8e482e88548c995d630f367ca4a088b21c3b88f70652e12fbae1aceca5f4a7468064c98f"
+      ]
+    },
+    "打击效果": {
+      "type": "PARAM",
+      "degree": 4,
+      "docs": [
+        "CASE2_沙伊拉特打击_2017.md"
+      ],
+      "text_units": [
+        "ec166f1d72705750136662273a6b0b8a59fef3f6cb8cf2bc11b6539eca405134c9c7958d623548e8a0c7f6a5d19d548890a6a75a2745189720c0bded2f3bad4e"
+      ]
+    },
+    "目标": {
+      "type": "TARGET",
+      "degree": 4,
+      "docs": [
+        "CASE3_击杀巴格达迪_2019.md"
+      ],
+      "text_units": [
+        "eafa26556e0030cd367f88e8b9bbfc63bfb83144d4614d1d04e9ca355a38c76d89beb6891abaae5ae86f006c41fbbf80a0cc66d19564328fe19987fade3552e6"
+      ]
+    },
+    "特种作战力量": {
+      "type": "COMBAT_UNIT",
+      "degree": 4,
+      "docs": [
+        "CASE3_击杀巴格达迪_2019.md"
+      ],
+      "text_units": [
+        "f22d2bf367eeefa550ebeb1053af49d19ceadf2d47cd042b29b9045983eb11cbfbe8d2ffadd1180f70539b7e87608daa24fc6dd7472986d681e8b29a30c2c8c8"
+      ]
+    },
+    "MH-60黑鹰直升机": {
+      "type": "EQUIPMENT",
+      "degree": 4,
+      "docs": [
+        "CASE3_击杀巴格达迪_2019.md"
+      ],
+      "text_units": [
+        "7629728fb1f481fbea2c8297fef5e4788ed2fe3ba40327c6b4d15fbb3dd25aad80f97ea3f0bf29d6c4c737e45a3d685116792a8b891929f30844cb71650a5631"
+      ]
+    },
+    "特种作战直升机": {
+      "type": "EQUIPMENT",
+      "degree": 4,
+      "docs": [
+        "CASE3_击杀巴格达迪_2019.md"
+      ],
+      "text_units": [
+        "30b6822670f9583c4c7f896ba2af82bddd6724585919b1ffa9be278ec71412f50697c0911fc8eaeaaa71773f077dfa9ec2d607ff9636e2745aa7907307e9f8f8"
+      ]
+    },
+    "烈士苏莱曼尼行动": {
+      "type": "PLAN",
+      "degree": 4,
+      "docs": [
+        "CASE4_击杀苏莱曼尼_2020.md"
+      ],
+      "text_units": [
+        "24db603f2ae587c9bc4466adf89934c3dd83f5a16c816b8ca644b6787bd074b5a9b5630e3dbadccb467a452cf7b320b5cfb55ecde4706fc11e19df75a0c0305a"
+      ]
+    },
+    "基地": {
+      "type": "TARGET",
+      "degree": 4,
+      "docs": [
+        "CASE6_打击红方防空阵地_2025.md"
+      ],
+      "text_units": [
+        "913ab1fe5c160fe07c04a8e24bbc63141cbfe28c3c46db87a0d9d62dd854f5465636b390e276f2c284a1ca03ca0b1c34cb9ed2033a514077fb3e9ad41bab7d66"
+      ]
+    },
+    "相控阵雷达": {
+      "type": "EQUIPMENT",
+      "degree": 4,
+      "docs": [
+        "CASE6_打击红方防空阵地_2025.md"
+      ],
+      "text_units": [
+        "eb844211d780866c5be38ec9b19e69269f935a53ae7097854b644c1a8e482e88548c995d630f367ca4a088b21c3b88f70652e12fbae1aceca5f4a7468064c98f"
+      ]
+    },
+    "卡塔尔乌代德空军基地": {
+      "type": "ENVIRONMENT",
+      "degree": 4,
+      "docs": [
+        "CASE4_击杀苏莱曼尼_2020.md",
+        "CASE7_打击化武设施_2018.md"
+      ],
+      "text_units": [
+        "ad20c5363d4af89fedc5be521eb0e7ae1a970942a3329e58dec9bf9d60db81b38c05c68f88cb522cc3847e7ed902de5c5d1ec8a3b733b3a423da7c209e18425c",
+        "6bf995b6c98227f82983bd6bc69a86fe9d0bbd27b25999fe2010963377d88c6c2e8b010b1557d9cc79b60533e2c9d3a47c1ca847e592ccff85f14550b62a6159",
+        "fb8e23f1b9610ecb4030a1dbb5354a10af901fc24528243e9f5a3bf49bf6990038bd67d11000f4ba6405373256687cede956ecea6c104907ca965c6e1d36796e",
+        "50bb0fa230585deea5b71e293c56c7e0bb3839e7fcfb795ee6b78d6be106c75eec6eb5381d2a100a208e5c08292ffe00d94305141179693ed83bd978e78a76a3",
+        "54eb29379fd996246c2a7a821e1f829587bda6402d5af4ea77e95801df56fda766552f5ebc8a1f62a9c548fd1d9a9a22519e4a273283f59e44fe9f76284cbc4c"
+      ]
+    },
+    "MK-41垂直发射系统": {
+      "type": "MOUNT",
+      "degree": 4,
+      "docs": [
+        "CASE2_沙伊拉特打击_2017.md",
+        "CASE7_打击化武设施_2018.md"
+      ],
+      "text_units": [
+        "35b457555fad5f9e24e2cadecfa76a84f8d2fc01ccc000baf9415b70c712646d86ab8913fcb90840f89c874beb7eedca9bfd7b67194d61d0434bae077a97abdf",
+        "cb6e4d9a81fdf1c135708613cf0f696dc65b83100b4f3d752b933ff07a7bd5fbe1671909f81dbf6560e9b98f036ec06eb8beed7b2b4ec8799286514d3e1dbba6",
+        "2e1b7bd201e3b31a3d877f8591ee014fdf94fdcfa5e49173b4b8278adc8df974f1faaf2beae55c7ce482d898134d6a7a99c4376f45befe864bc0b9fb8bcc2205",
+        "604c97d71a4a6d902f51041cd4a4ba09607bb04f3c8ae37ff96db8bc6eaf7cfef01bd93aa383cebbb4ffa3c0bfe4ba6988598c483146ec76d92d4ba24816d3ef"
+      ]
+    },
+    "压制性干扰": {
+      "type": "TASK",
+      "degree": 3,
+      "docs": [
+        "CASE1_白雪行动_1991.md"
+      ],
+      "text_units": [
+        "08e419e86c91365e96998ed615913b66eeb9400a436f3293e586739b206e59001cfe13469dde1e99a0ccc8a55a386adf81479019548bcd783004c86382f7ea76",
+        "0851058200d3f61cfd7738030208882d1c9323e668e21c40420c33ef360615d96aeae2f3b20122c425d1a4a4687ceaed4525b86298bdd8b877db434aa3e777c2",
+        "792f201201790d4856c72d439246aee3993d50c6a04fdb0664adbf8b7095266557881aa7f21506a4a5576a441e05605156f953905d78e14e932af8b96f9ab200"
+      ]
+    },
+    "加固机库": {
+      "type": "TARGET",
+      "degree": 3,
+      "docs": [
+        "CASE2_沙伊拉特打击_2017.md"
+      ],
+      "text_units": [
+        "bcc25fff9a1159fb8544e9431667ed80a86f67df73ea322ea8c988d11c59abba638b577625ff44271d7a79bed8204e7f80cdc6988060bd69f0b1e507c9c10163",
+        "52a00936b0a4463418ad6984fd634270d49462a355415ccf6d7966f26f7093b54e7590b78b7b5495c05a905bab2ee8f5f90a4305e87f37e5ca5d14c601e55774",
+        "cb6e4d9a81fdf1c135708613cf0f696dc65b83100b4f3d752b933ff07a7bd5fbe1671909f81dbf6560e9b98f036ec06eb8beed7b2b4ec8799286514d3e1dbba6"
+      ]
+    },
+    "战斗部": {
+      "type": "PARAM",
+      "degree": 4,
+      "docs": [
+        "CASE2_沙伊拉特打击_2017.md",
+        "CASE6_打击红方防空阵地_2025.md",
+        "CASE7_打击化武设施_2018.md"
+      ],
+      "text_units": [
+        "52a00936b0a4463418ad6984fd634270d49462a355415ccf6d7966f26f7093b54e7590b78b7b5495c05a905bab2ee8f5f90a4305e87f37e5ca5d14c601e55774",
+        "c7b6710b996fe9b6b746659eddf204c6c1d900971925e734ed78cc8528c3f2e6be951582f7fab005804b5994193517085e360a8704c74dd33f68f5d5943ff97b",
+        "2e1b7bd201e3b31a3d877f8591ee014fdf94fdcfa5e49173b4b8278adc8df974f1faaf2beae55c7ce482d898134d6a7a99c4376f45befe864bc0b9fb8bcc2205"
+      ]
+    },
+    "波特号驱逐舰": {
+      "type": "EQUIPMENT",
+      "degree": 3,
+      "docs": [
+        "CASE2_沙伊拉特打击_2017.md"
+      ],
+      "text_units": [
+        "bcc25fff9a1159fb8544e9431667ed80a86f67df73ea322ea8c988d11c59abba638b577625ff44271d7a79bed8204e7f80cdc6988060bd69f0b1e507c9c10163",
+        "35b457555fad5f9e24e2cadecfa76a84f8d2fc01ccc000baf9415b70c712646d86ab8913fcb90840f89c874beb7eedca9bfd7b67194d61d0434bae077a97abdf"
+      ]
+    },
+    "作战条令": {
+      "type": "RULE",
+      "degree": 3,
+      "docs": [
+        "CASE2_沙伊拉特打击_2017.md",
+        "CASE4_击杀苏莱曼尼_2020.md"
+      ],
+      "text_units": [
+        "cb6e4d9a81fdf1c135708613cf0f696dc65b83100b4f3d752b933ff07a7bd5fbe1671909f81dbf6560e9b98f036ec06eb8beed7b2b4ec8799286514d3e1dbba6",
+        "a8361100ad4c166d3b0ea97f8017c84a06d7be0ba31cd380c465a3f43966492820f8880eba0f0dfa0c27848a03f6a4f92bc3eccba1dc5ce7cfea1194291b9f3f"
+      ]
+    },
+    "指挥所": {
+      "type": "TARGET",
+      "degree": 3,
+      "docs": [
+        "CASE6_打击红方防空阵地_2025.md"
+      ],
+      "text_units": [
+        "7b72df71f0bf2273d52585a95154cb8ec50af36834fe6c59a78a7f3ce6c2f46b752fd0773798b9cb628c6ed86e37829a2ccce15cc390f4ffce8dde21b3d49a81",
+        "80dd86a5860e616a22dfc6cbf6eabbe3adf3e90fd1ad9fdb5cf81b7fbe56c6cc506104a6f8b836646b727cced5aea5317db613a534b28cab68b6854367ad48d7"
+      ]
+    },
+    "BARZAH研发中心": {
+      "type": "TARGET",
+      "degree": 3,
+      "docs": [
+        "CASE7_打击化武设施_2018.md"
+      ],
+      "text_units": [
+        "e7f00aa8889f1be47276f9b1bf8f761621ab0acc15edd5a0463c9deace6929e750311157cbc69d750eb3427d2a27faae47aa4776e39bc62add284a5a561c00b5",
+        "54eb29379fd996246c2a7a821e1f829587bda6402d5af4ea77e95801df56fda766552f5ebc8a1f62a9c548fd1d9a9a22519e4a273283f59e44fe9f76284cbc4c"
+      ]
+    },
+    "电子战": {
+      "type": "TASK",
+      "degree": 3,
+      "docs": [
+        "CASE1_白雪行动_1991.md"
+      ],
+      "text_units": [
+        "0851058200d3f61cfd7738030208882d1c9323e668e21c40420c33ef360615d96aeae2f3b20122c425d1a4a4687ceaed4525b86298bdd8b877db434aa3e777c2"
+      ]
+    },
+    "空中打击": {
+      "type": "TASK",
+      "degree": 3,
+      "docs": [
+        "CASE1_白雪行动_1991.md"
+      ],
+      "text_units": [
+        "b2517b870ffd7b2725a59fb2e7bda18760cd6f21f76b98cec3605cf30c9f1dfe2d8566150133c4e11b82ec81b205ce98499b5434097d197868594c6eb74dcda7"
+      ]
+    },
+    "定点清除式特种作战": {
+      "type": "TASK",
+      "degree": 3,
+      "docs": [
+        "CASE3_击杀巴格达迪_2019.md"
+      ],
+      "text_units": [
+        "7629728fb1f481fbea2c8297fef5e4788ed2fe3ba40327c6b4d15fbb3dd25aad80f97ea3f0bf29d6c4c737e45a3d685116792a8b891929f30844cb71650a5631"
+      ]
+    },
+    "约旦美军基地": {
+      "type": "TARGET",
+      "degree": 3,
+      "docs": [
+        "CASE5_打击85处目标_2024.md"
+      ],
+      "text_units": [
+        "b8eb21ead6af73c5d5459515146dae6a455017d449b37211b1d0f1de1db07e5877df86c36be511f1cfb965eafbdd090deb8581f0737864d55b576d5afefcc330"
+      ]
+    },
+    "多平台联合打击": {
+      "type": "TASK",
+      "degree": 3,
+      "docs": [
+        "CASE6_打击红方防空阵地_2025.md"
+      ],
+      "text_units": [
+        "7b72df71f0bf2273d52585a95154cb8ec50af36834fe6c59a78a7f3ce6c2f46b752fd0773798b9cb628c6ed86e37829a2ccce15cc390f4ffce8dde21b3d49a81"
+      ]
+    },
+    "爱国者系统": {
+      "type": "EQUIPMENT",
+      "degree": 3,
+      "docs": [
+        "CASE6_打击红方防空阵地_2025.md"
+      ],
+      "text_units": [
+        "eb844211d780866c5be38ec9b19e69269f935a53ae7097854b644c1a8e482e88548c995d630f367ca4a088b21c3b88f70652e12fbae1aceca5f4a7468064c98f"
+      ]
+    },
+    "欺骗性干扰": {
+      "type": "TASK",
+      "degree": 2,
+      "docs": [
+        "CASE1_白雪行动_1991.md"
+      ],
+      "text_units": [
+        "08e419e86c91365e96998ed615913b66eeb9400a436f3293e586739b206e59001cfe13469dde1e99a0ccc8a55a386adf81479019548bcd783004c86382f7ea76",
+        "0851058200d3f61cfd7738030208882d1c9323e668e21c40420c33ef360615d96aeae2f3b20122c425d1a4a4687ceaed4525b86298bdd8b877db434aa3e777c2",
+        "792f201201790d4856c72d439246aee3993d50c6a04fdb0664adbf8b7095266557881aa7f21506a4a5576a441e05605156f953905d78e14e932af8b96f9ab200"
+      ]
+    },
+    "战术空射诱饵": {
+      "type": "EQUIPMENT",
+      "degree": 2,
+      "docs": [
+        "CASE1_白雪行动_1991.md"
+      ],
+      "text_units": [
+        "f9c650114f5a5e3fc044d46f7c7fa21dc8a8fb14025dbbc102d0fb43586b2d582585eae857e04f78129f185fdbc69404f8d68c0ff59c71439c6da3249bdfb3c9",
+        "792f201201790d4856c72d439246aee3993d50c6a04fdb0664adbf8b7095266557881aa7f21506a4a5576a441e05605156f953905d78e14e932af8b96f9ab200"
+      ]
+    },
+    "联合空中作战条令": {
+      "type": "RULE",
+      "degree": 2,
+      "docs": [
+        "CASE1_白雪行动_1991.md",
+        "CASE7_打击化武设施_2018.md"
+      ],
+      "text_units": [
+        "660443373a47ee8debb2bd1eb9cd93a1bddcb5de7f2be8a45a34bf1ccf07a3408f20c829581af5f6e61f0c5c2efe52454276622892665ddd6615803060a017ed",
+        "ce907af448a3a873e32d13e1984ec94bd1192b12c1f41cf2245b1bc2a9d6a3a5e40c6bebf618ecf8999cfd25aa0cb426f60181345d8bb37723198a7f00a3fd55"
+      ]
+    },
+    "雷达设备": {
+      "type": "TARGET",
+      "degree": 2,
+      "docs": [
+        "CASE2_沙伊拉特打击_2017.md"
+      ],
+      "text_units": [
+        "bcc25fff9a1159fb8544e9431667ed80a86f67df73ea322ea8c988d11c59abba638b577625ff44271d7a79bed8204e7f80cdc6988060bd69f0b1e507c9c10163",
+        "e901380b0bfce0cb4cefb0e3b645f61f89ce94fd8916f4799f713edf41079e541b64353ef48d95d1cf0af753c363d8f15fb51289ba5929f996aee0ed10631aaa"
+      ]
+    },
+    "燃油储存设施": {
+      "type": "TARGET",
+      "degree": 2,
+      "docs": [
+        "CASE2_沙伊拉特打击_2017.md"
+      ],
+      "text_units": [
+        "bcc25fff9a1159fb8544e9431667ed80a86f67df73ea322ea8c988d11c59abba638b577625ff44271d7a79bed8204e7f80cdc6988060bd69f0b1e507c9c10163",
+        "e901380b0bfce0cb4cefb0e3b645f61f89ce94fd8916f4799f713edf41079e541b64353ef48d95d1cf0af753c363d8f15fb51289ba5929f996aee0ed10631aaa"
+      ]
+    },
+    "联合目标工作条令": {
+      "type": "RULE",
+      "degree": 2,
+      "docs": [
+        "CASE2_沙伊拉特打击_2017.md"
+      ],
+      "text_units": [
+        "cb6e4d9a81fdf1c135708613cf0f696dc65b83100b4f3d752b933ff07a7bd5fbe1671909f81dbf6560e9b98f036ec06eb8beed7b2b4ec8799286514d3e1dbba6",
+        "e901380b0bfce0cb4cefb0e3b645f61f89ce94fd8916f4799f713edf41079e541b64353ef48d95d1cf0af753c363d8f15fb51289ba5929f996aee0ed10631aaa"
+      ]
+    },
+    "伊德利卜省": {
+      "type": "ENVIRONMENT",
+      "degree": 2,
+      "docs": [
+        "CASE3_击杀巴格达迪_2019.md"
+      ],
+      "text_units": [
+        "eafa26556e0030cd367f88e8b9bbfc63bfb83144d4614d1d04e9ca355a38c76d89beb6891abaae5ae86f006c41fbbf80a0cc66d19564328fe19987fade3552e6",
+        "f22d2bf367eeefa550ebeb1053af49d19ceadf2d47cd042b29b9045983eb11cbfbe8d2ffadd1180f70539b7e87608daa24fc6dd7472986d681e8b29a30c2c8c8"
+      ]
+    },
+    "海葬": {
+      "type": "TASK",
+      "degree": 2,
+      "docs": [
+        "CASE3_击杀巴格达迪_2019.md"
+      ],
+      "text_units": [
+        "f22d2bf367eeefa550ebeb1053af49d19ceadf2d47cd042b29b9045983eb11cbfbe8d2ffadd1180f70539b7e87608daa24fc6dd7472986d681e8b29a30c2c8c8",
+        "396ade05dc0e8ba5f4a69e0cbf693fa80e6e56550e60ce5ba0ba121909f734c2bdce467a319a392e385615a7fe820baf57e0ea8a6191349cac91a954c95acee2"
+      ]
+    },
+    "无人机": {
+      "type": "EQUIPMENT",
+      "degree": 2,
+      "docs": [
+        "CASE3_击杀巴格达迪_2019.md",
+        "CASE4_击杀苏莱曼尼_2020.md"
+      ],
+      "text_units": [
+        "30b6822670f9583c4c7f896ba2af82bddd6724585919b1ffa9be278ec71412f50697c0911fc8eaeaaa71773f077dfa9ec2d607ff9636e2745aa7907307e9f8f8",
+        "6bf995b6c98227f82983bd6bc69a86fe9d0bbd27b25999fe2010963377d88c6c2e8b010b1557d9cc79b60533e2c9d3a47c1ca847e592ccff85f14550b62a6159"
+      ]
+    },
+    "航程": {
+      "type": "PARAM",
+      "degree": 2,
+      "docs": [
+        "CASE3_击杀巴格达迪_2019.md",
+        "CASE6_打击红方防空阵地_2025.md"
+      ],
+      "text_units": [
+        "30b6822670f9583c4c7f896ba2af82bddd6724585919b1ffa9be278ec71412f50697c0911fc8eaeaaa71773f077dfa9ec2d607ff9636e2745aa7907307e9f8f8",
+        "e85297f1117972677af020cadaf113948106734bf9298ec9d298384fcc507beb2bcdeb0150f0ce0ba4da4b16df5cc076d595e2af6e7161c7e1809ba23a33ed2e"
+      ]
+    },
+    "阿布·迈赫迪·穆汉迪斯": {
+      "type": "PERSON",
+      "degree": 2,
+      "docs": [
+        "CASE4_击杀苏莱曼尼_2020.md"
+      ],
+      "text_units": [
+        "ad20c5363d4af89fedc5be521eb0e7ae1a970942a3329e58dec9bf9d60db81b38c05c68f88cb522cc3847e7ed902de5c5d1ec8a3b733b3a423da7c209e18425c",
+        "163af8641e1d43452805ebe2136906fde48fbfe60d7fc1abb771a47ffd4be3f1ab20cfd83f4704c3f81910fed6f29100208b5b1995af9029a10af50dd88b6b5a"
+      ]
+    },
+    "MQ-9收割者": {
+      "type": "EQUIPMENT",
+      "degree": 2,
+      "docs": [
+        "CASE4_击杀苏莱曼尼_2020.md"
+      ],
+      "text_units": [
+        "24db603f2ae587c9bc4466adf89934c3dd83f5a16c816b8ca644b6787bd074b5a9b5630e3dbadccb467a452cf7b320b5cfb55ecde4706fc11e19df75a0c0305a",
+        "a8361100ad4c166d3b0ea97f8017c84a06d7be0ba31cd380c465a3f43966492820f8880eba0f0dfa0c27848a03f6a4f92bc3eccba1dc5ce7cfea1194291b9f3f"
+      ]
+    },
+    "指挥控制行动中心": {
+      "type": "TARGET",
+      "degree": 2,
+      "docs": [
+        "CASE5_打击85处目标_2024.md"
+      ],
+      "text_units": [
+        "b8eb21ead6af73c5d5459515146dae6a455017d449b37211b1d0f1de1db07e5877df86c36be511f1cfb965eafbdd090deb8581f0737864d55b576d5afefcc330",
+        "4ce79e064c80bebb8cb42299e687ce63c7b5d113b889738689c421514e3e0fe33da8427d13a39ff7550b73b19b3ed512e1f682791f11c6a8cd498e41b8850740"
+      ]
+    },
+    "储存设施": {
+      "type": "TARGET",
+      "degree": 2,
+      "docs": [
+        "CASE5_打击85处目标_2024.md",
+        "CASE7_打击化武设施_2018.md"
+      ],
+      "text_units": [
+        "4ce79e064c80bebb8cb42299e687ce63c7b5d113b889738689c421514e3e0fe33da8427d13a39ff7550b73b19b3ed512e1f682791f11c6a8cd498e41b8850740",
+        "e7f00aa8889f1be47276f9b1bf8f761621ab0acc15edd5a0463c9deace6929e750311157cbc69d750eb3427d2a27faae47aa4776e39bc62add284a5a561c00b5"
+      ]
+    },
+    "约翰·华纳号": {
+      "type": "EQUIPMENT",
+      "degree": 2,
+      "docs": [
+        "CASE7_打击化武设施_2018.md"
+      ],
+      "text_units": [
+        "e7f00aa8889f1be47276f9b1bf8f761621ab0acc15edd5a0463c9deace6929e750311157cbc69d750eb3427d2a27faae47aa4776e39bc62add284a5a561c00b5",
+        "50bb0fa230585deea5b71e293c56c7e0bb3839e7fcfb795ee6b78d6be106c75eec6eb5381d2a100a208e5c08292ffe00d94305141179693ed83bd978e78a76a3"
+      ]
+    },
+    "加固目标": {
+      "type": "TARGET",
+      "degree": 2,
+      "docs": [
+        "CASE7_打击化武设施_2018.md"
+      ],
+      "text_units": [
+        "2e1b7bd201e3b31a3d877f8591ee014fdf94fdcfa5e49173b4b8278adc8df974f1faaf2beae55c7ce482d898134d6a7a99c4376f45befe864bc0b9fb8bcc2205",
+        "604c97d71a4a6d902f51041cd4a4ba09607bb04f3c8ae37ff96db8bc6eaf7cfef01bd93aa383cebbb4ffa3c0bfe4ba6988598c483146ec76d92d4ba24816d3ef"
+      ]
+    },
+    "通信与防空指挥系统": {
+      "type": "TARGET",
+      "degree": 2,
+      "docs": [
+        "CASE1_白雪行动_1991.md"
+      ],
+      "text_units": [
+        "08e419e86c91365e96998ed615913b66eeb9400a436f3293e586739b206e59001cfe13469dde1e99a0ccc8a55a386adf81479019548bcd783004c86382f7ea76"
+      ]
+    },
+    "伊军": {
+      "type": "COMBAT_UNIT",
+      "degree": 2,
+      "docs": [
+        "CASE1_白雪行动_1991.md"
+      ],
+      "text_units": [
+        "0851058200d3f61cfd7738030208882d1c9323e668e21c40420c33ef360615d96aeae2f3b20122c425d1a4a4687ceaed4525b86298bdd8b877db434aa3e777c2"
+      ]
+    },
+    "指挥通信": {
+      "type": "PARAM",
+      "degree": 2,
+      "docs": [
+        "CASE1_白雪行动_1991.md"
+      ],
+      "text_units": [
+        "0851058200d3f61cfd7738030208882d1c9323e668e21c40420c33ef360615d96aeae2f3b20122c425d1a4a4687ceaed4525b86298bdd8b877db434aa3e777c2"
+      ]
+    },
+    "电磁优势": {
+      "type": "RESOURCE",
+      "degree": 2,
+      "docs": [
+        "CASE1_白雪行动_1991.md"
+      ],
+      "text_units": [
+        "0851058200d3f61cfd7738030208882d1c9323e668e21c40420c33ef360615d96aeae2f3b20122c425d1a4a4687ceaed4525b86298bdd8b877db434aa3e777c2"
+      ]
+    },
+    "雷达设施": {
+      "type": "TARGET",
+      "degree": 2,
+      "docs": [
+        "CASE1_白雪行动_1991.md"
+      ],
+      "text_units": [
+        "792f201201790d4856c72d439246aee3993d50c6a04fdb0664adbf8b7095266557881aa7f21506a4a5576a441e05605156f953905d78e14e932af8b96f9ab200"
+      ]
+    },
+    "反辐射攻击": {
+      "type": "TASK",
+      "degree": 2,
+      "docs": [
+        "CASE1_白雪行动_1991.md"
+      ],
+      "text_units": [
+        "b2517b870ffd7b2725a59fb2e7bda18760cd6f21f76b98cec3605cf30c9f1dfe2d8566150133c4e11b82ec81b205ce98499b5434097d197868594c6eb74dcda7"
+      ]
+    },
+    "美国海军": {
+      "type": "ORGANIZATION",
+      "degree": 2,
+      "docs": [
+        "CASE2_沙伊拉特打击_2017.md"
+      ],
+      "text_units": [
+        "bcc25fff9a1159fb8544e9431667ed80a86f67df73ea322ea8c988d11c59abba638b577625ff44271d7a79bed8204e7f80cdc6988060bd69f0b1e507c9c10163"
+      ]
+    },
+    "罗斯号驱逐舰": {
+      "type": "EQUIPMENT",
+      "degree": 2,
+      "docs": [
+        "CASE2_沙伊拉特打击_2017.md"
+      ],
+      "text_units": [
+        "bcc25fff9a1159fb8544e9431667ed80a86f67df73ea322ea8c988d11c59abba638b577625ff44271d7a79bed8204e7f80cdc6988060bd69f0b1e507c9c10163"
+      ]
+    },
+    "联合打击": {
+      "type": "PLAN",
+      "degree": 2,
+      "docs": [
+        "CASE2_沙伊拉特打击_2017.md"
+      ],
+      "text_units": [
+        "ec166f1d72705750136662273a6b0b8a59fef3f6cb8cf2bc11b6539eca405134c9c7958d623548e8a0c7f6a5d19d548890a6a75a2745189720c0bded2f3bad4e"
+      ]
+    },
+    "游骑兵": {
+      "type": "COMBAT_UNIT",
+      "degree": 2,
+      "docs": [
+        "CASE3_击杀巴格达迪_2019.md"
+      ],
+      "text_units": [
+        "eafa26556e0030cd367f88e8b9bbfc63bfb83144d4614d1d04e9ca355a38c76d89beb6891abaae5ae86f006c41fbbf80a0cc66d19564328fe19987fade3552e6"
+      ]
+    },
+    "支奴干直升机": {
+      "type": "EQUIPMENT",
+      "degree": 2,
+      "docs": [
+        "CASE3_击杀巴格达迪_2019.md"
+      ],
+      "text_units": [
+        "f22d2bf367eeefa550ebeb1053af49d19ceadf2d47cd042b29b9045983eb11cbfbe8d2ffadd1180f70539b7e87608daa24fc6dd7472986d681e8b29a30c2c8c8"
+      ]
+    },
+    "自杀背心": {
+      "type": "EQUIPMENT",
+      "degree": 2,
+      "docs": [
+        "CASE3_击杀巴格达迪_2019.md"
+      ],
+      "text_units": [
+        "f22d2bf367eeefa550ebeb1053af49d19ceadf2d47cd042b29b9045983eb11cbfbe8d2ffadd1180f70539b7e87608daa24fc6dd7472986d681e8b29a30c2c8c8"
+      ]
+    },
+    "低空飞行能力": {
+      "type": "PARAM",
+      "degree": 2,
+      "docs": [
+        "CASE3_击杀巴格达迪_2019.md"
+      ],
+      "text_units": [
+        "7629728fb1f481fbea2c8297fef5e4788ed2fe3ba40327c6b4d15fbb3dd25aad80f97ea3f0bf29d6c4c737e45a3d685116792a8b891929f30844cb71650a5631"
+      ]
+    },
+    "苏莱曼尼车队": {
+      "type": "TARGET",
+      "degree": 2,
+      "docs": [
+        "CASE4_击杀苏莱曼尼_2020.md"
+      ],
+      "text_units": [
+        "163af8641e1d43452805ebe2136906fde48fbfe60d7fc1abb771a47ffd4be3f1ab20cfd83f4704c3f81910fed6f29100208b5b1995af9029a10af50dd88b6b5a"
+      ]
+    },
+    "定点清除行动": {
+      "type": "TASK",
+      "degree": 2,
+      "docs": [
+        "CASE4_击杀苏莱曼尼_2020.md"
+      ],
+      "text_units": [
+        "6bf995b6c98227f82983bd6bc69a86fe9d0bbd27b25999fe2010963377d88c6c2e8b010b1557d9cc79b60533e2c9d3a47c1ca847e592ccff85f14550b62a6159"
+      ]
+    },
+    "无人机远程打击": {
+      "type": "TASK",
+      "degree": 2,
+      "docs": [
+        "CASE4_击杀苏莱曼尼_2020.md"
+      ],
+      "text_units": [
+        "6bf995b6c98227f82983bd6bc69a86fe9d0bbd27b25999fe2010963377d88c6c2e8b010b1557d9cc79b60533e2c9d3a47c1ca847e592ccff85f14550b62a6159"
+      ]
+    },
+    "AGM-114地狱火": {
+      "type": "EQUIPMENT",
+      "degree": 2,
+      "docs": [
+        "CASE4_击杀苏莱曼尼_2020.md"
+      ],
+      "text_units": [
+        "a8361100ad4c166d3b0ea97f8017c84a06d7be0ba31cd380c465a3f43966492820f8880eba0f0dfa0c27848a03f6a4f92bc3eccba1dc5ce7cfea1194291b9f3f"
+      ]
+    },
+    "美军死亡": {
+      "type": "TARGET",
+      "degree": 2,
+      "docs": [
+        "CASE5_打击85处目标_2024.md"
+      ],
+      "text_units": [
+        "b8eb21ead6af73c5d5459515146dae6a455017d449b37211b1d0f1de1db07e5877df86c36be511f1cfb965eafbdd090deb8581f0737864d55b576d5afefcc330"
+      ]
+    },
+    "40余人受伤": {
+      "type": "TARGET",
+      "degree": 2,
+      "docs": [
+        "CASE5_打击85处目标_2024.md"
+      ],
+      "text_units": [
+        "b8eb21ead6af73c5d5459515146dae6a455017d449b37211b1d0f1de1db07e5877df86c36be511f1cfb965eafbdd090deb8581f0737864d55b576d5afefcc330"
+      ]
+    },
+    "美军联合空中作战中心": {
+      "type": "ORGANIZATION",
+      "degree": 2,
+      "docs": [
+        "CASE6_打击红方防空阵地_2025.md"
+      ],
+      "text_units": [
+        "7b72df71f0bf2273d52585a95154cb8ec50af36834fe6c59a78a7f3ce6c2f46b752fd0773798b9cb628c6ed86e37829a2ccce15cc390f4ffce8dde21b3d49a81"
+      ]
+    },
+    "红方雷达站": {
+      "type": "TARGET",
+      "degree": 2,
+      "docs": [
+        "CASE6_打击红方防空阵地_2025.md"
+      ],
+      "text_units": [
+        "80dd86a5860e616a22dfc6cbf6eabbe3adf3e90fd1ad9fdb5cf81b7fbe56c6cc506104a6f8b836646b727cced5aea5317db613a534b28cab68b6854367ad48d7"
+      ]
+    },
+    "红方机库": {
+      "type": "TARGET",
+      "degree": 2,
+      "docs": [
+        "CASE6_打击红方防空阵地_2025.md"
+      ],
+      "text_units": [
+        "80dd86a5860e616a22dfc6cbf6eabbe3adf3e90fd1ad9fdb5cf81b7fbe56c6cc506104a6f8b836646b727cced5aea5317db613a534b28cab68b6854367ad48d7"
+      ]
+    },
+    "RGM-84鱼叉导弹": {
+      "type": "EQUIPMENT",
+      "degree": 2,
+      "docs": [
+        "CASE6_打击红方防空阵地_2025.md"
+      ],
+      "text_units": [
+        "913ab1fe5c160fe07c04a8e24bbc63141cbfe28c3c46db87a0d9d62dd854f5465636b390e276f2c284a1ca03ca0b1c34cb9ed2033a514077fb3e9ad41bab7d66"
+      ]
+    },
+    "NSM海军打击导弹": {
+      "type": "EQUIPMENT",
+      "degree": 2,
+      "docs": [
+        "CASE6_打击红方防空阵地_2025.md"
+      ],
+      "text_units": [
+        "913ab1fe5c160fe07c04a8e24bbc63141cbfe28c3c46db87a0d9d62dd854f5465636b390e276f2c284a1ca03ca0b1c34cb9ed2033a514077fb3e9ad41bab7d66"
+      ]
+    },
+    "体系化防空": {
+      "type": "TASK",
+      "degree": 2,
+      "docs": [
+        "CASE6_打击红方防空阵地_2025.md"
+      ],
+      "text_units": [
+        "eb844211d780866c5be38ec9b19e69269f935a53ae7097854b644c1a8e482e88548c995d630f367ca4a088b21c3b88f70652e12fbae1aceca5f4a7468064c98f"
+      ]
+    },
+    "化武设施联合打击": {
+      "type": "TASK",
+      "degree": 2,
+      "docs": [
+        "CASE7_打击化武设施_2018.md"
+      ],
+      "text_units": [
+        "50bb0fa230585deea5b71e293c56c7e0bb3839e7fcfb795ee6b78d6be106c75eec6eb5381d2a100a208e5c08292ffe00d94305141179693ed83bd978e78a76a3"
+      ]
+    },
+    "驱逐舰": {
+      "type": "COMBAT_UNIT",
+      "degree": 1,
+      "docs": [
+        "CASE2_沙伊拉特打击_2017.md",
+        "CASE7_打击化武设施_2018.md"
+      ],
+      "text_units": [
+        "cb6e4d9a81fdf1c135708613cf0f696dc65b83100b4f3d752b933ff07a7bd5fbe1671909f81dbf6560e9b98f036ec06eb8beed7b2b4ec8799286514d3e1dbba6",
+        "604c97d71a4a6d902f51041cd4a4ba09607bb04f3c8ae37ff96db8bc6eaf7cfef01bd93aa383cebbb4ffa3c0bfe4ba6988598c483146ec76d92d4ba24816d3ef"
+      ]
+    },
+    "共享条令库": {
+      "type": "RESOURCE",
+      "degree": 1,
+      "docs": [
+        "CASE2_沙伊拉特打击_2017.md",
+        "CASE4_击杀苏莱曼尼_2020.md"
+      ],
+      "text_units": [
+        "e901380b0bfce0cb4cefb0e3b645f61f89ce94fd8916f4799f713edf41079e541b64353ef48d95d1cf0af753c363d8f15fb51289ba5929f996aee0ed10631aaa",
+        "a8361100ad4c166d3b0ea97f8017c84a06d7be0ba31cd380c465a3f43966492820f8880eba0f0dfa0c27848a03f6a4f92bc3eccba1dc5ce7cfea1194291b9f3f"
+      ]
+    },
+    "美国": {
+      "type": "ORGANIZATION",
+      "degree": 1,
+      "docs": [
+        "CASE5_打击85处目标_2024.md",
+        "CASE7_打击化武设施_2018.md"
+      ],
+      "text_units": [
+        "884fc1f62d0e1f9976ca66b1873ebd55c237903a1ff9d1fee8862044def666d95de00f4c1120de3d2243f92cb2f0437614e44db06d0a9140183d68f4408cfab1",
+        "e7f00aa8889f1be47276f9b1bf8f761621ab0acc15edd5a0463c9deace6929e750311157cbc69d750eb3427d2a27faae47aa4776e39bc62add284a5a561c00b5"
+      ]
+    },
+    "GPS": {
+      "type": "PARAM",
+      "degree": 1,
+      "docs": [
+        "CASE6_打击红方防空阵地_2025.md",
+        "CASE7_打击化武设施_2018.md"
+      ],
+      "text_units": [
+        "913ab1fe5c160fe07c04a8e24bbc63141cbfe28c3c46db87a0d9d62dd854f5465636b390e276f2c284a1ca03ca0b1c34cb9ed2033a514077fb3e9ad41bab7d66",
+        "2e1b7bd201e3b31a3d877f8591ee014fdf94fdcfa5e49173b4b8278adc8df974f1faaf2beae55c7ce482d898134d6a7a99c4376f45befe864bc0b9fb8bcc2205"
+      ]
+    },
+    "JDAM": {
+      "type": "EQUIPMENT",
+      "degree": 1,
+      "docs": [
+        "CASE6_打击红方防空阵地_2025.md"
+      ],
+      "text_units": [
+        "c7b6710b996fe9b6b746659eddf204c6c1d900971925e734ed78cc8528c3f2e6be951582f7fab005804b5994193517085e360a8704c74dd33f68f5d5943ff97b",
+        "e85297f1117972677af020cadaf113948106734bf9298ec9d298384fcc507beb2bcdeb0150f0ce0ba4da4b16df5cc076d595e2af6e7161c7e1809ba23a33ed2e"
+      ]
+    },
+    "伊拉克": {
+      "type": "ENVIRONMENT",
+      "degree": 1,
+      "docs": [
+        "CASE1_白雪行动_1991.md"
+      ],
+      "text_units": [
+        "08e419e86c91365e96998ed615913b66eeb9400a436f3293e586739b206e59001cfe13469dde1e99a0ccc8a55a386adf81479019548bcd783004c86382f7ea76"
+      ]
+    },
+    "雷达": {
+      "type": "TARGET",
+      "degree": 1,
+      "docs": [
+        "CASE1_白雪行动_1991.md"
+      ],
+      "text_units": [
+        "08e419e86c91365e96998ed615913b66eeb9400a436f3293e586739b206e59001cfe13469dde1e99a0ccc8a55a386adf81479019548bcd783004c86382f7ea76"
+      ]
+    },
+    "反辐射导弹": {
+      "type": "EQUIPMENT",
+      "degree": 1,
+      "docs": [
+        "CASE1_白雪行动_1991.md"
+      ],
+      "text_units": [
+        "f9c650114f5a5e3fc044d46f7c7fa21dc8a8fb14025dbbc102d0fb43586b2d582585eae857e04f78129f185fdbc69404f8d68c0ff59c71439c6da3249bdfb3c9"
+      ]
+    },
+    "EA-6B徘徊者": {
+      "type": "EQUIPMENT",
+      "degree": 1,
+      "docs": [
+        "CASE1_白雪行动_1991.md"
+      ],
+      "text_units": [
+        "f9c650114f5a5e3fc044d46f7c7fa21dc8a8fb14025dbbc102d0fb43586b2d582585eae857e04f78129f185fdbc69404f8d68c0ff59c71439c6da3249bdfb3c9"
+      ]
+    },
+    "空中目标": {
+      "type": "TARGET",
+      "degree": 1,
+      "docs": [
+        "CASE1_白雪行动_1991.md"
+      ],
+      "text_units": [
+        "f9c650114f5a5e3fc044d46f7c7fa21dc8a8fb14025dbbc102d0fb43586b2d582585eae857e04f78129f185fdbc69404f8d68c0ff59c71439c6da3249bdfb3c9"
+      ]
+    },
+    "空袭编队": {
+      "type": "COMBAT_UNIT",
+      "degree": 1,
+      "docs": [
+        "CASE1_白雪行动_1991.md"
+      ],
+      "text_units": [
+        "f9c650114f5a5e3fc044d46f7c7fa21dc8a8fb14025dbbc102d0fb43586b2d582585eae857e04f78129f185fdbc69404f8d68c0ff59c71439c6da3249bdfb3c9"
+      ]
+    },
+    "雷达探测": {
+      "type": "PARAM",
+      "degree": 1,
+      "docs": [
+        "CASE1_白雪行动_1991.md"
+      ],
+      "text_units": [
+        "0851058200d3f61cfd7738030208882d1c9323e668e21c40420c33ef360615d96aeae2f3b20122c425d1a4a4687ceaed4525b86298bdd8b877db434aa3e777c2"
+      ]
+    },
+    "武器制导": {
+      "type": "PARAM",
+      "degree": 1,
+      "docs": [
+        "CASE1_白雪行动_1991.md"
+      ],
+      "text_units": [
+        "0851058200d3f61cfd7738030208882d1c9323e668e21c40420c33ef360615d96aeae2f3b20122c425d1a4a4687ceaed4525b86298bdd8b877db434aa3e777c2"
+      ]
+    },
+    "防空火力": {
+      "type": "RESOURCE",
+      "degree": 1,
+      "docs": [
+        "CASE1_白雪行动_1991.md"
+      ],
+      "text_units": [
+        "792f201201790d4856c72d439246aee3993d50c6a04fdb0664adbf8b7095266557881aa7f21506a4a5576a441e05605156f953905d78e14e932af8b96f9ab200"
+      ]
+    },
+    "最大速度": {
+      "type": "PARAM",
+      "degree": 1,
+      "docs": [
+        "CASE1_白雪行动_1991.md"
+      ],
+      "text_units": [
+        "b2517b870ffd7b2725a59fb2e7bda18760cd6f21f76b98cec3605cf30c9f1dfe2d8566150133c4e11b82ec81b205ce98499b5434097d197868594c6eb74dcda7"
+      ]
+    },
+    "电子战体系": {
+      "type": "PLAN",
+      "degree": 1,
+      "docs": [
+        "CASE1_白雪行动_1991.md"
+      ],
+      "text_units": [
+        "b2517b870ffd7b2725a59fb2e7bda18760cd6f21f76b98cec3605cf30c9f1dfe2d8566150133c4e11b82ec81b205ce98499b5434097d197868594c6eb74dcda7"
+      ]
+    },
+    "联合目标分析": {
+      "type": "PHASE",
+      "degree": 1,
+      "docs": [
+        "CASE1_白雪行动_1991.md"
+      ],
+      "text_units": [
+        "660443373a47ee8debb2bd1eb9cd93a1bddcb5de7f2be8a45a34bf1ccf07a3408f20c829581af5f6e61f0c5c2efe52454276622892665ddd6615803060a017ed"
+      ]
+    },
+    "联合空中作战方案": {
+      "type": "PLAN",
+      "degree": 1,
+      "docs": [
+        "CASE1_白雪行动_1991.md"
+      ],
+      "text_units": [
+        "660443373a47ee8debb2bd1eb9cd93a1bddcb5de7f2be8a45a34bf1ccf07a3408f20c829581af5f6e61f0c5c2efe52454276622892665ddd6615803060a017ed"
+      ]
+    },
+    "防空系统": {
+      "type": "TARGET",
+      "degree": 1,
+      "docs": [
+        "CASE2_沙伊拉特打击_2017.md"
+      ],
+      "text_units": [
+        "bcc25fff9a1159fb8544e9431667ed80a86f67df73ea322ea8c988d11c59abba638b577625ff44271d7a79bed8204e7f80cdc6988060bd69f0b1e507c9c10163"
+      ]
+    },
+    "化学武器袭击": {
+      "type": "TASK",
+      "degree": 1,
+      "docs": [
+        "CASE2_沙伊拉特打击_2017.md"
+      ],
+      "text_units": [
+        "bcc25fff9a1159fb8544e9431667ed80a86f67df73ea322ea8c988d11c59abba638b577625ff44271d7a79bed8204e7f80cdc6988060bd69f0b1e507c9c10163"
+      ]
+    },
+    "五角大楼": {
+      "type": "ORGANIZATION",
+      "degree": 1,
+      "docs": [
+        "CASE2_沙伊拉特打击_2017.md"
+      ],
+      "text_units": [
+        "bcc25fff9a1159fb8544e9431667ed80a86f67df73ea322ea8c988d11c59abba638b577625ff44271d7a79bed8204e7f80cdc6988060bd69f0b1e507c9c10163"
+      ]
+    },
+    "叙利亚政府军": {
+      "type": "COMBAT_UNIT",
+      "degree": 1,
+      "docs": [
+        "CASE2_沙伊拉特打击_2017.md"
+      ],
+      "text_units": [
+        "bcc25fff9a1159fb8544e9431667ed80a86f67df73ea322ea8c988d11c59abba638b577625ff44271d7a79bed8204e7f80cdc6988060bd69f0b1e507c9c10163"
+      ]
+    },
+    "叙军战机": {
+      "type": "COMBAT_UNIT",
+      "degree": 1,
+      "docs": [
+        "CASE2_沙伊拉特打击_2017.md"
+      ],
+      "text_units": [
+        "35b457555fad5f9e24e2cadecfa76a84f8d2fc01ccc000baf9415b70c712646d86ab8913fcb90840f89c874beb7eedca9bfd7b67194d61d0434bae077a97abdf"
+      ]
+    },
+    "支援设施": {
+      "type": "TARGET",
+      "degree": 1,
+      "docs": [
+        "CASE2_沙伊拉特打击_2017.md"
+      ],
+      "text_units": [
+        "35b457555fad5f9e24e2cadecfa76a84f8d2fc01ccc000baf9415b70c712646d86ab8913fcb90840f89c874beb7eedca9bfd7b67194d61d0434bae077a97abdf"
+      ]
+    },
+    "复合制导方式": {
+      "type": "PARAM",
+      "degree": 1,
+      "docs": [
+        "CASE2_沙伊拉特打击_2017.md"
+      ],
+      "text_units": [
+        "52a00936b0a4463418ad6984fd634270d49462a355415ccf6d7966f26f7093b54e7590b78b7b5495c05a905bab2ee8f5f90a4305e87f37e5ca5d14c601e55774"
+      ]
+    },
+    "CEP": {
+      "type": "PARAM",
+      "degree": 1,
+      "docs": [
+        "CASE2_沙伊拉特打击_2017.md"
+      ],
+      "text_units": [
+        "52a00936b0a4463418ad6984fd634270d49462a355415ccf6d7966f26f7093b54e7590b78b7b5495c05a905bab2ee8f5f90a4305e87f37e5ca5d14c601e55774"
+      ]
+    },
+    "叙政府军目标": {
+      "type": "TARGET",
+      "degree": 1,
+      "docs": [
+        "CASE2_沙伊拉特打击_2017.md"
+      ],
+      "text_units": [
+        "ec166f1d72705750136662273a6b0b8a59fef3f6cb8cf2bc11b6539eca405134c9c7958d623548e8a0c7f6a5d19d548890a6a75a2745189720c0bded2f3bad4e"
+      ]
+    },
+    "跑道": {
+      "type": "TARGET",
+      "degree": 1,
+      "docs": [
+        "CASE2_沙伊拉特打击_2017.md"
+      ],
+      "text_units": [
+        "ec166f1d72705750136662273a6b0b8a59fef3f6cb8cf2bc11b6539eca405134c9c7958d623548e8a0c7f6a5d19d548890a6a75a2745189720c0bded2f3bad4e"
+      ]
+    },
+    "滑行道": {
+      "type": "TARGET",
+      "degree": 1,
+      "docs": [
+        "CASE2_沙伊拉特打击_2017.md"
+      ],
+      "text_units": [
+        "ec166f1d72705750136662273a6b0b8a59fef3f6cb8cf2bc11b6539eca405134c9c7958d623548e8a0c7f6a5d19d548890a6a75a2745189720c0bded2f3bad4e"
+      ]
+    },
+    "远程精确打击": {
+      "type": "TASK",
+      "degree": 1,
+      "docs": [
+        "CASE2_沙伊拉特打击_2017.md"
+      ],
+      "text_units": [
+        "cb6e4d9a81fdf1c135708613cf0f696dc65b83100b4f3d752b933ff07a7bd5fbe1671909f81dbf6560e9b98f036ec06eb8beed7b2b4ec8799286514d3e1dbba6"
+      ]
+    },
+    "精准制导": {
+      "type": "PARAM",
+      "degree": 1,
+      "docs": [
+        "CASE2_沙伊拉特打击_2017.md"
+      ],
+      "text_units": [
+        "cb6e4d9a81fdf1c135708613cf0f696dc65b83100b4f3d752b933ff07a7bd5fbe1671909f81dbf6560e9b98f036ec06eb8beed7b2b4ec8799286514d3e1dbba6"
+      ]
+    },
+    "直升机": {
+      "type": "EQUIPMENT",
+      "degree": 1,
+      "docs": [
+        "CASE3_击杀巴格达迪_2019.md"
+      ],
+      "text_units": [
+        "eafa26556e0030cd367f88e8b9bbfc63bfb83144d4614d1d04e9ca355a38c76d89beb6891abaae5ae86f006c41fbbf80a0cc66d19564328fe19987fade3552e6"
+      ]
+    },
+    "儿童": {
+      "type": "TARGET",
+      "degree": 1,
+      "docs": [
+        "CASE3_击杀巴格达迪_2019.md"
+      ],
+      "text_units": [
+        "f22d2bf367eeefa550ebeb1053af49d19ceadf2d47cd042b29b9045983eb11cbfbe8d2ffadd1180f70539b7e87608daa24fc6dd7472986d681e8b29a30c2c8c8"
+      ]
+    },
+    "军犬柯南": {
+      "type": "COMBAT_UNIT",
+      "degree": 1,
+      "docs": [
+        "CASE3_击杀巴格达迪_2019.md"
+      ],
+      "text_units": [
+        "f22d2bf367eeefa550ebeb1053af49d19ceadf2d47cd042b29b9045983eb11cbfbe8d2ffadd1180f70539b7e87608daa24fc6dd7472986d681e8b29a30c2c8c8"
+      ]
+    },
+    "面部识别与DNA确认": {
+      "type": "TASK",
+      "degree": 1,
+      "docs": [
+        "CASE3_击杀巴格达迪_2019.md"
+      ],
+      "text_units": [
+        "f22d2bf367eeefa550ebeb1053af49d19ceadf2d47cd042b29b9045983eb11cbfbe8d2ffadd1180f70539b7e87608daa24fc6dd7472986d681e8b29a30c2c8c8"
+      ]
+    },
+    "特种航空兵": {
+      "type": "COMBAT_UNIT",
+      "degree": 1,
+      "docs": [
+        "CASE3_击杀巴格达迪_2019.md"
+      ],
+      "text_units": [
+        "396ade05dc0e8ba5f4a69e0cbf693fa80e6e56550e60ce5ba0ba121909f734c2bdce467a319a392e385615a7fe820baf57e0ea8a6191349cac91a954c95acee2"
+      ]
+    },
+    "破墙炸药": {
+      "type": "EQUIPMENT",
+      "degree": 1,
+      "docs": [
+        "CASE3_击杀巴格达迪_2019.md"
+      ],
+      "text_units": [
+        "396ade05dc0e8ba5f4a69e0cbf693fa80e6e56550e60ce5ba0ba121909f734c2bdce467a319a392e385615a7fe820baf57e0ea8a6191349cac91a954c95acee2"
+      ]
+    },
+    "叙利亚西北部": {
+      "type": "ENVIRONMENT",
+      "degree": 1,
+      "docs": [
+        "CASE3_击杀巴格达迪_2019.md"
+      ],
+      "text_units": [
+        "7629728fb1f481fbea2c8297fef5e4788ed2fe3ba40327c6b4d15fbb3dd25aad80f97ea3f0bf29d6c4c737e45a3d685116792a8b891929f30844cb71650a5631"
+      ]
+    },
+    "身份确认": {
+      "type": "PHASE",
+      "degree": 1,
+      "docs": [
+        "CASE3_击杀巴格达迪_2019.md"
+      ],
+      "text_units": [
+        "7629728fb1f481fbea2c8297fef5e4788ed2fe3ba40327c6b4d15fbb3dd25aad80f97ea3f0bf29d6c4c737e45a3d685116792a8b891929f30844cb71650a5631"
+      ]
+    },
+    "抓捕": {
+      "type": "PHASE",
+      "degree": 1,
+      "docs": [
+        "CASE3_击杀巴格达迪_2019.md"
+      ],
+      "text_units": [
+        "7629728fb1f481fbea2c8297fef5e4788ed2fe3ba40327c6b4d15fbb3dd25aad80f97ea3f0bf29d6c4c737e45a3d685116792a8b891929f30844cb71650a5631"
+      ]
+    },
+    "航空团": {
+      "type": "COMBAT_UNIT",
+      "degree": 1,
+      "docs": [
+        "CASE3_击杀巴格达迪_2019.md"
+      ],
+      "text_units": [
+        "30b6822670f9583c4c7f896ba2af82bddd6724585919b1ffa9be278ec71412f50697c0911fc8eaeaaa71773f077dfa9ec2d607ff9636e2745aa7907307e9f8f8"
+      ]
+    },
+    "特种作战条令": {
+      "type": "RULE",
+      "degree": 1,
+      "docs": [
+        "CASE3_击杀巴格达迪_2019.md"
+      ],
+      "text_units": [
+        "30b6822670f9583c4c7f896ba2af82bddd6724585919b1ffa9be278ec71412f50697c0911fc8eaeaaa71773f077dfa9ec2d607ff9636e2745aa7907307e9f8f8"
+      ]
+    },
+    "低空突防能力": {
+      "type": "PARAM",
+      "degree": 1,
+      "docs": [
+        "CASE3_击杀巴格达迪_2019.md"
+      ],
+      "text_units": [
+        "30b6822670f9583c4c7f896ba2af82bddd6724585919b1ffa9be278ec71412f50697c0911fc8eaeaaa71773f077dfa9ec2d607ff9636e2745aa7907307e9f8f8"
+      ]
+    },
+    "巴格达国际机场": {
+      "type": "ENVIRONMENT",
+      "degree": 1,
+      "docs": [
+        "CASE4_击杀苏莱曼尼_2020.md"
+      ],
+      "text_units": [
+        "ad20c5363d4af89fedc5be521eb0e7ae1a970942a3329e58dec9bf9d60db81b38c05c68f88cb522cc3847e7ed902de5c5d1ec8a3b733b3a423da7c209e18425c"
+      ]
+    },
+    "操作员": {
+      "type": "PERSON",
+      "degree": 2,
+      "docs": [
+        "CASE4_击杀苏莱曼尼_2020.md"
+      ],
+      "text_units": [
+        "ad20c5363d4af89fedc5be521eb0e7ae1a970942a3329e58dec9bf9d60db81b38c05c68f88cb522cc3847e7ed902de5c5d1ec8a3b733b3a423da7c209e18425c"
+      ]
+    },
+    "两车车队": {
+      "type": "TARGET",
+      "degree": 1,
+      "docs": [
+        "CASE4_击杀苏莱曼尼_2020.md"
+      ],
+      "text_units": [
+        "ad20c5363d4af89fedc5be521eb0e7ae1a970942a3329e58dec9bf9d60db81b38c05c68f88cb522cc3847e7ed902de5c5d1ec8a3b733b3a423da7c209e18425c"
+      ]
+    },
+    "西姆·苏莱曼尼": {
+      "type": "PERSON",
+      "degree": 1,
+      "docs": [
+        "CASE4_击杀苏莱曼尼_2020.md"
+      ],
+      "text_units": [
+        "163af8641e1d43452805ebe2136906fde48fbfe60d7fc1abb771a47ffd4be3f1ab20cfd83f4704c3f81910fed6f29100208b5b1995af9029a10af50dd88b6b5a"
+      ]
+    },
+    "R9X": {
+      "type": "EQUIPMENT",
+      "degree": 1,
+      "docs": [
+        "CASE4_击杀苏莱曼尼_2020.md"
+      ],
+      "text_units": [
+        "163af8641e1d43452805ebe2136906fde48fbfe60d7fc1abb771a47ffd4be3f1ab20cfd83f4704c3f81910fed6f29100208b5b1995af9029a10af50dd88b6b5a"
+      ]
+    },
+    "电侦": {
+      "type": "RESOURCE",
+      "degree": 1,
+      "docs": [
+        "CASE4_击杀苏莱曼尼_2020.md"
+      ],
+      "text_units": [
+        "163af8641e1d43452805ebe2136906fde48fbfe60d7fc1abb771a47ffd4be3f1ab20cfd83f4704c3f81910fed6f29100208b5b1995af9029a10af50dd88b6b5a"
+      ]
+    },
+    "侦察机": {
+      "type": "EQUIPMENT",
+      "degree": 1,
+      "docs": [
+        "CASE4_击杀苏莱曼尼_2020.md"
+      ],
+      "text_units": [
+        "163af8641e1d43452805ebe2136906fde48fbfe60d7fc1abb771a47ffd4be3f1ab20cfd83f4704c3f81910fed6f29100208b5b1995af9029a10af50dd88b6b5a"
+      ]
+    },
+    "情报": {
+      "type": "RESOURCE",
+      "degree": 1,
+      "docs": [
+        "CASE4_击杀苏莱曼尼_2020.md"
+      ],
+      "text_units": [
+        "163af8641e1d43452805ebe2136906fde48fbfe60d7fc1abb771a47ffd4be3f1ab20cfd83f4704c3f81910fed6f29100208b5b1995af9029a10af50dd88b6b5a"
+      ]
+    },
+    "阿萨德空军基地": {
+      "type": "TARGET",
+      "degree": 1,
+      "docs": [
+        "CASE4_击杀苏莱曼尼_2020.md"
+      ],
+      "text_units": [
+        "24db603f2ae587c9bc4466adf89934c3dd83f5a16c816b8ca644b6787bd074b5a9b5630e3dbadccb467a452cf7b320b5cfb55ecde4706fc11e19df75a0c0305a"
+      ]
+    },
+    "埃尔比勒基地": {
+      "type": "TARGET",
+      "degree": 1,
+      "docs": [
+        "CASE4_击杀苏莱曼尼_2020.md"
+      ],
+      "text_units": [
+        "24db603f2ae587c9bc4466adf89934c3dd83f5a16c816b8ca644b6787bd074b5a9b5630e3dbadccb467a452cf7b320b5cfb55ecde4706fc11e19df75a0c0305a"
+      ]
+    },
+    "QIAM-1起义": {
+      "type": "EQUIPMENT",
+      "degree": 1,
+      "docs": [
+        "CASE4_击杀苏莱曼尼_2020.md"
+      ],
+      "text_units": [
+        "24db603f2ae587c9bc4466adf89934c3dd83f5a16c816b8ca644b6787bd074b5a9b5630e3dbadccb467a452cf7b320b5cfb55ecde4706fc11e19df75a0c0305a"
+      ]
+    },
+    "闭环能力": {
+      "type": "PARAM",
+      "degree": 1,
+      "docs": [
+        "CASE4_击杀苏莱曼尼_2020.md"
+      ],
+      "text_units": [
+        "24db603f2ae587c9bc4466adf89934c3dd83f5a16c816b8ca644b6787bd074b5a9b5630e3dbadccb467a452cf7b320b5cfb55ecde4706fc11e19df75a0c0305a"
+      ]
+    },
+    "远程遥控作战能力": {
+      "type": "PARAM",
+      "degree": 1,
+      "docs": [
+        "CASE4_击杀苏莱曼尼_2020.md"
+      ],
+      "text_units": [
+        "24db603f2ae587c9bc4466adf89934c3dd83f5a16c816b8ca644b6787bd074b5a9b5630e3dbadccb467a452cf7b320b5cfb55ecde4706fc11e19df75a0c0305a"
+      ]
+    },
+    "长时间监视": {
+      "type": "TASK",
+      "degree": 1,
+      "docs": [
+        "CASE4_击杀苏莱曼尼_2020.md"
+      ],
+      "text_units": [
+        "fb8e23f1b9610ecb4030a1dbb5354a10af901fc24528243e9f5a3bf49bf6990038bd67d11000f4ba6405373256687cede956ecea6c104907ca965c6e1d36796e"
+      ]
+    },
+    "附带损伤": {
+      "type": "PARAM",
+      "degree": 1,
+      "docs": [
+        "CASE4_击杀苏莱曼尼_2020.md"
+      ],
+      "text_units": [
+        "a8361100ad4c166d3b0ea97f8017c84a06d7be0ba31cd380c465a3f43966492820f8880eba0f0dfa0c27848a03f6a4f92bc3eccba1dc5ce7cfea1194291b9f3f"
+      ]
+    },
+    "伊朗伊斯兰革命卫队圣城旅": {
+      "type": "COMBAT_UNIT",
+      "degree": 1,
+      "docs": [
+        "CASE5_打击85处目标_2024.md"
+      ],
+      "text_units": [
+        "b8eb21ead6af73c5d5459515146dae6a455017d449b37211b1d0f1de1db07e5877df86c36be511f1cfb965eafbdd090deb8581f0737864d55b576d5afefcc330"
+      ]
+    },
+    "火箭与导弹及无人机储存设施": {
+      "type": "TARGET",
+      "degree": 1,
+      "docs": [
+        "CASE5_打击85处目标_2024.md"
+      ],
+      "text_units": [
+        "b8eb21ead6af73c5d5459515146dae6a455017d449b37211b1d0f1de1db07e5877df86c36be511f1cfb965eafbdd090deb8581f0737864d55b576d5afefcc330"
+      ]
+    },
+    "后勤与弹药供应链设施": {
+      "type": "TARGET",
+      "degree": 1,
+      "docs": [
+        "CASE5_打击85处目标_2024.md"
+      ],
+      "text_units": [
+        "b8eb21ead6af73c5d5459515146dae6a455017d449b37211b1d0f1de1db07e5877df86c36be511f1cfb965eafbdd090deb8581f0737864d55b576d5afefcc330"
+      ]
+    },
+    "直接回应": {
+      "type": "PLAN",
+      "degree": 1,
+      "docs": [
+        "CASE5_打击85处目标_2024.md"
+      ],
+      "text_units": [
+        "b8eb21ead6af73c5d5459515146dae6a455017d449b37211b1d0f1de1db07e5877df86c36be511f1cfb965eafbdd090deb8581f0737864d55b576d5afefcc330"
+      ]
+    },
+    "伊朗支持武装目标": {
+      "type": "TARGET",
+      "degree": 1,
+      "docs": [
+        "CASE5_打击85处目标_2024.md"
+      ],
+      "text_units": [
+        "d0bd1a983b436f8868392310a81fe32eeaf6d03d9345993df507f6fc3dec5750dd3c8620ca86eeec14f268b6a8e689762845dfd75fdc5bd99ad4c1c749bb7e29"
+      ]
+    },
+    "跨洲际远程精确打击能力": {
+      "type": "PLAN",
+      "degree": 1,
+      "docs": [
+        "CASE5_打击85处目标_2024.md"
+      ],
+      "text_units": [
+        "d0bd1a983b436f8868392310a81fe32eeaf6d03d9345993df507f6fc3dec5750dd3c8620ca86eeec14f268b6a8e689762845dfd75fdc5bd99ad4c1c749bb7e29"
+      ]
+    },
+    "弹目匹配阶段": {
+      "type": "PHASE",
+      "degree": 1,
+      "docs": [
+        "CASE5_打击85处目标_2024.md"
+      ],
+      "text_units": [
+        "d0bd1a983b436f8868392310a81fe32eeaf6d03d9345993df507f6fc3dec5750dd3c8620ca86eeec14f268b6a8e689762845dfd75fdc5bd99ad4c1c749bb7e29"
+      ]
+    },
+    "平台选择阶段": {
+      "type": "PHASE",
+      "degree": 1,
+      "docs": [
+        "CASE5_打击85处目标_2024.md"
+      ],
+      "text_units": [
+        "d0bd1a983b436f8868392310a81fe32eeaf6d03d9345993df507f6fc3dec5750dd3c8620ca86eeec14f268b6a8e689762845dfd75fdc5bd99ad4c1c749bb7e29"
+      ]
+    },
+    "地面介入": {
+      "type": "TASK",
+      "degree": 1,
+      "docs": [
+        "CASE5_打击85处目标_2024.md"
+      ],
+      "text_units": [
+        "d0bd1a983b436f8868392310a81fe32eeaf6d03d9345993df507f6fc3dec5750dd3c8620ca86eeec14f268b6a8e689762845dfd75fdc5bd99ad4c1c749bb7e29"
+      ]
+    },
+    "多型战机": {
+      "type": "COMBAT_UNIT",
+      "degree": 1,
+      "docs": [
+        "CASE5_打击85处目标_2024.md"
+      ],
+      "text_units": [
+        "d0bd1a983b436f8868392310a81fe32eeaf6d03d9345993df507f6fc3dec5750dd3c8620ca86eeec14f268b6a8e689762845dfd75fdc5bd99ad4c1c749bb7e29"
+      ]
+    },
+    "拜登政府": {
+      "type": "PERSON",
+      "degree": 1,
+      "docs": [
+        "CASE5_打击85处目标_2024.md"
+      ],
+      "text_units": [
+        "6f061e331c8d67d4501d931289460b1d97b54f8f0fedd18b03164c2aed2df53a4888ec00b81a11939937c9353f67861d361221001a2d5f34f5c2375a27779dbb"
+      ]
+    },
+    "远程轰炸机": {
+      "type": "EQUIPMENT",
+      "degree": 1,
+      "docs": [
+        "CASE5_打击85处目标_2024.md"
+      ],
+      "text_units": [
+        "6f061e331c8d67d4501d931289460b1d97b54f8f0fedd18b03164c2aed2df53a4888ec00b81a11939937c9353f67861d361221001a2d5f34f5c2375a27779dbb"
+      ]
+    },
+    "精确弹药": {
+      "type": "EQUIPMENT",
+      "degree": 1,
+      "docs": [
+        "CASE5_打击85处目标_2024.md"
+      ],
+      "text_units": [
+        "6f061e331c8d67d4501d931289460b1d97b54f8f0fedd18b03164c2aed2df53a4888ec00b81a11939937c9353f67861d361221001a2d5f34f5c2375a27779dbb"
+      ]
+    },
+    "伊朗": {
+      "type": "TARGET",
+      "degree": 1,
+      "docs": [
+        "CASE5_打击85处目标_2024.md"
+      ],
+      "text_units": [
+        "6f061e331c8d67d4501d931289460b1d97b54f8f0fedd18b03164c2aed2df53a4888ec00b81a11939937c9353f67861d361221001a2d5f34f5c2375a27779dbb"
+      ]
+    },
+    "胡塞武装": {
+      "type": "TARGET",
+      "degree": 1,
+      "docs": [
+        "CASE5_打击85处目标_2024.md"
+      ],
+      "text_units": [
+        "6f061e331c8d67d4501d931289460b1d97b54f8f0fedd18b03164c2aed2df53a4888ec00b81a11939937c9353f67861d361221001a2d5f34f5c2375a27779dbb"
+      ]
+    },
+    "16人": {
+      "type": "PARAM",
+      "degree": 1,
+      "docs": [
+        "CASE5_打击85处目标_2024.md"
+      ],
+      "text_units": [
+        "6f061e331c8d67d4501d931289460b1d97b54f8f0fedd18b03164c2aed2df53a4888ec00b81a11939937c9353f67861d361221001a2d5f34f5c2375a27779dbb"
+      ]
+    },
+    "23人": {
+      "type": "PARAM",
+      "degree": 1,
+      "docs": [
+        "CASE5_打击85处目标_2024.md"
+      ],
+      "text_units": [
+        "6f061e331c8d67d4501d931289460b1d97b54f8f0fedd18b03164c2aed2df53a4888ec00b81a11939937c9353f67861d361221001a2d5f34f5c2375a27779dbb"
+      ]
+    },
+    "低烈度多方向精确打击": {
+      "type": "TASK",
+      "degree": 1,
+      "docs": [
+        "CASE5_打击85处目标_2024.md"
+      ],
+      "text_units": [
+        "6f061e331c8d67d4501d931289460b1d97b54f8f0fedd18b03164c2aed2df53a4888ec00b81a11939937c9353f67861d361221001a2d5f34f5c2375a27779dbb"
+      ]
+    },
+    "军事目标": {
+      "type": "TARGET",
+      "degree": 1,
+      "docs": [
+        "CASE5_打击85处目标_2024.md"
+      ],
+      "text_units": [
+        "6f061e331c8d67d4501d931289460b1d97b54f8f0fedd18b03164c2aed2df53a4888ec00b81a11939937c9353f67861d361221001a2d5f34f5c2375a27779dbb"
+      ]
+    },
+    "平民目标": {
+      "type": "TARGET",
+      "degree": 1,
+      "docs": [
+        "CASE5_打击85处目标_2024.md"
+      ],
+      "text_units": [
+        "6f061e331c8d67d4501d931289460b1d97b54f8f0fedd18b03164c2aed2df53a4888ec00b81a11939937c9353f67861d361221001a2d5f34f5c2375a27779dbb"
+      ]
+    },
+    "后勤供应链节点": {
+      "type": "TARGET",
+      "degree": 1,
+      "docs": [
+        "CASE5_打击85处目标_2024.md"
+      ],
+      "text_units": [
+        "4ce79e064c80bebb8cb42299e687ce63c7b5d113b889738689c421514e3e0fe33da8427d13a39ff7550b73b19b3ed512e1f682791f11c6a8cd498e41b8850740"
+      ]
+    },
+    "雷达站": {
+      "type": "TARGET",
+      "degree": 1,
+      "docs": [
+        "CASE6_打击红方防空阵地_2025.md"
+      ],
+      "text_units": [
+        "7b72df71f0bf2273d52585a95154cb8ec50af36834fe6c59a78a7f3ce6c2f46b752fd0773798b9cb628c6ed86e37829a2ccce15cc390f4ffce8dde21b3d49a81"
+      ]
+    },
+    "机库": {
+      "type": "TARGET",
+      "degree": 1,
+      "docs": [
+        "CASE6_打击红方防空阵地_2025.md"
+      ],
+      "text_units": [
+        "7b72df71f0bf2273d52585a95154cb8ec50af36834fe6c59a78a7f3ce6c2f46b752fd0773798b9cb628c6ed86e37829a2ccce15cc390f4ffce8dde21b3d49a81"
+      ]
+    },
+    "红蓝对抗演练": {
+      "type": "TASK",
+      "degree": 1,
+      "docs": [
+        "CASE6_打击红方防空阵地_2025.md"
+      ],
+      "text_units": [
+        "7b72df71f0bf2273d52585a95154cb8ec50af36834fe6c59a78a7f3ce6c2f46b752fd0773798b9cb628c6ed86e37829a2ccce15cc390f4ffce8dde21b3d49a81"
+      ]
+    },
+    "威康士伯公司": {
+      "type": "ORGANIZATION",
+      "degree": 1,
+      "docs": [
+        "CASE6_打击红方防空阵地_2025.md"
+      ],
+      "text_units": [
+        "c7b6710b996fe9b6b746659eddf204c6c1d900971925e734ed78cc8528c3f2e6be951582f7fab005804b5994193517085e360a8704c74dd33f68f5d5943ff97b"
+      ]
+    },
+    "鱼叉导弹": {
+      "type": "EQUIPMENT",
+      "degree": 1,
+      "docs": [
+        "CASE6_打击红方防空阵地_2025.md"
+      ],
+      "text_units": [
+        "c7b6710b996fe9b6b746659eddf204c6c1d900971925e734ed78cc8528c3f2e6be951582f7fab005804b5994193517085e360a8704c74dd33f68f5d5943ff97b"
+      ]
+    },
+    "最小射程": {
+      "type": "PARAM",
+      "degree": 1,
+      "docs": [
+        "CASE6_打击红方防空阵地_2025.md"
+      ],
+      "text_units": [
+        "c7b6710b996fe9b6b746659eddf204c6c1d900971925e734ed78cc8528c3f2e6be951582f7fab005804b5994193517085e360a8704c74dd33f68f5d5943ff97b"
+      ]
+    },
+    "挂载能力": {
+      "type": "PARAM",
+      "degree": 1,
+      "docs": [
+        "CASE6_打击红方防空阵地_2025.md"
+      ],
+      "text_units": [
+        "c7b6710b996fe9b6b746659eddf204c6c1d900971925e734ed78cc8528c3f2e6be951582f7fab005804b5994193517085e360a8704c74dd33f68f5d5943ff97b"
+      ]
+    },
+    "多用途重型战机效能": {
+      "type": "PLAN",
+      "degree": 1,
+      "docs": [
+        "CASE6_打击红方防空阵地_2025.md"
+      ],
+      "text_units": [
+        "c7b6710b996fe9b6b746659eddf204c6c1d900971925e734ed78cc8528c3f2e6be951582f7fab005804b5994193517085e360a8704c74dd33f68f5d5943ff97b"
+      ]
+    },
+    "B JASSM-ER": {
+      "type": "EQUIPMENT",
+      "degree": 1,
+      "docs": [
+        "CASE6_打击红方防空阵地_2025.md"
+      ],
+      "text_units": [
+        "e85297f1117972677af020cadaf113948106734bf9298ec9d298384fcc507beb2bcdeb0150f0ce0ba4da4b16df5cc076d595e2af6e7161c7e1809ba23a33ed2e"
+      ]
+    },
+    "M903发射架": {
+      "type": "MOUNT",
+      "degree": 1,
+      "docs": [
+        "CASE6_打击红方防空阵地_2025.md"
+      ],
+      "text_units": [
+        "e85297f1117972677af020cadaf113948106734bf9298ec9d298384fcc507beb2bcdeb0150f0ce0ba4da4b16df5cc076d595e2af6e7161c7e1809ba23a33ed2e"
+      ]
+    },
+    "最大载弹量": {
+      "type": "PARAM",
+      "degree": 1,
+      "docs": [
+        "CASE6_打击红方防空阵地_2025.md"
+      ],
+      "text_units": [
+        "e85297f1117972677af020cadaf113948106734bf9298ec9d298384fcc507beb2bcdeb0150f0ce0ba4da4b16df5cc076d595e2af6e7161c7e1809ba23a33ed2e"
+      ]
+    },
+    "武器适配范围": {
+      "type": "PARAM",
+      "degree": 1,
+      "docs": [
+        "CASE6_打击红方防空阵地_2025.md"
+      ],
+      "text_units": [
+        "e85297f1117972677af020cadaf113948106734bf9298ec9d298384fcc507beb2bcdeb0150f0ce0ba4da4b16df5cc076d595e2af6e7161c7e1809ba23a33ed2e"
+      ]
+    },
+    "任务系统": {
+      "type": "PARAM",
+      "degree": 1,
+      "docs": [
+        "CASE6_打击红方防空阵地_2025.md"
+      ],
+      "text_units": [
+        "e85297f1117972677af020cadaf113948106734bf9298ec9d298384fcc507beb2bcdeb0150f0ce0ba4da4b16df5cc076d595e2af6e7161c7e1809ba23a33ed2e"
+      ]
+    },
+    "发电机": {
+      "type": "EQUIPMENT",
+      "degree": 1,
+      "docs": [
+        "CASE6_打击红方防空阵地_2025.md"
+      ],
+      "text_units": [
+        "e85297f1117972677af020cadaf113948106734bf9298ec9d298384fcc507beb2bcdeb0150f0ce0ba4da4b16df5cc076d595e2af6e7161c7e1809ba23a33ed2e"
+      ]
+    },
+    "通信链路": {
+      "type": "EQUIPMENT",
+      "degree": 1,
+      "docs": [
+        "CASE6_打击红方防空阵地_2025.md"
+      ],
+      "text_units": [
+        "e85297f1117972677af020cadaf113948106734bf9298ec9d298384fcc507beb2bcdeb0150f0ce0ba4da4b16df5cc076d595e2af6e7161c7e1809ba23a33ed2e"
+      ]
+    },
+    "装备": {
+      "type": "RESOURCE",
+      "degree": 1,
+      "docs": [
+        "CASE6_打击红方防空阵地_2025.md"
+      ],
+      "text_units": [
+        "eb844211d780866c5be38ec9b19e69269f935a53ae7097854b644c1a8e482e88548c995d630f367ca4a088b21c3b88f70652e12fbae1aceca5f4a7468064c98f"
+      ]
+    },
+    "英国": {
+      "type": "ORGANIZATION",
+      "degree": 1,
+      "docs": [
+        "CASE7_打击化武设施_2018.md"
+      ],
+      "text_units": [
+        "e7f00aa8889f1be47276f9b1bf8f761621ab0acc15edd5a0463c9deace6929e750311157cbc69d750eb3427d2a27faae47aa4776e39bc62add284a5a561c00b5"
+      ]
+    },
+    "法国": {
+      "type": "ORGANIZATION",
+      "degree": 1,
+      "docs": [
+        "CASE7_打击化武设施_2018.md"
+      ],
+      "text_units": [
+        "e7f00aa8889f1be47276f9b1bf8f761621ab0acc15edd5a0463c9deace6929e750311157cbc69d750eb3427d2a27faae47aa4776e39bc62add284a5a561c00b5"
+      ]
+    },
+    "蒙特雷号巡洋舰": {
+      "type": "EQUIPMENT",
+      "degree": 1,
+      "docs": [
+        "CASE7_打击化武设施_2018.md"
+      ],
+      "text_units": [
+        "e7f00aa8889f1be47276f9b1bf8f761621ab0acc15edd5a0463c9deace6929e750311157cbc69d750eb3427d2a27faae47aa4776e39bc62add284a5a561c00b5"
+      ]
+    },
+    "希金斯号驱逐舰": {
+      "type": "EQUIPMENT",
+      "degree": 1,
+      "docs": [
+        "CASE7_打击化武设施_2018.md"
+      ],
+      "text_units": [
+        "e7f00aa8889f1be47276f9b1bf8f761621ab0acc15edd5a0463c9deace6929e750311157cbc69d750eb3427d2a27faae47aa4776e39bc62add284a5a561c00b5"
+      ]
+    },
+    "拉布恩号驱逐舰": {
+      "type": "EQUIPMENT",
+      "degree": 1,
+      "docs": [
+        "CASE7_打击化武设施_2018.md"
+      ],
+      "text_units": [
+        "e7f00aa8889f1be47276f9b1bf8f761621ab0acc15edd5a0463c9deace6929e750311157cbc69d750eb3427d2a27faae47aa4776e39bc62add284a5a561c00b5"
+      ]
+    },
+    "舰拉布恩号": {
+      "type": "EQUIPMENT",
+      "degree": 1,
+      "docs": [
+        "CASE7_打击化武设施_2018.md"
+      ],
+      "text_units": [
+        "50bb0fa230585deea5b71e293c56c7e0bb3839e7fcfb795ee6b78d6be106c75eec6eb5381d2a100a208e5c08292ffe00d94305141179693ed83bd978e78a76a3"
+      ]
+    },
+    "BARZAH研究与开发中心": {
+      "type": "TARGET",
+      "degree": 1,
+      "docs": [
+        "CASE7_打击化武设施_2018.md"
+      ],
+      "text_units": [
+        "50bb0fa230585deea5b71e293c56c7e0bb3839e7fcfb795ee6b78d6be106c75eec6eb5381d2a100a208e5c08292ffe00d94305141179693ed83bd978e78a76a3"
+      ]
+    },
+    "HIM SHINSHAR化武储存设施": {
+      "type": "TARGET",
+      "degree": 1,
+      "docs": [
+        "CASE7_打击化武设施_2018.md"
+      ],
+      "text_units": [
+        "50bb0fa230585deea5b71e293c56c7e0bb3839e7fcfb795ee6b78d6be106c75eec6eb5381d2a100a208e5c08292ffe00d94305141179693ed83bd978e78a76a3"
+      ]
+    },
+    "地下掩体综合体": {
+      "type": "TARGET",
+      "degree": 1,
+      "docs": [
+        "CASE7_打击化武设施_2018.md"
+      ],
+      "text_units": [
+        "50bb0fa230585deea5b71e293c56c7e0bb3839e7fcfb795ee6b78d6be106c75eec6eb5381d2a100a208e5c08292ffe00d94305141179693ed83bd978e78a76a3"
+      ]
+    },
+    "化武相关设施": {
+      "type": "TARGET",
+      "degree": 1,
+      "docs": [
+        "CASE7_打击化武设施_2018.md"
+      ],
+      "text_units": [
+        "50bb0fa230585deea5b71e293c56c7e0bb3839e7fcfb795ee6b78d6be106c75eec6eb5381d2a100a208e5c08292ffe00d94305141179693ed83bd978e78a76a3"
+      ]
+    },
+    "法军": {
+      "type": "ORGANIZATION",
+      "degree": 1,
+      "docs": [
+        "CASE7_打击化武设施_2018.md"
+      ],
+      "text_units": [
+        "54eb29379fd996246c2a7a821e1f829587bda6402d5af4ea77e95801df56fda766552f5ebc8a1f62a9c548fd1d9a9a22519e4a273283f59e44fe9f76284cbc4c"
+      ]
+    },
+    "共享装备数据库": {
+      "type": "RESOURCE",
+      "degree": 1,
+      "docs": [
+        "CASE7_打击化武设施_2018.md"
+      ],
+      "text_units": [
+        "2e1b7bd201e3b31a3d877f8591ee014fdf94fdcfa5e49173b4b8278adc8df974f1faaf2beae55c7ce482d898134d6a7a99c4376f45befe864bc0b9fb8bcc2205"
+      ]
+    },
+    "化武研发中心": {
+      "type": "TARGET",
+      "degree": 1,
+      "docs": [
+        "CASE7_打击化武设施_2018.md"
+      ],
+      "text_units": [
+        "2e1b7bd201e3b31a3d877f8591ee014fdf94fdcfa5e49173b4b8278adc8df974f1faaf2beae55c7ce482d898134d6a7a99c4376f45befe864bc0b9fb8bcc2205"
+      ]
+    },
+    "红外成像": {
+      "type": "PARAM",
+      "degree": 1,
+      "docs": [
+        "CASE7_打击化武设施_2018.md"
+      ],
+      "text_units": [
+        "2e1b7bd201e3b31a3d877f8591ee014fdf94fdcfa5e49173b4b8278adc8df974f1faaf2beae55c7ce482d898134d6a7a99c4376f45befe864bc0b9fb8bcc2205"
+      ]
+    },
+    "EC-130H罗盘": {
+      "type": "EQUIPMENT",
+      "degree": 0,
+      "docs": [
+        "CASE1_白雪行动_1991.md"
+      ],
+      "text_units": [
+        "f9c650114f5a5e3fc044d46f7c7fa21dc8a8fb14025dbbc102d0fb43586b2d582585eae857e04f78129f185fdbc69404f8d68c0ff59c71439c6da3249bdfb3c9"
+      ]
+    },
+    "压制": {
+      "type": "TASK",
+      "degree": 0,
+      "docs": [
+        "CASE1_白雪行动_1991.md"
+      ],
+      "text_units": [
+        "b2517b870ffd7b2725a59fb2e7bda18760cd6f21f76b98cec3605cf30c9f1dfe2d8566150133c4e11b82ec81b205ce98499b5434097d197868594c6eb74dcda7"
+      ]
+    },
+    "伊拉克雷达与指挥系统": {
+      "type": "TARGET",
+      "degree": 0,
+      "docs": [
+        "CASE1_白雪行动_1991.md"
+      ],
+      "text_units": [
+        "c185bd472823f67f00d500dbdc69058df949a1508722afa3bfa9cd7e8280f3baf760580c9dc921033e9b1d25b37a5cf1b2fd4ad125efff4875c6f510c8c18ffc"
+      ]
+    },
+    "飞行员风险": {
+      "type": "PARAM",
+      "degree": 0,
+      "docs": [
+        "CASE2_沙伊拉特打击_2017.md"
+      ],
+      "text_units": [
+        "35b457555fad5f9e24e2cadecfa76a84f8d2fc01ccc000baf9415b70c712646d86ab8913fcb90840f89c874beb7eedca9bfd7b67194d61d0434bae077a97abdf"
+      ]
+    },
+    "突防需求": {
+      "type": "PARAM",
+      "degree": 0,
+      "docs": [
+        "CASE2_沙伊拉特打击_2017.md"
+      ],
+      "text_units": [
+        "35b457555fad5f9e24e2cadecfa76a84f8d2fc01ccc000baf9415b70c712646d86ab8913fcb90840f89c874beb7eedca9bfd7b67194d61d0434bae077a97abdf"
+      ]
+    },
+    "叙利亚内战": {
+      "type": "TASK",
+      "degree": 0,
+      "docs": [
+        "CASE2_沙伊拉特打击_2017.md"
+      ],
+      "text_units": [
+        "ec166f1d72705750136662273a6b0b8a59fef3f6cb8cf2bc11b6539eca405134c9c7958d623548e8a0c7f6a5d19d548890a6a75a2745189720c0bded2f3bad4e"
+      ]
+    },
+    "诡雷": {
+      "type": "TARGET",
+      "degree": 0,
+      "docs": [
+        "CASE3_击杀巴格达迪_2019.md"
+      ],
+      "text_units": [
+        "eafa26556e0030cd367f88e8b9bbfc63bfb83144d4614d1d04e9ca355a38c76d89beb6891abaae5ae86f006c41fbbf80a0cc66d19564328fe19987fade3552e6"
+      ]
+    },
+    "两名美军": {
+      "type": "COMBAT_UNIT",
+      "degree": 0,
+      "docs": [
+        "CASE3_击杀巴格达迪_2019.md"
+      ],
+      "text_units": [
+        "f22d2bf367eeefa550ebeb1053af49d19ceadf2d47cd042b29b9045983eb11cbfbe8d2ffadd1180f70539b7e87608daa24fc6dd7472986d681e8b29a30c2c8c8"
+      ]
+    },
+    "夜行者直升机": {
+      "type": "EQUIPMENT",
+      "degree": 0,
+      "docs": [
+        "CASE3_击杀巴格达迪_2019.md"
+      ],
+      "text_units": [
+        "f22d2bf367eeefa550ebeb1053af49d19ceadf2d47cd042b29b9045983eb11cbfbe8d2ffadd1180f70539b7e87608daa24fc6dd7472986d681e8b29a30c2c8c8"
+      ]
+    },
+    "埃尔比勒": {
+      "type": "ENVIRONMENT",
+      "degree": 0,
+      "docs": [
+        "CASE3_击杀巴格达迪_2019.md"
+      ],
+      "text_units": [
+        "f22d2bf367eeefa550ebeb1053af49d19ceadf2d47cd042b29b9045983eb11cbfbe8d2ffadd1180f70539b7e87608daa24fc6dd7472986d681e8b29a30c2c8c8"
+      ]
+    },
+    "土耳其与俄罗斯控制的空域": {
+      "type": "ENVIRONMENT",
+      "degree": 0,
+      "docs": [
+        "CASE3_击杀巴格达迪_2019.md"
+      ],
+      "text_units": [
+        "f22d2bf367eeefa550ebeb1053af49d19ceadf2d47cd042b29b9045983eb11cbfbe8d2ffadd1180f70539b7e87608daa24fc6dd7472986d681e8b29a30c2c8c8"
+      ]
+    },
+    "小型多用途直升机": {
+      "type": "EQUIPMENT",
+      "degree": 0,
+      "docs": [
+        "CASE3_击杀巴格达迪_2019.md"
+      ],
+      "text_units": [
+        "396ade05dc0e8ba5f4a69e0cbf693fa80e6e56550e60ce5ba0ba121909f734c2bdce467a319a392e385615a7fe820baf57e0ea8a6191349cac91a954c95acee2"
+      ]
+    },
+    "现场": {
+      "type": "ENVIRONMENT",
+      "degree": 0,
+      "docs": [
+        "CASE3_击杀巴格达迪_2019.md"
+      ],
+      "text_units": [
+        "396ade05dc0e8ba5f4a69e0cbf693fa80e6e56550e60ce5ba0ba121909f734c2bdce467a319a392e385615a7fe820baf57e0ea8a6191349cac91a954c95acee2"
+      ]
+    },
+    "近乎静音": {
+      "type": "PARAM",
+      "degree": 0,
+      "docs": [
+        "CASE4_击杀苏莱曼尼_2020.md"
+      ],
+      "text_units": [
+        "ad20c5363d4af89fedc5be521eb0e7ae1a970942a3329e58dec9bf9d60db81b38c05c68f88cb522cc3847e7ed902de5c5d1ec8a3b733b3a423da7c209e18425c"
+      ]
+    },
+    "弹道导弹": {
+      "type": "EQUIPMENT",
+      "degree": 0,
+      "docs": [
+        "CASE4_击杀苏莱曼尼_2020.md"
+      ],
+      "text_units": [
+        "6bf995b6c98227f82983bd6bc69a86fe9d0bbd27b25999fe2010963377d88c6c2e8b010b1557d9cc79b60533e2c9d3a47c1ca847e592ccff85f14550b62a6159"
+      ]
+    },
+    "流星-2改进型": {
+      "type": "PARAM",
+      "degree": 0,
+      "docs": [
+        "CASE4_击杀苏莱曼尼_2020.md"
+      ],
+      "text_units": [
+        "6bf995b6c98227f82983bd6bc69a86fe9d0bbd27b25999fe2010963377d88c6c2e8b010b1557d9cc79b60533e2c9d3a47c1ca847e592ccff85f14550b62a6159"
+      ]
+    },
+    "翼下挂架": {
+      "type": "MOUNT",
+      "degree": 0,
+      "docs": [
+        "CASE4_击杀苏莱曼尼_2020.md"
+      ],
+      "text_units": [
+        "fb8e23f1b9610ecb4030a1dbb5354a10af901fc24528243e9f5a3bf49bf6990038bd67d11000f4ba6405373256687cede956ecea6c104907ca965c6e1d36796e"
+      ]
+    },
+    "民兵组织": {
+      "type": "COMBAT_UNIT",
+      "degree": 0,
+      "docs": [
+        "CASE5_打击85处目标_2024.md"
+      ],
+      "text_units": [
+        "b8eb21ead6af73c5d5459515146dae6a455017d449b37211b1d0f1de1db07e5877df86c36be511f1cfb965eafbdd090deb8581f0737864d55b576d5afefcc330"
+      ]
+    },
+    "作战能力": {
+      "type": "PARAM",
+      "degree": 0,
+      "docs": [
+        "CASE5_打击85处目标_2024.md"
+      ],
+      "text_units": [
+        "884fc1f62d0e1f9976ca66b1873ebd55c237903a1ff9d1fee8862044def666d95de00f4c1120de3d2243f92cb2f0437614e44db06d0a9140183d68f4408cfab1"
+      ]
+    },
+    "防区外打击": {
+      "type": "TASK",
+      "degree": 0,
+      "docs": [
+        "CASE6_打击红方防空阵地_2025.md"
+      ],
+      "text_units": [
+        "80dd86a5860e616a22dfc6cbf6eabbe3adf3e90fd1ad9fdb5cf81b7fbe56c6cc506104a6f8b836646b727cced5aea5317db613a534b28cab68b6854367ad48d7"
+      ]
+    },
+    "分离式弹头": {
+      "type": "PARAM",
+      "degree": 0,
+      "docs": [
+        "CASE6_打击红方防空阵地_2025.md"
+      ],
+      "text_units": [
+        "913ab1fe5c160fe07c04a8e24bbc63141cbfe28c3c46db87a0d9d62dd854f5465636b390e276f2c284a1ca03ca0b1c34cb9ed2033a514077fb3e9ad41bab7d66"
+      ]
+    },
+    "复合制导": {
+      "type": "PARAM",
+      "degree": 0,
+      "docs": [
+        "CASE6_打击红方防空阵地_2025.md"
+      ],
+      "text_units": [
+        "913ab1fe5c160fe07c04a8e24bbc63141cbfe28c3c46db87a0d9d62dd854f5465636b390e276f2c284a1ca03ca0b1c34cb9ed2033a514077fb3e9ad41bab7d66"
+      ]
+    },
+    "有效载荷": {
+      "type": "PARAM",
+      "degree": 0,
+      "docs": [
+        "CASE6_打击红方防空阵地_2025.md"
+      ],
+      "text_units": [
+        "913ab1fe5c160fe07c04a8e24bbc63141cbfe28c3c46db87a0d9d62dd854f5465636b390e276f2c284a1ca03ca0b1c34cb9ed2033a514077fb3e9ad41bab7d66"
+      ]
+    },
+    "反舰导弹": {
+      "type": "TASK",
+      "degree": 0,
+      "docs": [
+        "CASE6_打击红方防空阵地_2025.md"
+      ],
+      "text_units": [
+        "913ab1fe5c160fe07c04a8e24bbc63141cbfe28c3c46db87a0d9d62dd854f5465636b390e276f2c284a1ca03ca0b1c34cb9ed2033a514077fb3e9ad41bab7d66"
+      ]
+    },
+    "巡航导弹": {
+      "type": "TASK",
+      "degree": 0,
+      "docs": [
+        "CASE6_打击红方防空阵地_2025.md"
+      ],
+      "text_units": [
+        "913ab1fe5c160fe07c04a8e24bbc63141cbfe28c3c46db87a0d9d62dd854f5465636b390e276f2c284a1ca03ca0b1c34cb9ed2033a514077fb3e9ad41bab7d66"
+      ]
+    },
+    "海空联合打击": {
+      "type": "TASK",
+      "degree": 0,
+      "docs": [
+        "CASE7_打击化武设施_2018.md"
+      ],
+      "text_units": [
+        "54eb29379fd996246c2a7a821e1f829587bda6402d5af4ea77e95801df56fda766552f5ebc8a1f62a9c548fd1d9a9a22519e4a273283f59e44fe9f76284cbc4c"
+      ]
+    },
+    "防区外": {
+      "type": "PARAM",
+      "degree": 0,
+      "docs": [
+        "CASE7_打击化武设施_2018.md"
+      ],
+      "text_units": [
+        "ce907af448a3a873e32d13e1984ec94bd1192b12c1f41cf2245b1bc2a9d6a3a5e40c6bebf618ecf8999cfd25aa0cb426f60181345d8bb37723198a7f00a3fd55"
+      ]
+    },
+    "惯性导航": {
+      "type": "PARAM",
+      "degree": 0,
+      "docs": [
+        "CASE7_打击化武设施_2018.md"
+      ],
+      "text_units": [
+        "2e1b7bd201e3b31a3d877f8591ee014fdf94fdcfa5e49173b4b8278adc8df974f1faaf2beae55c7ce482d898134d6a7a99c4376f45befe864bc0b9fb8bcc2205"
+      ]
+    }
+  }
+}

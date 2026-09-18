@@ -1,0 +1,295 @@
+# -*- coding: utf-8 -*-
+"""
+memsys.evolution.memory_evolution — 记忆进化（创新重点，模块 A）
+=================================================================
+四操作实现（docs/04 2.4 节），全部"只写"（检索层只读——避坑点 3）：
+
+  ① write   写入：从复盘对话抽取候选 → 去重（相似度阈值 θ，PREMem 链接对
+            思路：cosine > θ 判定重复）→ 落库（事实→SQLite，经验→向量库）
+  ② merge   合并：找相似簇 → LLM/规则融合为一条 → merged_from 记录来源（可回放）
+  ③ forget  遗忘：艾宾浩斯 R=e^(-t/S)（MemoryBank）——
+            R < forget_threshold 且 importance 不高的条目删除；
+            "重要"标准可配（如 importance >= 2.0 永不删——失败教训保命）
+  ④ abstract 抽象：多条同主题经验 → LLM 摘要成一条高阶"作战教训"
+            （TiM Post-thinking / StructMem 周期整合思路）
+
+每一步都写入 op_history，支撑 G4 消融的"进化可回放、可解释"。
+"""
+
+from __future__ import annotations
+
+import time
+from dataclasses import dataclass, field
+from typing import Dict, List, Tuple
+
+from ..schema import MemoryEntry, MemoryType, MemoryOp, new_entry
+from ..llm import LLMClient
+from ..embeddings import MemoryVectorIndex, MockEmbedding, cosine
+from ..boundary import MemoryBoundary
+from ..stages import attr_stage
+from ..long_term.factual_store import FactualStore
+from ..long_term.experiential_store import ExperientialStore
+
+
+@dataclass
+class EvolutionReport:
+    """一次进化调用的报告（消融实验直接统计此对象）。"""
+
+    wrote: List[str] = field(default_factory=list)      # 写入的条目 id
+    merged: List[Tuple[str, List[str]]] = field(default_factory=list)  # (新id, 来源ids)
+    forgot: List[str] = field(default_factory=list)     # 遗忘的条目 id
+    abstracted: List[str] = field(default_factory=list) # 抽象产出的条目 id
+    skipped: List[str] = field(default_factory=list)    # 去重跳过的候选
+
+    def summary(self) -> Dict[str, int]:
+        return {"write": len(self.wrote), "merge": len(self.merged),
+                "forget": len(self.forgot), "abstract": len(self.abstracted),
+                "skip_duplicate": len(self.skipped)}
+
+
+class MemoryEvolution:
+    """记忆进化器：只被 controller 在'场次结束/复盘后'调用。
+
+    参数：
+        merge_theta:    相似度阈值 θ（PREMem 用 0.6；MockEmbedding 分布不同，
+                        默认 0.80——消融时可扫描）
+        forget_threshold: 等效'天数'——R 衰减到该值以下且不重要则遗忘
+        protected_importance: importance ≥ 该值的条目永不遗忘（失败教训保护线）
+    """
+
+    def __init__(self, factual: FactualStore, experiential: ExperientialStore,
+                 llm: LLMClient, embedding: MockEmbedding,
+                 merge_theta: float = 0.80, forget_threshold: float = 0.30,
+                 protected_importance: float = 2.0,
+                 boundary: "MemoryBoundary | None" = None) -> None:
+        self.factual = factual
+        self.experiential = experiential
+        self.llm = llm
+        self.vindex = MemoryVectorIndex(embedding)  # 进化专用临时索引（查重/聚类）
+        self.merge_theta = merge_theta
+        self.forget_threshold = forget_threshold
+        self.protected_importance = protected_importance
+        # 长短期边界管理器：短期→长期晋升的唯一门控（docs/04 避坑点2/6）
+        # 缺省自建；controller 注入同一实例以便审计日志集中
+        self.boundary = boundary or MemoryBoundary()
+        # 【v0.6】遗忘墓碑日志：记录每条被遗忘记忆的元信息/原因/时间，
+        # 供 WebUI 抽屉面板与 CLI 展示"何时遗忘/为什么遗忘"。
+        # 注意：遗忘仍为硬删除（存储不保留），墓碑是审计/可视化依据。
+        self.forgotten_log: list = []
+
+    # ---------------------------------------------------------------- ① 写入
+    def write(self, type_: MemoryType, content: str, source: str = "",
+              session_id: str = "", importance: float = 1.0,
+              attrs: Dict | None = None) -> str | None:
+        """写入一条记忆（带查重：与同库现有条目 cosine > θ 判重复，跳过）。
+
+        返回新条目 id；重复则返回 None 并由调用方统计 skip。
+        """
+        store = self.factual if type_ == MemoryType.FACT else self.experiential
+        # --- 查重（PREMem 链接对：相似度阈值判定"是否已有此知识"） ---
+        # 直接逐条比对（库规模万级内足够快；换 FAISS 后可走索引检索）
+        # 【性能修复】旧实现对每个候选重复 embed(existing.content)——
+        # 而该向量在 store.add() 时已算过并存在 vindex 里。改为直接读
+        # 缓存向量，查重从 O(n×embed) 降到 O(n×cosine)，n 大时快 100×。
+        new_vec = self.vindex.model.embed(content)   # 新内容的向量（只算一次）
+        dup = None
+        best_sim = -1.0                               # 记录“最像的现有条目”
+        for cid in store.candidates():                # 遍历同库全部现有条目
+            existing = store.get(cid)
+            if existing is None:
+                continue
+            # 优先读库里已缓存的向量（factual/experiential 的 vindex
+            # 在 add() 时已登记）；Miss 时才现算并回填
+            if cid in store.vindex:
+                cand_vec = store.vindex._vectors[cid]      # 直接读缓存，避免重复 embed
+            else:
+                cand_vec = store.vindex.model.embed(existing.content)
+                store.vindex.add(cid, existing.content)    # 补登记进缓存
+            sim = cosine(new_vec, cand_vec)                # 语义相似度（余弦）
+            if sim > best_sim:                             # 保留最相似的那个
+                best_sim, dup = sim, existing
+        if dup is not None and best_sim > self.merge_theta:
+            return None  # 重复：相似度超过阈值 θ，跳过写入（调用方计 skip）
+
+        entry = new_entry(type_, content, source=source, session_id=session_id,
+                          importance=importance,
+                          metadata=attrs or {}, op_history=[MemoryOp.WRITE.value])
+        store.add(entry)
+        return entry.id
+
+    # ---------------------------------------------------------------- ② 合并
+    def merge(self, entry_ids: List[str]) -> str | None:
+        """把多条相似记忆合并为一条（内容融合 + merged_from 溯源）。
+
+        真模型：LLM 融合改写；Mock：拼接去重行（保底）。
+        """
+        if len(entry_ids) < 2:
+            return None
+        entries: List[MemoryEntry] = []
+        for eid in entry_ids:
+            e = self.factual.get(eid) or self.experiential.get(eid)
+            if e:
+                entries.append(e)
+        if len(entries) < 2:
+            return None
+        merged_content = self.llm.summarize(
+            "\n".join(sorted({e.content for e in entries})), max_words=150)
+        base = entries[0]
+        merged = new_entry(
+            base.type, merged_content, source="merge", session_id=base.session_id,
+            importance=max(e.importance for e in entries),
+            merged_from=[e.id for e in entries],
+            op_history=[MemoryOp.MERGE.value],
+            # 保留被合并者的阶段标签（否则合并产物丢失 stage 亲和资格）
+            metadata={"stage": base.metadata.get("stage", "")},
+        )
+        store = self.factual if merged.type == MemoryType.FACT else self.experiential
+        store.add(merged)
+        for e in entries:  # 删除被合并者（内容已进 merged）
+            store.remove(e.id)
+        return merged.id
+
+    # ---------------------------------------------------------------- ③ 遗忘
+    def forget(self, now: float | None = None) -> List[str]:
+        """按艾宾浩斯衰减淘汰低价值记忆，返回被遗忘的 id 列表。
+
+        规则（MemoryBank + 保护线）：
+          R = e^(-t/S) < forget_threshold 且 importance < protected_importance → 删
+        注意：本方法只做"硬删除"；检索侧的 mark_recalled() 已实现'命中强化'，
+        使常用记忆 S 增大、更难被遗忘——两机制共同构成完整遗忘模型。
+        """
+        now = now if now is not None else time.time()
+        forgot: List[str] = []
+        for store in (self.factual, self.experiential):
+            for cid in list(store.candidates()):
+                e = store.get(cid)
+                if e is None:
+                    continue
+                if e.importance >= self.protected_importance:
+                    continue  # 失败教训等重要条目保护
+                if e.retention(now) < self.forget_threshold:
+                    self.forgotten_log.append({
+                        "id": e.id, "type": e.type.value, "content": e.content,
+                        "source": e.source, "session_id": e.session_id,
+                        "importance": e.importance,
+                        "decay_strength": e.decay_strength,
+                        "retention": round(e.retention(now), 4),
+                        "forgotten_at": now,
+                        "reason": (f"R={e.retention(now):.3f} < "
+                                   f"threshold={self.forget_threshold}"),
+                        "op_history": list(e.op_history),
+                    })
+                    store.remove(cid)
+                    forgot.append(cid)
+        if len(self.forgotten_log) > 1000:      # 防无限增长（保留最近 1000 条墓碑）
+            self.forgotten_log = self.forgotten_log[-1000:]
+        return forgot
+
+    # ---------------------------------------------------------------- ④ 抽象
+    def abstract(self, entry_ids: List[str], theme: str = "") -> str | None:
+        """把多条同主题经验抽象为一条高阶教训（TiM Post-thinking）。
+
+        与 merge 的区别：merge 是"去重式合并"（内容基本相同）；
+        abstract 是"升华式抽象"（多条具体经验 → 一条通用原则）。
+        """
+        entries = []
+        for eid in entry_ids:
+            e = self.factual.get(eid) or self.experiential.get(eid)
+            if e:
+                entries.append(e)
+        if len(entries) < 2:
+            return None
+        material = "\n".join(f"- {e.content}" for e in entries)
+        # 【评审修复】改用 llm.abstract（指令留在实现侧）——此前把带
+        # "请抽象出 1 条…"指令前缀的 prompt 整段喂给 summarize，Mock 的
+        # 抽取式摘要会把指令文本写进记忆并永久入库（演示未暴露是因为
+        # 种子复盘只有单句、不触发 ≥2 条的抽象条件）。
+        abstract_text = self.llm.abstract(material, theme=theme or "综合")
+        if not abstract_text:
+            return None
+        abstract_entry = new_entry(
+            MemoryType.EXPERIENCE, abstract_text, source="abstract",
+            session_id=entries[0].session_id,
+            importance=max(e.importance for e in entries) + 0.5,  # 抽象经验更重要
+            merged_from=[e.id for e in entries],
+            op_history=[MemoryOp.ABSTRACT.value],
+            # 保留源经验的阶段标签 + 主题（抽象教训仍参与阶段亲和）
+            metadata={"theme": theme,
+                      "stage": entries[0].metadata.get("stage", "")},
+        )
+        self.experiential.add(abstract_entry)
+        return abstract_entry.id
+
+    # ---------------------------------------------------------------- 复盘驱动入口
+    def evolve_from_review(self, review_dialogue: str, session_id: str = "") -> EvolutionReport:
+        """场次复盘驱动的进化入口（pipeline ⑦ 直接调它）。
+
+        流程（LLM 抽取 → 写入（查重）→ 合并 → 遗忘 → 抽象）：
+          1. llm.extract_memory_ops() 从复盘文本抽取操作建议（真模型时是 LLM，
+             Mock 时是关键词规则——接口不变）；
+          2. 逐条 write（重复自动跳过）；
+          3. 对同类型条目做一次相似簇 merge（θ 阈值成对判重）；
+          4. forget() 淘汰衰减记忆；
+          5. 对"失败教训簇"做 abstract（演示抽象操作）。
+        """
+        report = EvolutionReport()
+        ops = self.llm.extract_memory_ops(review_dialogue)
+        new_ids_by_type: Dict[str, List[str]] = {"fact": [], "experience": []}
+
+        # 1) 写入（含查重 + 边界晋升门控）
+        for op in ops:
+            if op.get("op") != "write":
+                continue  # MVP：只处理 write 建议；merge/forget 由周期任务触发
+            mtype = MemoryType.FACT if op.get("type") == "fact" else MemoryType.EXPERIENCE
+            # ★ 边界门控（docs/04 避坑点 2/6）：复盘候选过 promote()——
+            #   未命中事实/经验模板的"场次内容"被拒绝晋升（留在短期归档，不丢），
+            #   每次决策进 boundary.audit_log() 可审计。
+            gate = self.boundary.promote(op.get("content", ""))
+            if not gate.allowed:
+                report.skipped.append(
+                    f"[边界拒绝] {op.get('content', '')[:40]}… ({gate.reason[:40]})")
+                continue
+            # ★ 阶段归因（本轮升级：stage-aware memory）——
+            #   教训归因到规划阶段写入 metadata.stage，下场**同阶段**检索
+            #   时被 hybrid 的亲和加分优先召回（"阶段对阶段"的经验复用）。
+            #   MVP 关键词模板归因；接真模型换 LLM 归因（接口不变）。
+            stage = attr_stage(op.get("content", ""))
+            new_id = self.write(mtype, op.get("content", ""),
+                                source=f"复盘:{session_id}", session_id=session_id,
+                                importance=float(op.get("importance", 1.0)),
+                                attrs={"stage": stage})
+            if new_id:
+                report.wrote.append(new_id)
+                new_ids_by_type[mtype.value].append(new_id)
+            else:
+                report.skipped.append(op.get("content", "")[:50])
+
+        # 2) 合并（新写入条目两两查重，超阈值则 merge）
+        for mtype_value, ids in new_ids_by_type.items():
+            i = 0
+            while i < len(ids) - 1:
+                e1 = self.factual.get(ids[i]) or self.experiential.get(ids[i])
+                e2 = self.factual.get(ids[i + 1]) or self.experiential.get(ids[i + 1])
+                if e1 and e2:
+                    v1 = self.vindex.model.embed(e1.content)
+                    v2 = self.vindex.model.embed(e2.content)
+                    if cosine(v1, v2) > self.merge_theta:
+                        mid = self.merge([e1.id, e2.id])
+                        if mid:
+                            report.merged.append((mid, [e1.id, e2.id]))
+                            ids[i] = mid  # 合并产物继续参与后续比对
+                            ids.pop(i + 1)
+                            continue
+                i += 1
+
+        # 3) 遗忘（周期性；此处每场复盘触发一次）
+        report.forgot = self.forget()
+
+        # 4) 抽象（失败教训 ≥2 条时升华一条通用教训）
+        exp_ids = [eid for eid in new_ids_by_type["experience"]]
+        if len(exp_ids) >= 2:
+            aid = self.abstract(exp_ids, theme="本场复盘教训")
+            if aid:
+                report.abstracted.append(aid)
+
+        return report

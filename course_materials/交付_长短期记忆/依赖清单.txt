@@ -1,0 +1,39 @@
+# long_short_term_memory 引擎 · 依赖清单
+
+## 运行环境（我们侧实测）
+
+| 组件 | 版本 |
+|---|---|
+| Python | 3.12 / 3.14（标准库，零第三方依赖） |
+
+## 必需依赖
+
+| 包 | 版本要求 | 用途 |
+|---|---|---|
+| 无第三方包 | — | SQLite、HTTP、向量计算均使用 Python 标准库 |
+
+说明：
+- 事实库使用 `sqlite3`（标准库）；
+- 向量索引为内存实现，不使用 faiss / qdrant-client；
+- HTTP 真模型调用使用 `urllib`（标准库）。
+
+## 可选：真模型（非引擎运行必需）
+
+若需语义质量更高，可配置 DeepSeek / GLM API 访问：
+
+| 项 | 配置 |
+|---|---|
+| DeepSeek LLM | `DEEPSEEK_API_KEY`、`DEEPSEEK_MODEL`（默认 `deepseek-flash`） |
+| GLM LLM | `GLM_API_KEY`、`GLM_MODEL` |
+| GLM Embedding | `GLM_API_KEY`、`GLM_EMBED_MODEL`（默认 `embedding-2`） |
+
+无密钥时引擎自动使用 `MockLLM` / `MockEmbedding`，不阻断启动。
+
+## 明确不需要的依赖
+
+| 包 | 说明 |
+|---|---|
+| faiss / qdrant-client | 向量索引为内存 dict + numpy-free 余弦实现 |
+| pandas / pyarrow | 不读 parquet |
+| torch / sentence-transformers | 运行期不做深度学习向量化 |
+| 任何 LLM SDK | 使用标准库 `urllib` 直连 HTTP API |

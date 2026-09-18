@@ -1,0 +1,45 @@
+# command_graph 引擎 · 依赖清单
+
+## 运行环境（我们侧实测）
+
+| 组件 | 版本 |
+|---|---|
+| Python | 3.12.6 |
+| pandas | 2.3.3 |
+| pyarrow | 22.0.0 |
+| numpy | 2.5.3（pandas 自带依赖） |
+
+## 必需依赖
+
+| 包 | 版本要求 | 用途 |
+|---|---|---|
+| pandas | >= 2.0 | 读取图谱 parquet |
+| pyarrow | >= 14 | parquet 解析后端 |
+
+安装（若目标环境缺）：
+
+```
+pip install "pandas>=2.0" "pyarrow>=14"
+```
+
+## 明确不需要的依赖
+
+| 包 | 说明 |
+|---|---|
+| neo4j / qdrant-client | 本引擎不直连图库与向量库（通用图查询由内建 graph_rag 承担） |
+| graphrag | 仅在离线构建索引阶段使用（我们侧），运行期不需要 |
+| torch / sentence-transformers / onnxruntime | 运行期不做向量化 |
+| 任何 LLM SDK | 本引擎只做检索，不生成 |
+
+## pip freeze 摘录（我们侧环境）
+
+```
+numpy==2.5.3
+pandas==2.3.3
+pyarrow==22.0.0
+```
+
+## 备注
+
+- 引擎对 pandas / pyarrow 只用公开稳定 API（`pandas.read_parquet` 等），无版本敏感写法；
+- 若智戎环境已有 pandas / pyarrow，直接复用即可，无需为接入单独装依赖。

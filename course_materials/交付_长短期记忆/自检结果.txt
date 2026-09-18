@@ -1,0 +1,89 @@
+==============================================================================
+
+长短期记忆引擎（long_short_term_memory）交付自检
+
+自检时间：2026-09-18 15:00
+
+自检对象：交付包内 server/engines/long_short_term_memory/
+
+==============================================================================
+
+【1】契约自检（scripts/validate_engine.py long_short_term_memory，离线）
+
+------------------------------------------------------------------------------
+
+[OK] 契约自检通过
+
+
+   name         = long_short_term_memory
+
+
+   engine_label = 长短期记忆
+
+
+   engine_color = #2E86AB
+
+
+   version      = 1.0.0
+
+
+   contract     = 1.0.0
+
+
+   能力: ingest=False delete=False generate=False stream=False
+
+
+   suffixes=[] granularity=file backend=memsys(sqlite+vector)
+
+
+   （重启服务后 GET /api/v2/memory-engine/engines 应能看到该引擎）
+
+退出码：0（通过）
+
+
+
+【2】功能与检索字段抽查（本地 SDK 契约桩 + 预置记忆）
+
+------------------------------------------------------------------------------
+
+[OK] engine_plugin 是 LongShortTermMemoryEngine 实例
+
+[OK] search 返回非空（1 条）
+
+[OK] 每条 content 非空字符串
+
+[OK] 每条 score 归一化 0~1（实测 0.4765）
+
+[OK] 每条 source_file 非绝对路径（'sdk_check'）
+
+[OK] 每条 chunk_id 存在
+
+[OK] 每条 engine 自报名（long_short_term_memory）
+
+[OK] 每条 metadata 为 dict
+
+[OK] 检索异常向上抛（注入 RuntimeError 验证，未吞成空列表）
+
+[OK] check_availability 返回 True
+
+[OK] check_availability 在 TTL 内使用缓存
+
+[OK] check_availability 过期后重新探测（未永久缓存）
+
+[OK] 经验库可命中（memory_type=experience）
+
+功能检查：全部通过，退出码 0
+
+
+
+【3】结论
+
+------------------------------------------------------------------------------
+
+契约自检：通过（validate_plugin 违规项 0）
+
+功能抽查：通过（五字段齐全、score 归一到 0~1、source_file 非绝对路径、
+          异常上抛、check_availability 带 TTL）
+
+说明：HTTP 冒烟（scripts/smoke_test_engine.py long_short_term_memory）
+      需在智戎服务端启动后执行，见《接入说明.md》§5。
