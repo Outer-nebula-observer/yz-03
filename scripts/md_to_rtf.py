@@ -262,7 +262,7 @@ def convert(md_text: str) -> str:
     rtf = re.sub(r"[^\x00-\x7f]", lambda m: escape(m.group(0)), rtf)
     # 清理数字章节号前后的多余空格（连续 2+ 压缩为 1，保留正常中英间距）
     rtf = re.sub(r"(\s{2,})(?=\d+\.\d+)", " ", rtf)
-    rtf = re.sub(r"(?<=\d+\.\d+)(\s{2,})", " ", rtf)
+    rtf = re.sub(r"(\d+\.\d+)(\s{2,})", lambda m: m.group(1) + " ", rtf)
     return rtf
 
 
