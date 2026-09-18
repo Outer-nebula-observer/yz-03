@@ -1,0 +1,76 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1480" height="1140" viewBox="0 0 1480 1140" font-family="'Microsoft YaHei','PingFang SC','Noto Sans CJK SC',sans-serif">
+  <defs>
+    <marker id="arw-52514E" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#52514E"/>
+    </marker>
+  </defs>
+
+  <text x="90.00" y="92.73" font-size="37.33px" font-weight="600" fill="#0B0B0B">代码分层架构</text>
+  <text x="90.00" y="129.60" font-size="24.00px" font-weight="400" fill="#52514E">入口/演示 → 编排 → 跨切面 → 能力层 → 模型层 / 外部抽象</text>
+
+  <!-- ① 入口 / 演示 -->
+  <rect x="90.00" y="170.00" width="1260.00" height="140.00" rx="12.00" fill="#F9F9F7" stroke="#E1E0D9" stroke-width="1.49"/>
+  <text x="114.00" y="206.00" font-size="26.67px" font-weight="600" fill="#0B0B0B">入口 / 演示</text>
+  <text x="360.00" y="206.00" font-size="20.00px" font-weight="400" fill="#898781">调用方：实验管线、CLI、WebUI、智戎适配</text>
+  <rect x="114.00" y="224.00" width="288.00" height="58.00" rx="9.00" fill="#FFFFFF" stroke="#DCDBD4" stroke-width="1.49"/>
+  <rect x="422.00" y="224.00" width="288.00" height="58.00" rx="9.00" fill="#FFFFFF" stroke="#DCDBD4" stroke-width="1.49"/>
+  <rect x="730.00" y="224.00" width="288.00" height="58.00" rx="9.00" fill="#FFFFFF" stroke="#DCDBD4" stroke-width="1.49"/>
+  <rect x="1038.00" y="224.00" width="288.00" height="58.00" rx="9.00" fill="#FFFFFF" stroke="#DCDBD4" stroke-width="1.49"/>
+  <text x="258.00" y="259.00" font-size="21.33px" font-weight="400" fill="#0B0B0B" text-anchor="middle">pipeline.py</text>
+  <text x="566.00" y="259.00" font-size="21.33px" font-weight="400" fill="#0B0B0B" text-anchor="middle">examples/*</text>
+  <text x="874.00" y="259.00" font-size="21.33px" font-weight="400" fill="#0B0B0B" text-anchor="middle">webui/</text>
+  <text x="1182.00" y="259.00" font-size="21.33px" font-weight="400" fill="#0B0B0B" text-anchor="middle">integration/zhirong_kit/</text>
+
+  <!-- ② 编排 -->
+  <rect x="90.00" y="340.00" width="1260.00" height="110.00" rx="12.00" fill="#EAF2FD" stroke="#2A78D6" stroke-width="2.49"/>
+  <text x="114.00" y="376.00" font-size="26.67px" font-weight="600" fill="#0B0B0B">编排</text>
+  <text x="240.00" y="376.00" font-size="20.00px" font-weight="400" fill="#898781">唯一同时持有并调度四个能力模块</text>
+  <rect x="114.00" y="394.00" width="1212.00" height="46.00" rx="9.00" fill="#FFFFFF" stroke="#2A78D6" stroke-width="2.00"/>
+  <text x="720.00" y="423.00" font-size="21.33px" font-weight="600" fill="#0B0B0B" text-anchor="middle">controller.py（总调度：开始场次、检索装载、复盘进化）</text>
+
+  <!-- ③ 跨切面 -->
+  <rect x="90.00" y="480.00" width="1260.00" height="110.00" rx="12.00" fill="#FDEEE7" stroke="#EB6834" stroke-width="2.49"/>
+  <text x="114.00" y="516.00" font-size="26.67px" font-weight="600" fill="#0B0B0B">跨切面</text>
+  <text x="240.00" y="516.00" font-size="20.00px" font-weight="400" fill="#898781">门控与阶段逻辑，横切写入与检索</text>
+  <rect x="114.00" y="534.00" width="596.00" height="46.00" rx="9.00" fill="#FFFFFF" stroke="#EB6834" stroke-width="2.00"/>
+  <rect x="730.00" y="534.00" width="596.00" height="46.00" rx="9.00" fill="#FFFFFF" stroke="#EB6834" stroke-width="2.00"/>
+  <text x="412.00" y="563.00" font-size="21.33px" font-weight="600" fill="#0B0B0B" text-anchor="middle">boundary.py（边界门控）</text>
+  <text x="1028.00" y="563.00" font-size="21.33px" font-weight="600" fill="#0B0B0B" text-anchor="middle">stages.py（MDMP 阶段）</text>
+
+  <!-- ④ 能力层 -->
+  <rect x="90.00" y="620.00" width="1260.00" height="150.00" rx="12.00" fill="#E6F7F1" stroke="#1BAF7A" stroke-width="2.49"/>
+  <text x="114.00" y="656.00" font-size="26.67px" font-weight="600" fill="#0B0B0B">能力层</text>
+  <text x="240.00" y="656.00" font-size="20.00px" font-weight="400" fill="#898781">四个模块互不依赖，只通过 schema 数据对象交互</text>
+  <rect x="114.00" y="674.00" width="288.00" height="52.00" rx="9.00" fill="#FFFFFF" stroke="#1BAF7A" stroke-width="1.49"/>
+  <rect x="422.00" y="674.00" width="288.00" height="52.00" rx="9.00" fill="#FFFFFF" stroke="#1BAF7A" stroke-width="1.49"/>
+  <rect x="730.00" y="674.00" width="288.00" height="52.00" rx="9.00" fill="#FFFFFF" stroke="#1BAF7A" stroke-width="1.49"/>
+  <rect x="1038.00" y="674.00" width="288.00" height="52.00" rx="9.00" fill="#FFFFFF" stroke="#1BAF7A" stroke-width="1.49"/>
+  <text x="258.00" y="706.00" font-size="21.33px" font-weight="400" fill="#0B0B0B" text-anchor="middle">short_term/</text>
+  <text x="566.00" y="706.00" font-size="21.33px" font-weight="400" fill="#0B0B0B" text-anchor="middle">long_term/</text>
+  <text x="874.00" y="706.00" font-size="21.33px" font-weight="400" fill="#0B0B0B" text-anchor="middle">retrieval/</text>
+  <text x="1182.00" y="706.00" font-size="21.33px" font-weight="400" fill="#0B0B0B" text-anchor="middle">evolution/</text>
+  <text x="114.00" y="752.00" font-size="20.00px" font-weight="400" fill="#898781">工作记忆 · 事实/经验双库 · 三路混合检索 · 写/合/忘/抽</text>
+
+  <!-- ⑤ 模型层 -->
+  <rect x="90.00" y="800.00" width="1260.00" height="100.00" rx="12.00" fill="#EDEBF7" stroke="#4A3AA7" stroke-width="2.49"/>
+  <text x="114.00" y="836.00" font-size="26.67px" font-weight="600" fill="#0B0B0B">模型层</text>
+  <text x="240.00" y="836.00" font-size="20.00px" font-weight="400" fill="#898781">被所有模块依赖，自身不依赖任何人</text>
+  <rect x="114.00" y="852.00" width="1212.00" height="34.00" rx="9.00" fill="#FFFFFF" stroke="#4A3AA7" stroke-width="1.49"/>
+  <text x="720.00" y="875.00" font-size="20.00px" font-weight="600" fill="#0B0B0B" text-anchor="middle">schema.py（唯一数据模型：MemoryEntry / QueryItem / RetrievedMemory）</text>
+
+  <!-- ⑥ 外部抽象 -->
+  <rect x="90.00" y="930.00" width="1260.00" height="100.00" rx="12.00" fill="#FDF3E1" stroke="#EDA100" stroke-width="2.49"/>
+  <text x="114.00" y="966.00" font-size="26.67px" font-weight="600" fill="#0B0B0B">外部抽象</text>
+  <text x="240.00" y="966.00" font-size="20.00px" font-weight="400" fill="#898781">Mock 与真实模型可替换，业务代码不感知</text>
+  <rect x="114.00" y="982.00" width="1212.00" height="34.00" rx="9.00" fill="#FFFFFF" stroke="#EDA100" stroke-width="1.49"/>
+  <text x="720.00" y="1005.00" font-size="20.00px" font-weight="600" fill="#0B0B0B" text-anchor="middle">llm.py / embeddings.py（Mock ↔ DeepSeek / GLM）</text>
+
+  <!-- 调用/依赖方向 -->
+  <path d="M720.0,310.0 L720.0,338.0" fill="none" stroke="#52514E" stroke-width="2.00" marker-end="url(#arw-52514E)"/>
+  <path d="M720.0,450.0 L720.0,478.0" fill="none" stroke="#52514E" stroke-width="2.00" marker-end="url(#arw-52514E)"/>
+  <path d="M720.0,590.0 L720.0,618.0" fill="none" stroke="#52514E" stroke-width="2.00" marker-end="url(#arw-52514E)"/>
+  <path d="M720.0,770.0 L720.0,798.0" fill="none" stroke="#52514E" stroke-width="2.00" marker-end="url(#arw-52514E)"/>
+  <path d="M720.0,900.0 L720.0,928.0" fill="none" stroke="#52514E" stroke-width="2.00" marker-end="url(#arw-52514E)"/>
+
+  <text x="90.00" y="1092.00" font-size="20.00px" font-weight="400" fill="#898781">箭头表示调用/依赖方向；能力层只依赖模型层与外部抽象，模块之间不直接 import。</text>
+</svg>
