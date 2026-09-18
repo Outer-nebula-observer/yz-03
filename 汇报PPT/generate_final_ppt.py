@@ -36,10 +36,10 @@ PAGES = [
  {"type":"agenda","title":"目录 CONTENTS","items":["01 问题与思路","02 相关工作与启发","03 系统设计与实现","04 实验设计与验证","05 智戎接入与总结展望"],"note":"【配图】无。\n【讲稿】按五部分走，重点在系统设计与实验验证。","image":""},
  # ---------------- 01 问题与思路 ----------------
  {"type":"section","num":"01","title":"问题与思路","subtitle":"PROBLEM & APPROACH","image":"","note":"【配图】可放 docs/figures/fig2_campaign_trajectory.png 作背景。\n【讲稿】先讲‘为什么需要外部记忆’。","image2":""},
- {"type":"content","tag":"01 · 问题与思路","title":"课题背景","items":["作战规划智能体以场次接任务：目标→查询→检索→规划→推演→复盘→下一场","模型与上下文都不保留跨场次状态，同类错误会反复出现","长上下文只解决容量，RAG 只解决知识供给，均不解决经验沉淀/更新/淘汰","目标：在模型之外构建可读写、可演化、可审计的外部记忆系统"],"note":"【配图】无。\n【讲稿】用‘同一夜间进攻任务，第一场隘口遇伏，第二场大概率再吃亏’举例。","image":""},
+ {"type":"content","tag":"01 · 问题与思路","title":"课题背景","items":["作战规划智能体以场次接任务：目标→查询→检索→规划→推演→复盘→下一场","模型与上下文都不保留跨场次状态，同类错误会反复出现","长上下文只解决容量，RAG 只解决知识供给，均不解决经验沉淀/更新/淘汰","目标：在模型之外构建可读写、可演化、可审计的外部记忆系统","配图占位：七步闭环示意图"],"note":"【配图】本页右侧图位：放 docs/figures/fig2_campaign_trajectory.png（多轮战役轨迹/七步闭环示意图）。\n【讲稿】用‘同一夜间进攻任务，第一场隘口遇伏，第二场大概率再吃亏’举例。","image":"七步闭环示意图（docs/figures/fig2_campaign_trajectory.png 或手绘）"},
  {"type":"content","tag":"01 · 问题与思路","title":"五个失败模式","items":["P1 经验不积累：场次间无状态传递，同样错误重复出现","P2 上下文超限：粗暴截断可能丢失硬约束，规划违反约束","P3 查询口径混杂：参数精确与经验语义同路，互相干扰","P4 库噪声：复盘无差别入库，长期库变成日志不可审计","P5 目标检索弱：直接用任务目标文本查询，语义信息量不足"],"note":"【配图】无。\n【讲稿】P1-P4 来自初始问题拆解，P5 来自导师反馈。","image":""},
  {"type":"content","tag":"01 · 问题与思路","title":"五个研究问题 RQ1-RQ5","items":["RQ1 双库贡献：事实/经验分库是否带来可测召回增益","RQ2 跨场次复用：第一场复盘能否被第二场召回","RQ3 检索策略：三路融合相对单路是否有增益","RQ4 滤噪与遗忘：阈值能否滤噪、遗忘是否不误删","RQ5 真实模型：DeepSeek 是否实际引用装载记忆"],"note":"【配图】无。\n【讲稿】实验章节会逐个回答。","image":""},
- {"type":"content","tag":"01 · 问题与思路","title":"总体思路","items":["外部系统：把记忆组织成可演化结构，不止检索增强","复盘晋升：短期→长期唯一写通道，三道门控","建议-执行分离：LLM 提候选，确定性代码执行写/合/忘/抽","阶段感知：MDMP 七阶段生成查询，对口记忆加分"],"note":"【配图】无。\n【讲稿】一句话：把跨场次知识做成可回放、可审计的外部系统。","image":""},
+ {"type":"content","tag":"01 · 问题与思路","title":"总体思路","layout":"grid2x2","items":["外部系统：把记忆组织成可演化结构，不止检索增强","复盘晋升：短期→长期唯一写通道，三道门控","建议-执行分离：LLM 提候选，确定性代码执行写/合/忘/抽","阶段感知：MDMP 七阶段生成查询，对口记忆加分"],"note":"【配图】无。\n【讲稿】一句话：把跨场次知识做成可回放、可审计的外部系统。","image":""},
  # ---------------- 02 相关工作与启发 ----------------
  {"type":"section","num":"02","title":"相关工作与启发","subtitle":"RELATED WORK & INSPIRATION","image":"","note":"【配图】可放 docs/figures/fig1_architecture.png 作背景。\n【讲稿】说明借鉴什么、不采用什么。","image2":""},
  {"type":"content","tag":"02 · 相关工作与启发","title":"上下文组织与工作记忆","items":["综述框架（Zhang 2024）：记忆的‘形式-操作-应用’分层","MemGPT：主上下文+外部存档，本文改为确定性阈值换页","SCM：控制器显式决定读/写/归档，本文收敛为复盘晋升","LLMLingua/LongLLMLingua/ICAE：位置偏置与‘只压历史不压约束’"],"note":"【配图】无。\n【讲稿】每条都说明：借鉴什么、为什么不完整照搬。","image":""},
@@ -67,14 +67,14 @@ PAGES = [
  {"type":"thanks","title":"感谢聆听 · 欢迎交流","subtitle":"国防科技大学 · 课题3 · 长短期记忆系统","note":"【配图】可放校徽（可选）。\n【讲稿】感谢，进入提问。","image":""},
 ]
 
-# ================================================================ 绘图
+# ================================================================ 绘图（增强版）
 prs = Presentation()
 prs.slide_width = SW
 prs.slide_height = SH
 BLANK = prs.slide_layouts[6]
 TOTAL = len(PAGES)
 
-def _set_font(run, size, bold=False, color=DARK, mono=False):
+def _font(run, size, bold=False, color=DARK, mono=False):
     run.font.size = Pt(size)
     run.font.bold = bold
     run.font.color.rgb = color
@@ -85,12 +85,11 @@ def add_text(slide, text, left, top, width, height, size=18, bold=False,
     tb = slide.shapes.add_textbox(Cm(left), Cm(top), Cm(width), Cm(height))
     tf = tb.text_frame
     tf.word_wrap = True
-    lines = str(text).split("\n")
-    for i, ln in enumerate(lines):
+    for i, ln in enumerate(str(text).split("\n")):
         p = tf.paragraphs[0] if i == 0 else tf.add_paragraph()
         p.alignment = align
         r = p.add_run(); r.text = ln
-        _set_font(r, size, bold, color, mono)
+        _font(r, size, bold, color, mono)
     return tb
 
 def add_rect(slide, left, top, width, height, fill=None, line=None):
@@ -104,15 +103,25 @@ def add_rect(slide, left, top, width, height, fill=None, line=None):
         shp.line.fill.background()
     else:
         shp.line.color.rgb = line
-        shp.line.width = Pt(1)
+        shp.line.width = Pt(1.2)
+    shp.shadow.inherit = False
+    return shp
+
+def add_round(slide, left, top, width, height, fill=LIGHT):
+    shp = slide.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE,
+                                 Cm(left), Cm(top), Cm(width), Cm(height))
+    shp.adjustments[0] = 0.08
+    shp.fill.solid(); shp.fill.fore_color.rgb = fill
+    shp.line.color.rgb = LINE; shp.line.width = Pt(1)
     shp.shadow.inherit = False
     return shp
 
 def add_header(slide, tag, title):
     if tag:
-        add_text(slide, tag, 1.8, 0.9, 12, 1.0, size=13, color=ACCENT, bold=True)
-        add_rect(slide, 1.8, 1.6, 2.0, 0.12, fill=ACCENT)
-    add_text(slide, title, 1.8, 1.8, 30, 1.8, size=30, bold=True, color=PRIMARY)
+        add_text(slide, tag, 2.35, 0.85, 14, 0.8, size=13, color=ACCENT, bold=True)
+    add_rect(slide, 1.8, 1.5, 0.4, 2.5, fill=ACCENT)
+    add_text(slide, title, 2.5, 1.75, 29, 1.9, size=40, bold=True, color=PRIMARY)
+    add_rect(slide, 1.8, 4.05, 30.0, 0.04, fill=LINE)
 
 def add_footer(slide, idx):
     add_rect(slide, 0, 18.35, 33.87, 0.03, fill=LINE)
@@ -120,74 +129,149 @@ def add_footer(slide, idx):
     add_text(slide, f"{idx} / {TOTAL}", 28.5, 18.5, 4.0, 0.5, size=10, color=GREY,
              align=PP_ALIGN.RIGHT)
 
-def add_bullets(slide, items, left=2.2, top=4.2, width=29, height=11.5, size=17, gap=0.9):
+def add_corner_decor(slide, color=ACCENT):
+    for x0, y0, dx, dy in [(1.8,1.6,1.6,0.06),(1.8,17.3,1.6,0.06),
+                           (30.4,1.6,1.6,0.06),(30.4,17.3,1.6,0.06)]:
+        add_rect(slide, x0, y0, dx, dy, fill=color)
+    for x0, y0, dx, dy in [(1.8,1.6,0.06,1.2),(1.8,16.76,0.06,1.2),
+                           (31.94,1.6,0.06,1.2),(31.94,16.76,0.06,1.2)]:
+        add_rect(slide, x0, y0, dx, dy, fill=color)
+
+def add_image_box(slide, left, top, width, height):
+    shp = add_rect(slide, left, top, width, height, fill=LIGHT, line=ACCENT)
+    # 留空，由备注说明配图
+
+def split_head_body(item):
+    for sep in ("：", ":"):
+        if sep in item:
+            head, body = item.split(sep, 1)
+            return head.strip(), body.strip()
+    return "", item.strip()
+
+def render_cards(slide, items, left=2.0, top=4.5, width=29.8, gap=0.22, height=1.72, number=True):
+    # 条目较多时自动压缩卡片高度，避免超出页面
+    n = len([x for x in items if x])
+    if n >= 6:
+        height = 1.42
+        gap = 0.12
+        head_size, body_size = 13, 12
+    else:
+        head_size, body_size = 16, 13.5
+    y = top
     for i, item in enumerate(items):
         if not item:
             continue
-        add_text(slide, "•", left, top + i * gap, 0.7, 1.0, size=size, color=ACCENT, bold=True)
-        add_text(slide, item, left + 0.9, top + i * gap, width - 0.9, 1.3, size=size, color=DARK)
+        head, body = split_head_body(item)
+        card_h = height
+        add_round(slide, left, y, width, card_h)
+        add_rect(slide, left, y, 0.22, card_h, fill=ACCENT)
+        if number:
+            add_text(slide, f"{i+1:02d}", left+0.45, y+0.15, 1.5, 1.1, size=20,
+                     bold=True, color=ACCENT)
+            tx = left + 1.6
+        else:
+            tx = left + 0.5
+        if head:
+            add_text(slide, head, tx, y+0.12, width-2.2, 0.6, size=head_size, bold=True, color=PRIMARY)
+            add_text(slide, body, tx, y+0.68, width-2.2, 0.7, size=body_size, color=GREY)
+        else:
+            add_text(slide, body, tx, y+0.4, width-2.2, 0.8, size=body_size+1, color=DARK)
+        y += card_h + gap
+    return y
 
-def add_code(slide, code, left=2.2, top=7.2, width=29, height=9.0):
-    add_rect(slide, left, top, width, height, fill=LIGHT, line=LINE)
-    add_text(slide, code, left + 0.6, top + 0.4, width - 1.2, height - 0.8,
-             size=13, color=PRIMARY, mono=True)
+def render_grid2x2(slide, items, left=2.0, top=4.6, width=29.8, height=5.6, gap=0.8):
+    for i, item in enumerate(items[:4]):
+        if not item:
+            continue
+        col = i % 2
+        row = i // 2
+        x = left + col * (width/2 + gap/2)
+        y = top + row * (height + 0.6)
+        w = width/2 - gap/2
+        head, body = split_head_body(item)
+        add_round(slide, x, y, w, height)
+        add_rect(slide, x, y, 0.22, height, fill=ACCENT)
+        add_text(slide, f"0{i+1}", x+0.6, y+0.4, 1.6, 1.2, size=28, bold=True, color=ACCENT)
+        if head:
+            add_text(slide, head, x+0.7, y+1.25, w-1.4, 1.0, size=20, bold=True, color=PRIMARY)
+            add_text(slide, body, x+0.7, y+2.35, w-1.4, height-2.6, size=15, color=GREY)
+        else:
+            add_text(slide, body, x+0.7, y+1.7, w-1.4, height-2.0, size=16, color=DARK)
 
-def add_image_box(slide, left, top, width, height):
-    add_rect(slide, left, top, width, height, fill=LIGHT, line=ACCENT)
-    # 留空，不写字；由备注说明配图
+def add_code_block(slide, code, left=2.0, top=8.4, width=29.8, height=8.4):
+    add_rect(slide, left, top, width, 0.7, fill=PRIMARY)
+    add_text(slide, "代码 / 伪代码", left+0.5, top+0.08, 8, 0.55, size=13, bold=True,
+             color=RGBColor(0xFF,0xFF,0xFF))
+    add_rect(slide, left, top+0.7, width, height-0.7, fill=LIGHT, line=LINE)
+    add_text(slide, code, left+0.6, top+0.95, width-1.2, height-1.4,
+             size=12, color=PRIMARY, mono=True)
 
 def set_notes(slide, text):
     slide.notes_slide.notes_text_frame.text = text
 
+# ================================================================ 生成
 def build():
     for idx, p in enumerate(PAGES, 1):
         slide = prs.slides.add_slide(BLANK)
         t = p["type"]
         if t == "cover":
             add_rect(slide, 0, 0, 33.87, 19.05, fill=PRIMARY)
-            add_text(slide, p["title"], 3.0, 6.0, 27.8, 4.0, size=40, bold=True,
+            add_corner_decor(slide, RGBColor(0xFF,0xFF,0xFF))
+            add_rect(slide, 14.5, 5.4, 4.9, 0.06, fill=RGBColor(0x9A,0xB0,0xD0))
+            add_text(slide, "GRADUATE PROJECT · FINAL REPORT", 4.0, 2.6, 26, 1.0,
+                     size=14, color=RGBColor(0xC7,0xD3,0xE8), align=PP_ALIGN.CENTER)
+            add_text(slide, p["title"], 3.0, 6.2, 27.8, 4.2, size=50, bold=True,
                      color=RGBColor(0xFF,0xFF,0xFF), align=PP_ALIGN.CENTER)
-            for i, ln in enumerate(p["subtitle"].split("\n")):
-                add_text(slide, ln, 3.0, 11.1 + i*0.9, 27.8, 1.0, size=16,
+            sub_lines = p["subtitle"].split("\n")
+            for i, ln in enumerate(sub_lines):
+                add_text(slide, ln, 4.0, 11.4 + i*1.0, 26, 0.9, size=17,
                          color=RGBColor(0xC7,0xD3,0xE8), align=PP_ALIGN.CENTER)
         elif t == "agenda":
-            add_header(slide, "", p["title"])
+            add_header(slide, "CONTENTS", p["title"])
             for i, item in enumerate(p["items"]):
-                y = 4.2 + i * 2.2
-                add_text(slide, f"{i+1:02d}", 3.2, y, 1.5, 1.4, size=26, bold=True, color=ACCENT)
-                add_text(slide, item, 5.4, y + 0.15, 20, 1.4, size=22, color=DARK)
-                add_rect(slide, 3.2, y + 1.35, 25, 0.05, fill=LINE)
+                y = 4.6 + i * 2.35
+                add_round(slide, 3.0, y, 27.5, 1.9, fill=RGBColor(0xF7,0xF9,0xFC))
+                add_rect(slide, 3.22, y+0.25, 1.4, 1.4, fill=ACCENT)
+                add_text(slide, f"{i+1:02d}", 3.22, y+0.32, 1.4, 1.2, size=22,
+                         bold=True, color=RGBColor(0xFF,0xFF,0xFF), align=PP_ALIGN.CENTER)
+                add_text(slide, item, 5.2, y+0.5, 23, 1.2, size=24, bold=True, color=PRIMARY)
         elif t == "section":
             add_rect(slide, 0, 0, 33.87, 19.05, fill=PRIMARY)
-            add_text(slide, p["num"], 6.0, 4.0, 22, 5.0, size=80, bold=True,
-                     color=RGBColor(0x4C,0x68,0x9B), align=PP_ALIGN.CENTER)
-            add_text(slide, p["title"], 6.0, 10.0, 22, 2.5, size=38, bold=True,
-                     color=RGBColor(0xFF,0xFF,0xFF), align=PP_ALIGN.CENTER)
-            add_text(slide, p["subtitle"], 6.0, 12.7, 22, 1.2, size=14,
-                     color=RGBColor(0xC7,0xD3,0xE8), align=PP_ALIGN.CENTER)
+            # 右上装饰圆
+            c = slide.shapes.add_shape(MSO_SHAPE.OVAL, Cm(25.5), Cm(3.5), Cm(8), Cm(8))
+            c.fill.solid(); c.fill.fore_color.rgb = RGBColor(0x2C,0x4A,0x7C)
+            c.line.fill.background(); c.shadow.inherit = False
+            add_text(slide, p["num"], 5.0, 3.6, 14, 6.0, size=120, bold=True,
+                     color=RGBColor(0x4C,0x68,0x9B), align=PP_ALIGN.LEFT)
+            add_rect(slide, 5.2, 10.2, 6.0, 0.1, fill=RGBColor(0x9A,0xB0,0xD0))
+            add_text(slide, p["title"], 5.0, 10.8, 22, 2.8, size=50, bold=True,
+                     color=RGBColor(0xFF,0xFF,0xFF), align=PP_ALIGN.LEFT)
+            add_text(slide, p["subtitle"], 5.2, 13.6, 22, 1.2, size=16,
+                     color=RGBColor(0xC7,0xD3,0xE8), align=PP_ALIGN.LEFT)
         elif t == "content":
             add_header(slide, p.get("tag"), p["title"])
-            has_img = bool(p.get("image"))
-            if has_img:
-                add_bullets(slide, p["items"][:-1], left=2.2, top=4.4, width=17.5, height=11.5, size=16, gap=1.05)
-                add_image_box(slide, 21.2, 4.4, 10.5, 11.5)
+            items = p["items"]
+            if p.get("layout") == "grid2x2":
+                render_grid2x2(slide, items)
+            elif p.get("image"):
+                render_cards(slide, items[:-1], left=2.0, top=4.6, width=17.8, height=2.1, gap=0.22)
+                add_image_box(slide, 21.4, 4.6, 10.5, 11.4)
             else:
-                add_bullets(slide, p["items"], left=2.2, top=4.2, width=29, height=11.5, size=17, gap=1.0)
+                render_cards(slide, items, left=2.0, top=4.6, width=29.8, height=2.1, gap=0.22)
         elif t == "code":
             add_header(slide, p.get("tag"), p["title"])
-            body = p["items"]
-            # 前几行为说明，转成 bullet
-            add_bullets(slide, body[:3], left=2.2, top=4.0, width=29, height=3.2, size=15, gap=0.7)
-            add_code(slide, p["code"], left=2.2, top=7.6, width=29, height=9.0)
+            render_cards(slide, p["items"][:3], left=2.0, top=4.4, width=29.8, height=1.5, gap=0.2, number=False)
+            add_code_block(slide, p["code"], left=2.0, top=8.6, width=29.8, height=8.6)
         elif t == "thanks":
             add_rect(slide, 0, 0, 33.87, 19.05, fill=PRIMARY)
-            add_text(slide, p["title"], 3.0, 7.0, 27.8, 2.5, size=44, bold=True,
+            add_corner_decor(slide, RGBColor(0xFF,0xFF,0xFF))
+            add_text(slide, p["title"], 3.0, 7.2, 27.8, 3.0, size=54, bold=True,
                      color=RGBColor(0xFF,0xFF,0xFF), align=PP_ALIGN.CENTER)
-            add_text(slide, p["subtitle"], 3.0, 10.8, 27.8, 1.5, size=18,
+            add_text(slide, p["subtitle"], 3.0, 11.4, 27.8, 1.5, size=18,
                      color=RGBColor(0xC7,0xD3,0xE8), align=PP_ALIGN.CENTER)
-        if t not in ("cover","section","thanks"):
+        if t not in ("cover", "section", "thanks"):
             add_footer(slide, idx)
-        set_notes(slide, p.get("note",""))
+        set_notes(slide, p.get("note", ""))
 
     prs.save(PPTX)
     print(f"[OK] {PPTX} 已生成，共 {TOTAL} 页")
@@ -196,9 +280,10 @@ def export_md():
     lines = ["# 最终汇报 PPT 内容设计\n",
              "> 由 `汇报PPT/generate_final_ppt.py` 导出，供人工核对与配图。\n"]
     for idx, p in enumerate(PAGES, 1):
-        lines.append(f"\n## 第 {idx} 页｜{'封面' if p['type']=='cover' else '目录' if p['type']=='agenda' else '章节扉页' if p['type']=='section' else '代码页' if p['type']=='code' else '感谢页' if p['type']=='thanks' else '内容页'}")
+        kind = {"cover":"封面","agenda":"目录","section":"章节扉页","code":"代码页","thanks":"感谢页"}.get(p["type"],"内容页")
+        lines.append(f"\n## 第 {idx} 页｜{kind}")
         lines.append(f"- 标题：**{p.get('title','')}**")
-        if p.get("subtitle"): lines.append(f"- 副标题/说明：{p['subtitle']}")
+        if p.get("subtitle"): lines.append(f"- 副标题/说明：{p['subtitle'].replace(chr(10),' / ')}")
         if p.get("items"):
             lines.append("- 内容：")
             for it in p["items"]:
@@ -208,7 +293,7 @@ def export_md():
             lines.append(f"- **配图建议**：{p['image']}")
         else:
             lines.append("- 配图：无")
-        lines.append(f"- **备注/讲稿**：{p.get('note','')}")
+        lines.append(f"- **备注/讲稿**：{p.get('note','').replace(chr(10),' | ')}")
     with open(MD, "w", encoding="utf-8") as f:
         f.write("\n".join(lines))
     print(f"[OK] {MD} 已导出")
