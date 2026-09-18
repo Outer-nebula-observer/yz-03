@@ -324,6 +324,92 @@ def render_mapping_rows(slide, items, left=2.2, top=4.8, width=29.5, bottom=17.4
         add_rect(slide, left, y + step - 0.22, width, 0.025, fill=LINE)
 
 
+# 简易 Python 伪代码高亮
+KEYWORDS = {"def","return","if","else","elif","for","while","in","not","and","or",
+            "import","None","True","False","continue","break","from","with","try",
+            "except","raise","pass","lambda","as"}
+C_KW = RGBColor(0x1F, 0x3A, 0x68)
+C_FUNC = RGBColor(0x2F, 0x6E, 0xBA)
+C_STR = RGBColor(0xC0, 0x50, 0x4D)
+C_COMMENT = RGBColor(0x6A, 0x8B, 0x3B)
+C_NUM = RGBColor(0x7B, 0x4F, 0xA6)
+C_DEF = RGBColor(0x30, 0x30, 0x30)
+
+def tokenize_line(line):
+    """返回 [(token, kind)]，kind ∈ kw/func/str/comment/num/def/space/op。"""
+    out = []
+    i = 0
+    n = len(line)
+    while i < n:
+        ch = line[i]
+        if ch == "#":
+            out.append((line[i:], "comment")); break
+        if ch == "'" or ch == '"':
+            quote = ch
+            j = i + 1
+            while j < n and line[j] != quote:
+                j += 1
+            j = min(j + 1, n)
+            out.append((line[i:j], "str")); i = j; continue
+        if ch.isspace():
+            j = i
+            while j < n and line[j].isspace(): j += 1
+            out.append((line[i:j], "space")); i = j; continue
+        if ch.isdigit():
+            j = i
+            while j < n and (line[j].isdigit() or line[j] in "._"): j += 1
+            out.append((line[i:j], "num")); i = j; continue
+        if ch.isalpha() or ch == "_":
+            j = i
+            while j < n and (line[j].isalnum() or line[j] == "_"): j += 1
+            word = line[i:j]
+            if word in KEYWORDS:
+                out.append((word, "kw"))
+            elif j < n and line[j] == "(":
+                out.append((word, "func"))
+            else:
+                out.append((word, "def"))
+            i = j; continue
+        out.append((ch, "op")); i += 1
+    return out
+
+def add_code_rich(slide, code, left, top, width, height, size=11):
+    """彩色伪代码块（右侧区域）。"""
+    add_rect(slide, left, top, width, 0.7, fill=PRIMARY)
+    add_text(slide, "代码 / 伪代码", left+0.5, top+0.08, 10, 0.55, size=13, bold=True,
+             color=RGBColor(0xFF,0xFF,0xFF))
+    add_rect(slide, left, top+0.7, width, height-0.7, fill=LIGHT, line=LINE)
+    tb = slide.shapes.add_textbox(Cm(left+0.5), Cm(top+0.95), Cm(width-1.0), Cm(height-1.2))
+    tf = tb.text_frame
+    tf.word_wrap = False
+    first = True
+    for line in code.split("\n"):
+        p = tf.paragraphs[0] if first else tf.add_paragraph()
+        first = False
+        p.space_after = Pt(2)
+        for tok, kind in tokenize_line(line):
+            r = p.add_run(); r.text = tok
+            r.font.name = "Consolas"; r.font.size = Pt(size)
+            if kind == "comment":
+                r.font.color.rgb = C_COMMENT
+            elif kind == "str":
+                r.font.color.rgb = C_STR
+            elif kind == "kw":
+                r.font.color.rgb = C_KW; r.font.bold = True
+            elif kind == "func":
+                r.font.color.rgb = C_FUNC; r.font.bold = True
+            elif kind == "num":
+                r.font.color.rgb = C_NUM
+            else:
+                r.font.color.rgb = C_DEF
+
+def render_code_split(slide, p):
+    """代码页左右分栏：左说明占竖向，右彩色伪代码占竖向。"""
+    items = p["items"][:4]
+    render_vert_fill(slide, items, left=2.2, top=4.6, width=12.2, bottom=17.6)
+    add_code_rich(slide, p["code"], left=15.4, top=4.6, width=16.7, height=13.0, size=11)
+
+
 def add_code_block(slide, code, left=2.0, top=8.4, width=29.8, height=8.4):
     add_rect(slide, left, top, width, 0.7, fill=PRIMARY)
     add_text(slide, "代码 / 伪代码", left+0.5, top+0.08, 8, 0.55, size=13, bold=True,
@@ -393,14 +479,13 @@ def build():
             elif layout == "mapping_rows":
                 render_mapping_rows(slide, items)
             elif p.get("image"):
-                render_cards(slide, items[:-1], left=2.0, top=4.6, width=17.8, height=2.1, gap=0.22)
-                add_image_box(slide, 21.4, 4.6, 10.5, 11.4)
+                render_vert_fill(slide, items[:-1], left=2.2, top=4.6, width=16.8, bottom=17.6)
+                add_image_box(slide, 21.2, 4.6, 10.9, 12.9)
             else:
                 render_cards(slide, items, left=2.0, top=4.6, width=29.8, height=2.1, gap=0.22)
         elif t == "code":
             add_header(slide, p.get("tag"), p["title"])
-            render_cards(slide, p["items"][:3], left=2.0, top=4.4, width=29.8, height=1.5, gap=0.2, number=False)
-            add_code_block(slide, p["code"], left=2.0, top=8.6, width=29.8, height=8.6)
+            render_code_split(slide, p)
         elif t == "thanks":
             add_rect(slide, 0, 0, 33.87, 19.05, fill=PRIMARY)
             add_corner_decor(slide, RGBColor(0xFF,0xFF,0xFF))
