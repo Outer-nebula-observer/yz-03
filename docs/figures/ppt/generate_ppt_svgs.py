@@ -26,7 +26,7 @@ def defs():
 </defs>''')
 
 def txt(x,y,s,size=20,color=GREY,weight=400,anchor="start"):
-    return f'<text x="{x}" y="{y}" font-size="{size}px" font-weight="{weight}" fill="{color}" text-anchor="{anchor}">{esc(s)}</text>'
+    return f'<text x="{x}" y="{y}" font-size="{size}px" font-weight="{weight}" fill="{color}" text-anchor="{anchor}" font-family="Microsoft YaHei, SimHei, sans-serif">{esc(s)}</text>'
 
 def box(x,y,w,h,label="",sub="",stroke=BORDER,fill=WHITE,tsize=22,ssize=16,tcolor=BLACK):
     s=f'<rect x="{x}" y="{y}" width="{w}" height="{h}" rx="10" fill="{fill}" stroke="{stroke}" stroke-width="1.6"/>'
@@ -54,16 +54,20 @@ def head(w,title,sub=""):
     return s
 
 # ---------------- 各类版式 ----------------
-def render_icon(title, sub, letter, color, bg, w=640, h=360):
+def render_icon(title, sub, letter, color, bg, w=900, h=300):
     S = f'<svg xmlns="http://www.w3.org/2000/svg" width="{w}" height="{h}" viewBox="0 0 {w} {h}">' + defs()
     S += f'<rect x="0" y="0" width="{w}" height="{h}" fill="{WHITE}"/>'
-    S += band(24,24,w-48,h-48,"",bg,color)
-    S += f'<rect x="48" y="70" width="150" height="150" rx="24" fill="{color}"/>'
-    S += txt(123, 172, letter, 72, WHITE, 700, "middle")
-    S += txt(230, 130, title, 30, BLACK, 700)
-    S += txt(230, 175, sub, 20, GREY, 400)
+    S += f'<rect x="16" y="16" width="{w-32}" height="{h-32}" rx="18" fill="{bg}" stroke="{color}" stroke-width="3"/>'
+    # 左侧大编号
+    S += f'<rect x="32" y="32" width="{h-64}" height="{h-64}" rx="16" fill="{color}"/>'
+    S += f'<text x="{32+(h-64)/2}" y="{h/2+26}" font-size="110px" font-weight="700" fill="{WHITE}" text-anchor="middle" font-family="Microsoft YaHei, SimHei, sans-serif">{esc(letter)}</text>'
+    # 右侧标题/副标
+    tx = h-16
+    S += f'<text x="{tx}" y="{h/2-14}" font-size="52px" font-weight="700" fill="{BLACK}" font-family="Microsoft YaHei, SimHei, sans-serif">{esc(title)}</text>'
+    S += f'<text x="{tx}" y="{h/2+42}" font-size="30px" font-weight="400" fill="{GREY}" font-family="Microsoft YaHei, SimHei, sans-serif">{esc(sub)}</text>'
     S += '</svg>'
     return S
+
 
 def render_cards(title, sub, items, cols=4, w=1000, h=560):
     S = f'<svg xmlns="http://www.w3.org/2000/svg" width="{w}" height="{h}" viewBox="0 0 {w} {h}">' + defs()
@@ -167,16 +171,16 @@ TASKS = [
  dict(f="ppt_zhirong", kind="flow", w=900,h=1060, title="智戎事件驱动适配", sub="三挂接点 → P0 生命周期适配",
       items=["hook_plan","hook_feedback","hook_evolve","normalize_task"]),
  # 小图（失败模式 5 + RQ 5，3.2cm 宽）
- dict(f="ppt_p1", kind="icon", w=640,h=360, title="P1 经验不积累", sub="场次间无状态传递", letter="P1", color=BLUE, bg=BLUE_BG),
- dict(f="ppt_p2", kind="icon", w=640,h=360, title="P2 上下文超限", sub="硬约束可能丢失", letter="P2", color=ORANGE, bg=ORANGE_BG),
- dict(f="ppt_p3", kind="icon", w=640,h=360, title="P3 查询口径混杂", sub="精确与语义同路", letter="P3", color=GREEN, bg=GREEN_BG),
- dict(f="ppt_p4", kind="icon", w=640,h=360, title="P4 库噪声", sub="复盘无差别入库", letter="P4", color=PURPLE, bg=PURPLE_BG),
- dict(f="ppt_p5", kind="icon", w=640,h=360, title="P5 目标检索弱", sub="目标文本信息太薄", letter="P5", color=YELLOW, bg=YELLOW_BG),
- dict(f="ppt_rq1", kind="icon", w=640,h=360, title="RQ1 双库贡献", sub="G2 vs G3 消融", letter="RQ1", color=BLUE, bg=BLUE_BG),
- dict(f="ppt_rq2", kind="icon", w=640,h=360, title="RQ2 跨场次复用", sub="第一场→第二场", letter="RQ2", color=ORANGE, bg=ORANGE_BG),
- dict(f="ppt_rq3", kind="icon", w=640,h=360, title="RQ3 检索策略", sub="hybrid vs 单路", letter="RQ3", color=GREEN, bg=GREEN_BG),
- dict(f="ppt_rq4", kind="icon", w=640,h=360, title="RQ4 滤噪与遗忘", sub="阈值/保护线", letter="RQ4", color=PURPLE, bg=PURPLE_BG),
- dict(f="ppt_rq5", kind="icon", w=640,h=360, title="RQ5 真实模型", sub="DeepSeek 引用率", letter="RQ5", color=YELLOW, bg=YELLOW_BG),
+ dict(f="ppt_p1", kind="icon", w=900,h=300, title="P1 经验不积累", sub="场次间无状态传递", letter="P1", color=BLUE, bg=BLUE_BG),
+ dict(f="ppt_p2", kind="icon", w=900,h=300, title="P2 上下文超限", sub="硬约束可能丢失", letter="P2", color=ORANGE, bg=ORANGE_BG),
+ dict(f="ppt_p3", kind="icon", w=900,h=300, title="P3 查询口径混杂", sub="精确与语义同路", letter="P3", color=GREEN, bg=GREEN_BG),
+ dict(f="ppt_p4", kind="icon", w=900,h=300, title="P4 库噪声", sub="复盘无差别入库", letter="P4", color=PURPLE, bg=PURPLE_BG),
+ dict(f="ppt_p5", kind="icon", w=900,h=300, title="P5 目标检索弱", sub="目标文本信息太薄", letter="P5", color=YELLOW, bg=YELLOW_BG),
+ dict(f="ppt_rq1", kind="icon", w=900,h=300, title="RQ1 双库贡献", sub="G2 vs G3 消融", letter="RQ1", color=BLUE, bg=BLUE_BG),
+ dict(f="ppt_rq2", kind="icon", w=900,h=300, title="RQ2 跨场次复用", sub="第一场→第二场", letter="RQ2", color=ORANGE, bg=ORANGE_BG),
+ dict(f="ppt_rq3", kind="icon", w=900,h=300, title="RQ3 检索策略", sub="hybrid vs 单路", letter="RQ3", color=GREEN, bg=GREEN_BG),
+ dict(f="ppt_rq4", kind="icon", w=900,h=300, title="RQ4 滤噪与遗忘", sub="阈值/保护线", letter="RQ4", color=PURPLE, bg=PURPLE_BG),
+ dict(f="ppt_rq5", kind="icon", w=900,h=300, title="RQ5 真实模型", sub="DeepSeek 引用率", letter="RQ5", color=YELLOW, bg=YELLOW_BG),
  # 中图（无图位页面的备注建议图，1000x560）
  dict(f="ppt_four_principles", kind="cards", title="总体思路四原则", sub="外部系统 · 复盘晋升 · 建议执行分离 · 阶段感知",
       items=["外部系统","复盘晋升","建议-执行","阶段感知"]),

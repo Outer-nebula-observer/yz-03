@@ -295,7 +295,7 @@ def render_vert_fill(slide, items, left=2.2, top=4.8, width=29.5, bottom=17.4):
         add_rect(slide, left, y + step - 0.28, width, 0.03, fill=LINE)
 
 
-def render_icon_rows(slide, items, left=2.2, top=4.8, width=29.5, bottom=17.4, icon_w=3.2, icons=None):
+def render_icon_rows(slide, items, left=2.2, top=4.8, width=29.5, bottom=17.4, icon_w=6.0, icons=None):
     """五段横向行：编号+标题+正文，右侧预留小图框。"""
     valid = [x for x in items if x]
     n = len(valid)
@@ -316,7 +316,7 @@ def render_icon_rows(slide, items, left=2.2, top=4.8, width=29.5, bottom=17.4, i
         add_rect(slide, left, y + step - 0.25, width, 0.025, fill=LINE)
 
 
-def render_mapping_rows(slide, items, left=2.2, top=4.8, width=29.5, bottom=17.4, icon_w=3.0, icons=None):
+def render_mapping_rows(slide, items, left=2.2, top=4.8, width=29.5, bottom=17.4, icon_w=6.0, icons=None):
     """P→RQ 映射行：左侧来源标签 + 箭头 + RQ 标题/正文 + 右侧图位。"""
     valid = [x for x in items if x]
     n = len(valid)
