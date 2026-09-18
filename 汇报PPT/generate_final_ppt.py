@@ -57,13 +57,13 @@ PAGES = [
  # ---------------- 04 实验设计与验证 ----------------
  {"type":"section","num":"04","title":"实验设计与验证","subtitle":"EXPERIMENTS","image":"","note":"【配图】可放消融图（docs/17 配图脚本生成）作背景。\n【讲稿】进入数据章节，先声明词袋环境。","image2":""},
  {"type":"content","tag":"04 · 实验设计与验证","title":"数据集与评估协议","layout":"vert_fill","items":["实验目标与 RQ 对应：围绕 RQ1-RQ5 设计五组实验；每组独立 controller，避免跨组污染；固定 44 条检索用例，H 类 6 条单独跑跨场次流程。","测试集构建：自建 50 条 8 类（A-H），覆盖属性/事实/经验/词法/负例/干扰/阶段/跨场次；查询与答案刻意避免关键词共现，负例只测噪声。","对照与开关：G0-G6 通过依赖注入开关能力（空经验库/空检索器），不删减用例；跨场次 gold 在运行期解析，避免种子记忆被误当沉淀。","指标与统计：检索层 hit@3/5、MRR、NDCG；任务层 引用率/约束满足/噪声污染；统计用随机基线、bootstrap CI、配对置换检验，种子固定 42。"],"note":"【配图】无。\n【讲稿】重点讲‘固定用例+开关能力’，说明每组怎么对比。","image":""},
- {"type":"content","tag":"04 · 实验设计与验证","title":"双库贡献（RQ1）","layout":"numbered_list","items":["实验设计：G2 仅事实库 vs G3 双库全开，44 条固定检索用例，通过依赖注入开关经验库","总体结果：G2 hit@5=0.341，G3=0.636，Δ=0.295，配对置换 p=0.0001","置信区间：G3 bootstrap 95% CI=[0.500, 0.773]，与 G2 CI=[0.205, 0.477] 不重叠","分类别观察：增益全部来自经验类（C 0.625 / D 1.0 / G 1.0），事实类 A/B/F 不降","随机基线：0.357，G3 显著高于瞎猜，说明检索不是偶然","解读：分层不是冗余，经验库是经验查询的必要条件；残余失分在 C 类（词袋局限）"],"note":"【配图】建议放消融柱状图（docs/17 配图脚本：G2 vs G3 分类别 hit@5）。\n【讲稿】先讲实验设计，再给数字，最后讲分类别含义。","image":"消融柱状图（docs/17 §8.2 脚本生成）"},
+ {"type":"content","tag":"04 · 实验设计与验证","title":"双库贡献（RQ1）","layout":"stats_plus","items":["0.636：G3 双库全开 hit@5（G2 为 0.341）","p=0.0001：配对置换检验（n=44）","0.357：随机基线","0.625：C 类转述命中（词袋局限）","实验设计：G2 仅事实库 vs G3 双库全开，44 条固定检索用例，依赖注入开关经验库","置信区间与分类别：G3 CI=[0.500,0.773] 与 G2 CI=[0.205,0.477] 不重叠；增益来自经验类，事实类不降","解读：分层不是冗余，经验库是经验查询的必要条件"],"note":"【配图】建议放消融柱状图（docs/17 配图脚本：G2 vs G3 分类别 hit@5）。\n【讲稿】先看四个大数字，再讲实验设计、CI、分类别、解读。","image":"消融柱状图（docs/17 §8.2 脚本生成）"},
  {"type":"content","tag":"04 · 实验设计与验证","title":"跨场次与检索策略（RQ2/RQ3）","layout":"vert_fill","items":["RQ2 实验设计：第一场先跑复盘，把‘教训/经验’写入经验库；第二场用相关查询检索，gold 为运行期写入条目；对照不写第一场；另设负控（渡河教训 vs 巷战查询）。","RQ2 结果与解释：处理组 hit@5=0.833、对照 0、负控 0；p=0.059 但 n=6 样本有限，只能算方向性证据——机制路径完整，需要扩容到 20 条再下结论。","RQ3 实验设计：同一批检索用例分别跑 hybrid 与 vector/bm25/sql 单路；权重变体（α.7 等）做敏感性；指标含 hit@5、MRR、干扰压制。","RQ3 结果与解释：词袋下 hybrid 0.857 未超 vector 0.929；但干扰压制 1.0 优于单路 ≤0.875；结论：混合的价值在排序，召回增益需真向量复测。"],"note":"【配图】可放跨场次 WebUI 截图（第二场命中带‘往场沉淀’）或表格。\n【讲稿】RQ2 强调机制完整但样本小；RQ3 强调负结果要诚实。","image":"跨场次复用示意（WebUI 截图/表格）"},
- {"type":"content","tag":"04 · 实验设计与验证","title":"滤噪、遗忘与真实模型（RQ4/RQ5）","layout":"numbered_list","items":["滤噪实验：E 噪声扫描 0.05/0.10/0.16/0.25，测负例返回率与正例 hit@5","滤噪结果：min_score=0.16 负例返回率 0%，正例 hit@5=0.857；0.25 继续损失正例但无额外滤噪收益","遗忘实验：合成老化 30 天后运行 forget；未保护删 10/10、保护 0、新写 0，误删 0","遗忘解读：S×时间扫描显示命中强化 S+1 显著延长寿命；保护线按设计工作","RQ5 真模型：DeepSeek 20/20；T6 规划引用率 1.00、约束满足 1.00","限定：MockEmbedding 之上单次运行，结论为示范性证据，真向量需复测"],"note":"【配图】可放遗忘曲线（WebUI 截图）或 DeepSeek 输出截图。\n【讲稿】把实验步骤和限定词都讲清楚。","image":"遗忘曲线（WebUI 截图）/ DeepSeek T6 输出截图"},
+ {"type":"content","tag":"04 · 实验设计与验证","title":"滤噪、遗忘与真实模型（RQ4/RQ5）","layout":"stats_plus","items":["0%：负例返回率（min_score=0.16）","0：遗忘误删（保护线有效）","1.00：DeepSeek 引用率（20/20）","0.857：正例 hit@5 保持","滤噪实验：E 扫描 0.05/0.10/0.16/0.25，0.16 为当前网格拐点","遗忘实验：合成老化 30 天 forget，未保护删 10/10，保护/新写 0；S+1 显著延长寿命","真模型：20/20 通过，T6 引用 1.00、约束 1.00；限定词袋/单次，示范性证据"],"note":"【配图】可放遗忘曲线（WebUI 截图）或 DeepSeek 输出截图。\n【讲稿】先给四个大数字，再补实验步骤与限定。","image":"遗忘曲线（WebUI 截图）/ DeepSeek T6 输出截图"},
  # ---------------- 05 智戎接入与总结展望 ----------------
  {"type":"section","num":"05","title":"智戎接入与总结展望","subtitle":"INTEGRATION & OUTLOOK","image":"","note":"【配图】可放 docs/figures/fig2_campaign_trajectory.png 作背景。\n【讲稿】从‘能不能用’讲到‘怎么接’。","image2":""},
  {"type":"content","tag":"05 · 智戎接入与总结展望","title":"智戎事件驱动适配（P0 落地）","items":["hook_evolve：不依赖‘场次结束’，可随时触发进化","结构化反馈：AFSIM 数值/事件转复盘文本，失败补‘教训’","normalize_task：结构化任务 → goal/constraints/queries","domain_check：领域巡检 + min_score 建议，等待真实数据","配图占位：智戎接入/事件流图"],"note":"【配图】本页右侧图位：放 docs/figures/fig2_campaign_trajectory.png 或智戎桥接架构示意图。\n【讲稿】强调 P1（无结束信号）已有适配方案。","image":"智戎接入/事件流图（可复用 docs/figures/fig2_campaign_trajectory.png）"},
- {"type":"content","tag":"05 · 智戎接入与总结展望","title":"总结与展望","layout":"numbered_list","items":["结论：分层与进化机制在词袋固定设置下有效，双库 p=0.0001","真模型验证了检索-生成链路可用，引用率 1.00（示范性）","下一步：真向量重跑与重标定 min_score/θ","下一步：H 类扩至 20 条、知识锚定、冲突仲裁","下一步：智戎真实链路联调与领域巡检"],"note":"【配图】无。\n【讲稿】把‘方向性/示范性’讲清楚，再列行动项。","image":""},
+ {"type":"content","tag":"05 · 智戎接入与总结展望","title":"总结与展望","layout":"summary_split","left_count":2,"items":["分层有效：结构层结论在词袋固定设置下稳定，双库 p=0.0001","真模型可用：DeepSeek 引用率 1.00，检索-生成链路打通","真向量复测：重跑消融并重标定 min_score/θ","数据扩容：H 类扩至 20 条，让 p 值有意义","机制补全：知识锚定、冲突仲裁、软删除","智戎联调：真实链路与领域巡检"],"note":"【配图】无。\n【讲稿】左栏讲两条核心结论，右栏讲四项下一步。","image":""},
  {"type":"thanks","title":"感谢聆听 · 欢迎交流","subtitle":"国防科技大学 · 课题3 · 长短期记忆系统","note":"【配图】可放校徽（可选）。\n【讲稿】感谢，进入提问。","image":""},
 ]
 
@@ -375,6 +375,65 @@ def tokenize_line(line):
         out.append((ch, "op")); i += 1
     return out
 
+def render_stats_plus(slide, items, left=2.2, top=4.8, width=29.5, bottom=17.7):
+    """大数字 + 详细说明：保留大字冲击力，下方再给实验细节。"""
+    stats = items[:4]
+    details = items[4:]
+    gap = 0.6
+    n = len([x for x in stats if x])
+    if n == 0:
+        n = 1
+    card_w = (width - gap * (n - 1)) / n
+    for i, item in enumerate(stats[:4]):
+        if not item:
+            continue
+        head, body = split_head_body(item)
+        x = left + i * (card_w + gap)
+        add_rect(slide, x, top, card_w, 0.55, fill=ACCENT)
+        add_text(slide, head, x, top+0.85, card_w, 1.5, size=30, bold=True,
+                 color=PRIMARY, align=PP_ALIGN.CENTER, wrap=True)
+        add_text(slide, body, x+0.25, top+2.5, card_w-0.5, 1.6, size=12.5,
+                 color=GREY, align=PP_ALIGN.CENTER)
+    detail_top = top + 4.9
+    render_vert_fill(slide, details, left=left, top=detail_top, width=width, bottom=bottom)
+
+
+def render_summary_split(slide, items, left_count=2, left=2.2, top=4.8, width=29.5, bottom=17.7):
+    """总结与展望两栏：左结论、右下一步，用色条/编号区分。"""
+    left_items = items[:left_count]
+    right_items = items[left_count:]
+    col_w = (width - 2.2) / 2
+    # 左栏
+    lx = left
+    add_rect(slide, lx, top, col_w, 0.55, fill=ACCENT)
+    add_text(slide, "结  论", lx+0.3, top+0.02, 6, 0.5, size=15, bold=True,
+             color=RGBColor(0xFF,0xFF,0xFF))
+    ly = top + 1.0
+    for i, item in enumerate(left_items):
+        head, body = split_head_body(item)
+        add_text(slide, f"0{i+1}", lx, ly, 1.6, 1.0, size=18, bold=True, color=ACCENT, wrap=False)
+        tx = lx + 1.4
+        add_text(slide, head, tx, ly+0.02, col_w-1.6, 0.6, size=16, bold=True, color=PRIMARY)
+        add_text(slide, body, tx, ly+0.62, col_w-1.6, 4.4, size=13, color=GREY)
+        ly += 5.6
+    # 右栏
+    rx = left + col_w + 1.2
+    add_rect(slide, rx, top, col_w, 0.55, fill=PRIMARY)
+    add_text(slide, "下一步", rx+0.3, top+0.02, 6, 0.5, size=15, bold=True,
+             color=RGBColor(0xFF,0xFF,0xFF))
+    ry = top + 1.0
+    for i, item in enumerate(right_items):
+        head, body = split_head_body(item)
+        add_text(slide, f"0{i+1}", rx, ry, 1.6, 1.0, size=18, bold=True, color=PRIMARY, wrap=False)
+        tx = rx + 1.4
+        add_text(slide, head, tx, ry+0.02, col_w-1.6, 0.6, size=15, bold=True, color=ACCENT)
+        add_text(slide, body, tx, ry+0.62, col_w-1.6, 3.4, size=12.5, color=GREY)
+        ry += 3.2
+    # 中间箭头装饰
+    add_text(slide, "→", left + col_w + 1.0, top + 0.12, 1.0, 0.8, size=18,
+             bold=True, color=ACCENT, wrap=False)
+
+
 def add_code_rich(slide, code, left, top, width, height, size=11):
     """彩色伪代码块（右侧区域）。"""
     add_rect(slide, left, top, width, 0.7, fill=PRIMARY)
@@ -480,6 +539,10 @@ def build():
                 render_icon_rows(slide, items)
             elif layout == "mapping_rows":
                 render_mapping_rows(slide, items)
+            elif layout == "stats_plus":
+                render_stats_plus(slide, items)
+            elif layout == "summary_split":
+                render_summary_split(slide, items, left_count=p.get("left_count", 2))
             elif p.get("image"):
                 render_vert_fill(slide, items[:-1], left=2.2, top=4.6, width=16.8, bottom=17.6)
                 add_image_box(slide, 21.2, 4.6, 10.9, 12.9)
