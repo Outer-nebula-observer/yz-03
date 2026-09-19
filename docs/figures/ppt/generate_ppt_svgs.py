@@ -61,10 +61,18 @@ def render_icon(title, sub, letter, color, bg, w=900, h=300):
     # 左侧大编号
     S += f'<rect x="32" y="32" width="{h-64}" height="{h-64}" rx="16" fill="{color}"/>'
     S += f'<text x="{32+(h-64)/2}" y="{h/2+26}" font-size="110px" font-weight="700" fill="{WHITE}" text-anchor="middle" font-family="Microsoft YaHei, SimHei, sans-serif">{esc(letter)}</text>'
-    # 右侧标题/副标
-    tx = h-16
-    S += f'<text x="{tx}" y="{h/2-14}" font-size="52px" font-weight="700" fill="{BLACK}" font-family="Microsoft YaHei, SimHei, sans-serif">{esc(title)}</text>'
-    S += f'<text x="{tx}" y="{h/2+42}" font-size="30px" font-weight="400" fill="{GREY}" font-family="Microsoft YaHei, SimHei, sans-serif">{esc(sub)}</text>'
+    # 右侧文字
+    left_block_right = 32 + (h - 64)          # 左侧色块右边缘
+    right_block_right = w - 32                 # 右侧剩余区域右边缘
+    cx_text = (left_block_right + right_block_right) / 2
+    if sub:
+        # 有副标：标题在上、副标在下（RQ 图沿用）
+        tx = h - 16
+        S += f'<text x="{tx}" y="{h/2-14}" font-size="52px" font-weight="700" fill="{BLACK}" font-family="Microsoft YaHei, SimHei, sans-serif">{esc(title)}</text>'
+        S += f'<text x="{tx}" y="{h/2+42}" font-size="30px" font-weight="400" fill="{GREY}" font-family="Microsoft YaHei, SimHei, sans-serif">{esc(sub)}</text>'
+    else:
+        # 无副标：只有大字标题，居中占据右侧色块中央
+        S += f'<text x="{cx_text}" y="{h/2+24}" font-size="68px" font-weight="700" fill="{BLACK}" text-anchor="middle" font-family="Microsoft YaHei, SimHei, sans-serif">{esc(title)}</text>'
     S += '</svg>'
     return S
 
@@ -174,11 +182,11 @@ TASKS = [
  dict(f="ppt_zhirong", kind="flow", w=900,h=1060, title="智戎事件驱动适配", sub="三挂接点 → P0 生命周期适配",
       items=["hook_plan","hook_feedback","hook_evolve","normalize_task"]),
  # 小图（失败模式 5 + RQ 5，3.2cm 宽）
- dict(f="ppt_p1", kind="icon", w=900,h=300, title="P1 经验不积累", sub="场次间无状态传递", letter="P1", color=BLUE, bg=BLUE_BG),
- dict(f="ppt_p2", kind="icon", w=900,h=300, title="P2 上下文超限", sub="硬约束可能丢失", letter="P2", color=ORANGE, bg=ORANGE_BG),
- dict(f="ppt_p3", kind="icon", w=900,h=300, title="P3 查询口径混杂", sub="精确与语义同路", letter="P3", color=GREEN, bg=GREEN_BG),
- dict(f="ppt_p4", kind="icon", w=900,h=300, title="P4 库噪声", sub="复盘无差别入库", letter="P4", color=PURPLE, bg=PURPLE_BG),
- dict(f="ppt_p5", kind="icon", w=900,h=300, title="P5 目标检索弱", sub="目标文本信息太薄", letter="P5", color=YELLOW, bg=YELLOW_BG),
+ dict(f="ppt_p1", kind="icon", w=900,h=300, title="经验不积累", sub="", letter="P1", color=BLUE, bg=BLUE_BG),
+ dict(f="ppt_p2", kind="icon", w=900,h=300, title="上下文超限", sub="", letter="P2", color=ORANGE, bg=ORANGE_BG),
+ dict(f="ppt_p3", kind="icon", w=900,h=300, title="查询口径混杂", sub="", letter="P3", color=GREEN, bg=GREEN_BG),
+ dict(f="ppt_p4", kind="icon", w=900,h=300, title="库噪声", sub="", letter="P4", color=PURPLE, bg=PURPLE_BG),
+ dict(f="ppt_p5", kind="icon", w=900,h=300, title="目标检索弱", sub="", letter="P5", color=YELLOW, bg=YELLOW_BG),
  dict(f="ppt_rq1", kind="icon", w=900,h=300, title="RQ1 双库贡献", sub="G2 vs G3 消融", letter="RQ1", color=BLUE, bg=BLUE_BG),
  dict(f="ppt_rq2", kind="icon", w=900,h=300, title="RQ2 跨场次复用", sub="第一场→第二场", letter="RQ2", color=ORANGE, bg=ORANGE_BG),
  dict(f="ppt_rq3", kind="icon", w=900,h=300, title="RQ3 检索策略", sub="hybrid vs 单路", letter="RQ3", color=GREEN, bg=GREEN_BG),
