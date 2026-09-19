@@ -146,15 +146,18 @@ def render_cycle(title, sub, steps, w=900, h=1060):
     import math
     S = f'<svg xmlns="http://www.w3.org/2000/svg" width="{w}" height="{h}" viewBox="0 0 {w} {h}">' + defs()
     S += f'<rect x="0" y="0" width="{w}" height="{h}" fill="{WHITE}"/>' + head(w,title,sub)
-    cx,cy,r=450,620,300; palette=[BLUE,ORANGE,GREEN,PURPLE,YELLOW]
+    cx,cy,r=450,630,295
+    palette=[BLUE,ORANGE,GREEN,PURPLE,YELLOW,BLUE,ORANGE]
+    palette_bg=[BLUE_BG,ORANGE_BG,GREEN_BG,PURPLE_BG,YELLOW_BG,BLUE_BG,ORANGE_BG]
+    R=104   # 圆半径（放大）
     for i,st in enumerate(steps):
         ang=-math.pi/2+i*2*math.pi/len(steps)
         x=cx+r*math.cos(ang); y=cy+r*math.sin(ang)
-        col=palette[i%len(palette)]
-        S += f'<circle cx="{x:.1f}" cy="{y:.1f}" r="56" fill="{WHITE}" stroke="{col}" stroke-width="3"/>'
-        S += txt(x, y+8, st, 20, BLACK, 600, "middle")
-    S += txt(cx, cy-6, "状态不跨场次", 26, BLACK, 700, "middle")
-    S += txt(cx, cy+30, "同类错误反复出现", 19, GREY, 400, "middle")
+        col=palette[i%len(palette)]; bg=palette_bg[i%len(palette_bg)]
+        S += f'<circle cx="{x:.1f}" cy="{y:.1f}" r="{R}" fill="{bg}" stroke="{col}" stroke-width="5"/>'
+        S += txt(x, y+14, st, 40, BLACK, 700, "middle")
+    S += txt(cx, cy-18, "状态不跨场次", 40, BLACK, 700, "middle")
+    S += txt(cx, cy+42, "同类错误反复出现", 26, GREY, 400, "middle")
     S += '</svg>'
     return S
 
