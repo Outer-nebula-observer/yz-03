@@ -60,7 +60,10 @@ def render_icon(title, sub, letter, color, bg, w=900, h=300):
     S += f'<rect x="16" y="16" width="{w-32}" height="{h-32}" rx="18" fill="{bg}" stroke="{color}" stroke-width="3"/>'
     # 左侧大编号
     S += f'<rect x="32" y="32" width="{h-64}" height="{h-64}" rx="16" fill="{color}"/>'
-    S += f'<text x="{32+(h-64)/2}" y="{h/2+26}" font-size="110px" font-weight="700" fill="{WHITE}" text-anchor="middle" font-family="Microsoft YaHei, SimHei, sans-serif">{esc(letter)}</text>'
+    letter_size = 110 if len(letter) <= 2 else 76 if len(letter) == 3 else 60
+    S += f'<rect x="32" y="32" width="{h-64}" height="{h-64}" rx="16" fill="{color}"/>'
+    S += f'<text x="{32+(h-64)/2}" y="{h/2 + letter_size*0.24}" font-size="{letter_size}px" font-weight="700" fill="{WHITE}" text-anchor="middle" font-family="Microsoft YaHei, SimHei, sans-serif">{esc(letter)}</text>'
+
     # 右侧文字
     left_block_right = 32 + (h - 64)          # 左侧色块右边缘
     right_block_right = w - 32                 # 右侧剩余区域右边缘
@@ -187,11 +190,11 @@ TASKS = [
  dict(f="ppt_p3", kind="icon", w=900,h=300, title="查询口径混杂", sub="", letter="P3", color=GREEN, bg=GREEN_BG),
  dict(f="ppt_p4", kind="icon", w=900,h=300, title="库噪声", sub="", letter="P4", color=PURPLE, bg=PURPLE_BG),
  dict(f="ppt_p5", kind="icon", w=900,h=300, title="目标检索弱", sub="", letter="P5", color=YELLOW, bg=YELLOW_BG),
- dict(f="ppt_rq1", kind="icon", w=900,h=300, title="RQ1 双库贡献", sub="G2 vs G3 消融", letter="RQ1", color=BLUE, bg=BLUE_BG),
- dict(f="ppt_rq2", kind="icon", w=900,h=300, title="RQ2 跨场次复用", sub="第一场→第二场", letter="RQ2", color=ORANGE, bg=ORANGE_BG),
- dict(f="ppt_rq3", kind="icon", w=900,h=300, title="RQ3 检索策略", sub="hybrid vs 单路", letter="RQ3", color=GREEN, bg=GREEN_BG),
- dict(f="ppt_rq4", kind="icon", w=900,h=300, title="RQ4 滤噪与遗忘", sub="阈值/保护线", letter="RQ4", color=PURPLE, bg=PURPLE_BG),
- dict(f="ppt_rq5", kind="icon", w=900,h=300, title="RQ5 真实模型", sub="DeepSeek 引用率", letter="RQ5", color=YELLOW, bg=YELLOW_BG),
+ dict(f="ppt_rq1", kind="icon", w=900,h=300, title="双库贡献", sub="", letter="RQ1", color=BLUE, bg=BLUE_BG),
+ dict(f="ppt_rq2", kind="icon", w=900,h=300, title="跨场次复用", sub="", letter="RQ2", color=ORANGE, bg=ORANGE_BG),
+ dict(f="ppt_rq3", kind="icon", w=900,h=300, title="检索策略", sub="", letter="RQ3", color=GREEN, bg=GREEN_BG),
+ dict(f="ppt_rq4", kind="icon", w=900,h=300, title="滤噪与遗忘", sub="", letter="RQ4", color=PURPLE, bg=PURPLE_BG),
+ dict(f="ppt_rq5", kind="icon", w=900,h=300, title="真实模型", sub="", letter="RQ5", color=YELLOW, bg=YELLOW_BG),
  # 中图（无图位页面的备注建议图，1000x560）
  dict(f="ppt_four_principles", kind="cards", title="总体思路四原则", sub="外部系统 · 复盘晋升 · 建议执行分离 · 阶段感知",
       items=["外部系统","复盘晋升","建议-执行","阶段感知"]),
